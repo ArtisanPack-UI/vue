@@ -1,0 +1,37 @@
+{
+  "name": "@artisanpack-ui/vue-laravel",
+  "version": "0.0.0",
+  "description": "Inertia.js adapter wrappers for ArtisanPack UI Vue components",
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@artisanpack-ui/vue": "*"
+  },
+  "devDependencies": {
+    "@inertiajs/vue3": "^2.0.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0",
+    "vue": "^3.5.0"
+  },
+  "peerDependencies": {
+    "@inertiajs/vue3": "^2.0.0",
+    "vue": "^3.4.0"
+  },
+  "license": "MIT"
+}
