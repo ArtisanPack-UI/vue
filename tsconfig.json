@@ -11,6 +11,10 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
+    "jsx": "preserve",
+    "jsxImportSource": "vue",
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
     "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
