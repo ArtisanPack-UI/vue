@@ -19,16 +19,9 @@ import {
   type InjectionKey,
   type Ref,
 } from 'vue';
-import { DefaultColorSchemeKey } from '../plugin';
+import { DefaultColorSchemeKey, type ColorScheme } from '../types/theme';
 
-/**
- * Supported color scheme modes.
- *
- * - `'light'` -- Force light mode.
- * - `'dark'` -- Force dark mode.
- * - `'system'` -- Follow the operating system preference.
- */
-export type ColorScheme = 'light' | 'dark' | 'system';
+export type { ColorScheme } from '../types/theme';
 
 /**
  * Values exposed by the theme composable via {@link useTheme}.
