@@ -19,6 +19,7 @@ import {
   type InjectionKey,
   type Ref,
 } from 'vue';
+import { DefaultColorSchemeKey } from '../plugin';
 
 /**
  * Supported color scheme modes.
@@ -63,7 +64,8 @@ function getSystemPreference(): 'light' | 'dark' {
  * allow child components to consume or override the color scheme via
  * {@link useTheme}.
  *
- * @param defaultColorScheme - Initial color scheme preference. Defaults to `'system'`.
+ * @param defaultColorScheme - Initial color scheme preference. When omitted,
+ *   reads the plugin-level default from `createArtisanPackUI()`, falling back to `'system'`.
  * @returns The theme context value.
  *
  * @example
@@ -71,12 +73,20 @@ function getSystemPreference(): 'light' | 'dark' {
  * <script setup>
  * import { provideTheme } from '@artisanpack-ui/vue';
  *
- * provideTheme('system');
+ * // Uses plugin default or 'system' if no plugin installed
+ * provideTheme();
+ *
+ * // Explicit override
+ * provideTheme('dark');
  * </script>
  * ```
  */
-export function provideTheme(defaultColorScheme: ColorScheme = 'system'): ThemeContextValue {
-  const colorScheme = ref<ColorScheme>(defaultColorScheme);
+export function provideTheme(defaultColorScheme?: ColorScheme): ThemeContextValue {
+  // Resolve default: explicit arg > plugin config > 'system'
+  const pluginDefault = inject(DefaultColorSchemeKey, undefined);
+  const resolvedDefault = defaultColorScheme ?? pluginDefault ?? 'system';
+
+  const colorScheme = ref<ColorScheme>(resolvedDefault);
   const systemPreference = ref<'light' | 'dark'>(getSystemPreference());
 
   let cleanup: (() => void) | undefined;

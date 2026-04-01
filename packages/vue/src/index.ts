@@ -24,7 +24,7 @@ export { useBreakpoint } from './composables/use-breakpoint';
 export type { Breakpoint, BreakpointContext } from './composables/use-breakpoint';
 
 // Plugin
-export { createArtisanPackUI } from './plugin';
+export { createArtisanPackUI, DefaultColorSchemeKey } from './plugin';
 export type { ArtisanPackUIOptions } from './plugin';
 
 // Types

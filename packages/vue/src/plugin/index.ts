@@ -8,8 +8,13 @@
  * @packageDocumentation
  */
 
-import type { App, Component, Plugin } from 'vue';
+import type { App, Component, Plugin, InjectionKey } from 'vue';
 import type { ColorScheme } from '../composables/use-theme';
+
+/** Injection key for the plugin-level default color scheme. */
+export const DefaultColorSchemeKey: InjectionKey<ColorScheme> = Symbol(
+  'artisanpack-default-color-scheme',
+);
 
 /**
  * Configuration options for the ArtisanPack UI plugin.
@@ -75,7 +80,7 @@ export function createArtisanPackUI(options: ArtisanPackUIOptions = {}): Plugin 
   return {
     install(app: App) {
       // Store config for composables to access
-      app.provide('artisanpack-default-color-scheme', defaultColorScheme);
+      app.provide(DefaultColorSchemeKey, defaultColorScheme);
 
       // Register components globally with prefix
       for (const [name, component] of Object.entries(components)) {

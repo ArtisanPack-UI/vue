@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { createApp, defineComponent, h } from 'vue';
-import { createArtisanPackUI } from '../plugin';
+import { createApp, defineComponent, h, inject, ref } from 'vue';
+import { createArtisanPackUI, DefaultColorSchemeKey } from '../plugin';
 
 describe('createArtisanPackUI', () => {
   it('should return a valid Vue plugin', () => {
@@ -58,13 +58,21 @@ describe('createArtisanPackUI', () => {
   });
 
   it('should provide the default color scheme', () => {
-    const app = createApp(defineComponent({ render: () => h('div') }));
-    const plugin = createArtisanPackUI({ defaultColorScheme: 'dark' });
+    const injected = ref<string | undefined>(undefined);
 
-    app.use(plugin);
+    const Probe = defineComponent({
+      setup() {
+        injected.value = inject(DefaultColorSchemeKey, undefined);
+        return () => h('div');
+      },
+    });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const provides = (app as any)._context.provides;
-    expect(provides['artisanpack-default-color-scheme']).toBe('dark');
+    const app = createApp(Probe);
+    app.use(createArtisanPackUI({ defaultColorScheme: 'dark' }));
+    app.mount(document.createElement('div'));
+
+    expect(injected.value).toBe('dark');
+
+    app.unmount();
   });
 });

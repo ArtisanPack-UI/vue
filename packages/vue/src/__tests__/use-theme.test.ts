@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { defineComponent, h, nextTick } from 'vue';
+import { createApp, defineComponent, h, nextTick, ref } from 'vue';
 import { render, screen } from '@testing-library/vue';
 import { provideTheme, useTheme, type ColorScheme } from '../composables/use-theme';
+import { createArtisanPackUI } from '../plugin';
 
 /**
  * Helper component that provides and consumes the theme context.
@@ -130,6 +131,33 @@ describe('useTheme', () => {
 
     expect(screen.getByTestId('color-scheme').textContent).toBe('dark');
     expect(screen.getByTestId('resolved').textContent).toBe('dark');
+  });
+
+  it('should read plugin-level default when no argument is passed to provideTheme', () => {
+    const injectedScheme = ref<string | undefined>(undefined);
+
+    const Child = defineComponent({
+      setup() {
+        const { colorScheme } = useTheme();
+        injectedScheme.value = colorScheme.value;
+        return () => h('div');
+      },
+    });
+
+    const Root = defineComponent({
+      setup() {
+        provideTheme(); // no explicit arg — should read plugin default
+        return () => h(Child);
+      },
+    });
+
+    const app = createApp(Root);
+    app.use(createArtisanPackUI({ defaultColorScheme: 'dark' }));
+    app.mount(document.createElement('div'));
+
+    expect(injectedScheme.value).toBe('dark');
+
+    app.unmount();
   });
 
   it('should throw when useTheme is called without provideTheme', () => {
