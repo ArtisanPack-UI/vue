@@ -30,9 +30,17 @@
       "import": "./dist/data.mjs",
       "types": "./dist/data.d.ts"
     },
+    "./feedback": {
+      "import": "./dist/feedback.mjs",
+      "types": "./dist/feedback.d.ts"
+    },
     "./utility": {
       "import": "./dist/utility.mjs",
       "types": "./dist/utility.d.ts"
+    },
+    "./composables": {
+      "import": "./dist/composables.mjs",
+      "types": "./dist/composables.d.ts"
     }
   },
   "files": [
@@ -42,6 +50,9 @@
     "build": "tsup",
     "test": "vitest run",
     "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@artisanpack-ui/tokens": "*"
   },
   "devDependencies": {
     "@testing-library/vue": "^8.1.0",
@@ -54,6 +65,9 @@
   },
   "peerDependencies": {
     "vue": "^3.4.0"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "license": "MIT"
 }
