@@ -16,6 +16,7 @@ import {
   onUnmounted,
   provide,
   ref,
+  type ComputedRef,
   type InjectionKey,
   type Ref,
 } from 'vue';
@@ -29,8 +30,8 @@ export type { ColorScheme } from '../types/theme';
 export interface ThemeContextValue {
   /** The current user-selected color scheme preference. */
   colorScheme: Ref<ColorScheme>;
-  /** The resolved mode after evaluating a `'system'` preference. Always `'light'` or `'dark'`. */
-  resolvedColorScheme: Ref<'light' | 'dark'>;
+  /** The resolved mode after evaluating a `'system'` preference. Always `'light'` or `'dark'`. Read-only. */
+  resolvedColorScheme: ComputedRef<'light' | 'dark'>;
   /** Update the color scheme preference. */
   setColorScheme: (scheme: ColorScheme) => void;
 }
