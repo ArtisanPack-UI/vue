@@ -120,8 +120,9 @@ describe('SpotlightSearch', () => {
     await waitForDialog();
     const homeItem = screen.getByText('Go to Home');
     await fireEvent.click(homeItem.closest('[role="option"]')!);
-    expect(emitted().select).toBeTruthy();
-    expect(emitted().select[0][0]).toEqual(testItems[0]);
+    const selectEvents = emitted().select as Array<[(typeof testItems)[0]]>;
+    expect(selectEvents).toBeTruthy();
+    expect(selectEvents[0][0]).toEqual(testItems[0]);
   });
 
   it('has combobox role on input', async () => {

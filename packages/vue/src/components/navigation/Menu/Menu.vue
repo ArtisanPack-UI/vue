@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** @module Menu */
-import { computed } from 'vue';
+import { computed, reactive } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { DaisyColor, Size } from '@artisanpack-ui/tokens';
 import type { MenuProps } from './types';
@@ -61,10 +61,17 @@ function handleClick(item: { name: string; disabled?: boolean }, e: Event) {
   emit('select', item.name);
 }
 
-function handleSummaryClick(item: { disabled?: boolean }, e: Event) {
+const detailsOpen = reactive(new Map<string, boolean>());
+
+function handleSummaryClick(item: { name: string; disabled?: boolean }, e: Event) {
   if (item.disabled) {
     e.preventDefault();
   }
+}
+
+function handleDetailsToggle(item: { name: string }, e: Event) {
+  const details = e.target as HTMLDetailsElement;
+  detailsOpen.set(item.name, details.open);
 }
 </script>
 
@@ -76,11 +83,13 @@ function handleSummaryClick(item: { disabled?: boolean }, e: Event) {
   >
     <li v-for="item in items" :key="item.name" role="none" :class="getItemClasses(item)">
       <template v-if="item.children && item.children.length > 0">
-        <details>
+        <details @toggle="handleDetailsToggle(item, $event)">
           <summary
             role="menuitem"
             :class="getLinkClasses(item)"
             :aria-disabled="item.disabled || undefined"
+            :aria-haspopup="'menu'"
+            :aria-expanded="detailsOpen.get(item.name) ?? false"
             :tabindex="item.disabled ? -1 : 0"
             @click="handleSummaryClick(item, $event)"
           >

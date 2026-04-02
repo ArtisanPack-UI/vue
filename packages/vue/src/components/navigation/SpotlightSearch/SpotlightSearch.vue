@@ -77,6 +77,14 @@ function selectItem(item: SpotlightItem) {
 function handleKeydown(e: KeyboardEvent) {
   const items = filteredItems.value;
 
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    close();
+    return;
+  }
+
+  if (items.length === 0) return;
+
   if (e.key === 'ArrowDown') {
     e.preventDefault();
     activeIndex.value = activeIndex.value < items.length - 1 ? activeIndex.value + 1 : 0;
@@ -89,9 +97,6 @@ function handleKeydown(e: KeyboardEvent) {
     if (active) {
       selectItem(active);
     }
-  } else if (e.key === 'Escape') {
-    e.preventDefault();
-    close();
   }
 }
 

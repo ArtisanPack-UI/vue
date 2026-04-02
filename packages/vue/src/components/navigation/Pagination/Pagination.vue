@@ -84,7 +84,10 @@ const btnClasses = computed(() => cn('join-item btn', props.size && sizeMap[prop
       >
         «
       </button>
-      <template v-for="(page, index) in pages" :key="typeof page === 'number' ? `page-${page}` : `gap-${index}`">
+      <template
+        v-for="(page, index) in pages"
+        :key="typeof page === 'number' ? `page-${page}` : `gap-${index}`"
+      >
         <button
           v-if="typeof page === 'number'"
           :class="cn(btnClasses, page === currentPage && 'btn-active')"
