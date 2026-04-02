@@ -98,6 +98,28 @@ describe('Popover', () => {
     expect(container.querySelector('.dropdown-open')).toBeFalsy();
   });
 
+  it('keeps popover open when focus moves from trigger to content in hover mode', async () => {
+    const { container } = render(Popover, {
+      props: { triggerMode: 'hover', showDelay: 0, hideDelay: 0 },
+      slots: {
+        trigger: '<button>Focus me</button>',
+        default: '<button>Content button</button>',
+      },
+    });
+    const triggerEl = container.querySelector('[aria-expanded]') as HTMLElement;
+    const contentButton = container.querySelector('[role="dialog"] button') as HTMLElement;
+
+    await fireEvent.focusIn(triggerEl);
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+
+    // Focus moves from trigger into content — popover should stay open
+    await fireEvent.focusOut(triggerEl, { relatedTarget: contentButton });
+    await fireEvent.focusIn(contentButton);
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+  });
+
   it('persistent popover can still be toggled via trigger click', async () => {
     const { container } = render(Popover, {
       props: { triggerMode: 'click', persistent: true },

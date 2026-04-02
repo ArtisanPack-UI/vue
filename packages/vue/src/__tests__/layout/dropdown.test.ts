@@ -89,6 +89,46 @@ describe('Dropdown', () => {
     expect(container.querySelector('.dropdown-open')).toBeTruthy();
   });
 
+  it('navigates menu items with arrow keys', async () => {
+    const { container } = render(Dropdown, {
+      slots: {
+        default: `
+          <li role="none"><button role="menuitem">A</button></li>
+          <li role="none"><button role="menuitem">B</button></li>
+          <li role="none"><button role="menuitem">C</button></li>
+        `,
+      },
+    });
+    const trigger = screen.getByRole('button');
+    await fireEvent.click(trigger);
+    await nextTick();
+
+    const menu = container.querySelector('[role="menu"]') as HTMLElement;
+    const items = container.querySelectorAll('[role="menuitem"]');
+
+    // First item should be focused after open
+    expect(document.activeElement).toBe(items[0]);
+
+    await fireEvent.keyDown(menu, { key: 'ArrowDown' });
+    expect(document.activeElement).toBe(items[1]);
+
+    await fireEvent.keyDown(menu, { key: 'ArrowDown' });
+    expect(document.activeElement).toBe(items[2]);
+
+    // Wrap around to first
+    await fireEvent.keyDown(menu, { key: 'ArrowDown' });
+    expect(document.activeElement).toBe(items[0]);
+
+    await fireEvent.keyDown(menu, { key: 'End' });
+    expect(document.activeElement).toBe(items[2]);
+
+    await fireEvent.keyDown(menu, { key: 'Home' });
+    expect(document.activeElement).toBe(items[0]);
+
+    await fireEvent.keyDown(menu, { key: 'ArrowUp' });
+    expect(document.activeElement).toBe(items[2]);
+  });
+
   it('closes on Escape and restores focus to trigger', async () => {
     const { container } = render(Dropdown, {
       slots: {

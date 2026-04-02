@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** @module Drawer */
-import { nextTick, onBeforeUnmount, ref, useId, watch } from 'vue';
+import { onBeforeUnmount, ref, useId, watch } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { DrawerProps } from './types';
 import { getFocusableElements } from '../utils/focusable';
@@ -61,10 +61,9 @@ function handleKeydown(e: KeyboardEvent) {
 
 watch(
   () => props.open,
-  async (isOpen) => {
+  (isOpen) => {
     if (isOpen) {
       previousActiveElement.value = document.activeElement as HTMLElement;
-      await nextTick();
       const focusable = getFocusableElements(sideRef.value);
       if (focusable.length > 0) {
         focusable[0].focus();
@@ -78,7 +77,7 @@ watch(
       previousActiveElement.value = null;
     }
   },
-  { immediate: true },
+  { immediate: true, flush: 'post' },
 );
 
 onBeforeUnmount(() => {

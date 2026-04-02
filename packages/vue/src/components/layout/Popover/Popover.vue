@@ -87,8 +87,11 @@ function handleFocusIn() {
   }
 }
 
-function handleFocusOut() {
+function handleFocusOut(e: FocusEvent) {
   if (props.triggerMode === 'hover') {
+    const relatedTarget = e.relatedTarget as Node | null;
+    // Don't close if focus moves within the popover container
+    if (relatedTarget && containerRef.value?.contains(relatedTarget)) return;
     hide();
   }
 }
