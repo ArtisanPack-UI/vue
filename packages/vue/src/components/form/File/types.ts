@@ -30,4 +30,6 @@ export interface FileProps {
   multiple?: boolean;
   /** Whether the field is disabled. */
   disabled?: boolean;
+  /** Name attribute for native form submissions. */
+  name?: string;
 }

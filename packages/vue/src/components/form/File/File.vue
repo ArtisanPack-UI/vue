@@ -37,8 +37,8 @@ function handleDragLeave() {
 
 function handleDrop(e: DragEvent) {
   e.preventDefault();
-  if (props.disabled) return;
   isDragging.value = false;
+  if (props.disabled) return;
   if (e.dataTransfer?.files.length) {
     emit('filesSelected', e.dataTransfer.files);
   }
@@ -97,6 +97,7 @@ function handleKeyDown(e: KeyboardEvent) {
           ref="inputRef"
           type="file"
           class="hidden"
+          :name="name"
           :required="required"
           :accept="accept"
           :multiple="multiple"
@@ -115,6 +116,7 @@ function handleKeyDown(e: KeyboardEvent) {
         ref="inputRef"
         type="file"
         :class="cn('file-input w-full', error && 'file-input-error')"
+        :name="name"
         :required="required"
         :accept="accept"
         :multiple="multiple"
