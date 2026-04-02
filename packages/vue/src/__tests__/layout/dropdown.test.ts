@@ -71,6 +71,56 @@ describe('Dropdown', () => {
     });
     expect(screen.getByText('Test Item')).toBeTruthy();
   });
+
+  it('opens on Enter key and sets aria-expanded', async () => {
+    const { container } = render(Dropdown);
+    const trigger = screen.getByRole('button');
+    await fireEvent.keyDown(trigger, { key: 'Enter' });
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('opens on Space key', async () => {
+    const { container } = render(Dropdown);
+    const trigger = screen.getByRole('button');
+    await fireEvent.keyDown(trigger, { key: ' ' });
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+  });
+
+  it('closes on Escape and restores focus to trigger', async () => {
+    const { container } = render(Dropdown, {
+      slots: {
+        default: `
+          <li role="none"><button role="menuitem">Item 1</button></li>
+          <li role="none"><button role="menuitem">Item 2</button></li>
+        `,
+      },
+    });
+    const trigger = screen.getByRole('button');
+    await fireEvent.click(trigger);
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+
+    const menu = container.querySelector('[role="menu"]') as HTMLElement;
+    await fireEvent.keyDown(menu, { key: 'Escape' });
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeFalsy();
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it('closes on click outside', async () => {
+    const { container } = render(Dropdown);
+    const trigger = screen.getByRole('button');
+    await fireEvent.click(trigger);
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+
+    await fireEvent.mouseDown(document.body);
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeFalsy();
+  });
 });
 
 describe('DropdownItem', () => {

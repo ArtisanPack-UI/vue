@@ -112,6 +112,34 @@ describe('Popover', () => {
     expect(container.querySelector('.dropdown-open')).toBeFalsy();
   });
 
+  it('Escape closes non-persistent popover', async () => {
+    const { container } = render(Popover, {
+      props: { triggerMode: 'click' },
+      slots: { trigger: '<button>Open</button>', default: 'Content' },
+    });
+    await fireEvent.click(screen.getByText('Open'));
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+
+    await fireEvent.keyDown(container.firstElementChild as HTMLElement, { key: 'Escape' });
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeFalsy();
+  });
+
+  it('Escape does not close persistent popover', async () => {
+    const { container } = render(Popover, {
+      props: { triggerMode: 'click', persistent: true },
+      slots: { trigger: '<button>Open</button>', default: 'Content' },
+    });
+    await fireEvent.click(screen.getByText('Open'));
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+
+    await fireEvent.keyDown(container.firstElementChild as HTMLElement, { key: 'Escape' });
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+  });
+
   it('Enter/Space only toggles when trigger has focus', async () => {
     const { container } = render(Popover, {
       props: { triggerMode: 'click' },

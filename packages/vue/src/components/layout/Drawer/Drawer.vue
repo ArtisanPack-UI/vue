@@ -3,6 +3,7 @@
 import { nextTick, onBeforeUnmount, ref, useId, watch } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { DrawerProps } from './types';
+import { getFocusableElements } from '../utils/focusable';
 
 const props = withDefaults(defineProps<DrawerProps>(), {
   end: false,
@@ -24,15 +25,6 @@ function close() {
   emit('update:open', false);
 }
 
-function getFocusableElements(): HTMLElement[] {
-  if (!sideRef.value) return [];
-  return Array.from(
-    sideRef.value.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    ),
-  );
-}
-
 function handleKeydown(e: KeyboardEvent) {
   if (!props.open) return;
 
@@ -43,23 +35,25 @@ function handleKeydown(e: KeyboardEvent) {
   }
 
   if (e.key === 'Tab') {
-    const focusable = getFocusableElements();
+    const focusable = getFocusableElements(sideRef.value);
     if (focusable.length === 0) {
       e.preventDefault();
       return;
     }
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
-    if (e.shiftKey) {
-      if (document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      }
-    } else {
-      if (document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
+    const isInsideDrawer = sideRef.value?.contains(document.activeElement);
+
+    if (!isInsideDrawer) {
+      // Focus leaked outside — pull it back in
+      e.preventDefault();
+      (e.shiftKey ? last : first).focus();
+    } else if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
     }
   }
 }
@@ -70,7 +64,7 @@ watch(
     if (isOpen) {
       previousActiveElement.value = document.activeElement as HTMLElement;
       await nextTick();
-      const focusable = getFocusableElements();
+      const focusable = getFocusableElements(sideRef.value);
       if (focusable.length > 0) {
         focusable[0].focus();
       } else {

@@ -109,7 +109,9 @@ function handleClickOutside(e: MouseEvent) {
 }
 
 onMounted(() => {
-  document.addEventListener('mousedown', handleClickOutside);
+  if (props.triggerMode === 'click') {
+    document.addEventListener('mousedown', handleClickOutside);
+  }
 });
 
 onBeforeUnmount(() => {

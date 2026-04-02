@@ -126,12 +126,8 @@ function getTabClasses(tabName: string, disabled?: boolean) {
   );
 }
 
-function getSelectableTabs() {
-  return props.tabs.filter((t) => !t.disabled);
-}
-
 function handleKeydown(e: KeyboardEvent) {
-  const selectable = getSelectableTabs();
+  const selectable = selectableTabs.value;
   const currentIndex = selectable.findIndex((t) => t.name === currentTab.value);
   if (currentIndex === -1) return;
 

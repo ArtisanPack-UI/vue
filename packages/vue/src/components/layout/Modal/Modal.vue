@@ -3,6 +3,7 @@
 import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { ModalProps } from './types';
+import { getFocusableElements } from '../utils/focusable';
 
 const props = withDefaults(defineProps<ModalProps>(), {
   persistent: false,
@@ -15,7 +16,7 @@ const emit = defineEmits<{
 }>();
 
 const autoId = useId();
-const titleId = computed(() => `modal-title-${autoId}`);
+const titleId = `modal-title-${autoId}`;
 
 const dialogRef = ref<HTMLDialogElement | null>(null);
 const previousActiveElement = ref<HTMLElement | null>(null);
@@ -25,19 +26,10 @@ function close() {
   emit('update:open', false);
 }
 
-function getFocusableElements(): HTMLElement[] {
-  if (!dialogRef.value) return [];
-  return Array.from(
-    dialogRef.value.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    ),
-  );
-}
-
 function handleKeydown(e: KeyboardEvent) {
   // Escape is handled by the native dialog cancel event via handleCancel
   if (e.key === 'Tab') {
-    const focusable = getFocusableElements();
+    const focusable = getFocusableElements(dialogRef.value);
     if (focusable.length === 0) {
       e.preventDefault();
       return;
@@ -81,7 +73,7 @@ watch(
       if (dialogRef.value && !dialogRef.value.open) {
         dialogRef.value.showModal();
       }
-      const focusable = getFocusableElements();
+      const focusable = getFocusableElements(dialogRef.value);
       if (focusable.length > 0) {
         focusable[0].focus();
       }
@@ -93,11 +85,16 @@ watch(
       previousActiveElement.value = null;
     }
   },
-  { immediate: true },
+  { immediate: true, flush: 'post' },
 );
 
 onBeforeUnmount(() => {
-  dialogRef.value?.close();
+  if (dialogRef.value?.open) {
+    dialogRef.value.close();
+  }
+  if (previousActiveElement.value?.isConnected) {
+    previousActiveElement.value.focus();
+  }
 });
 
 const modalBoxClasses = computed(() => cn('modal-box', props.glass && 'glass'));
