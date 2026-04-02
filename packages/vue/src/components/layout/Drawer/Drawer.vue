@@ -116,6 +116,7 @@ onBeforeUnmount(() => {
       <div
         ref="sideRef"
         class="menu bg-base-200 text-base-content min-h-full w-80 p-4"
+        tabindex="-1"
         role="dialog"
         aria-modal="true"
         :aria-hidden="!open"

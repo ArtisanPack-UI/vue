@@ -97,6 +97,21 @@ describe('Popover', () => {
     expect(container.querySelector('.dropdown-open')).toBeFalsy();
   });
 
+  it('persistent hover popover closes on mouse leave', async () => {
+    const { container } = render(Popover, {
+      props: { triggerMode: 'hover', persistent: true, showDelay: 0, hideDelay: 0 },
+      slots: { trigger: '<button>Hover</button>', default: 'Persistent hover' },
+    });
+    const wrapper = container.firstElementChild!;
+    await fireEvent.mouseEnter(wrapper);
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+
+    await fireEvent.mouseLeave(wrapper);
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeFalsy();
+  });
+
   it('Enter/Space only toggles when trigger has focus', async () => {
     const { container } = render(Popover, {
       props: { triggerMode: 'click' },

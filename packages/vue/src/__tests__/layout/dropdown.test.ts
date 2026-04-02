@@ -39,9 +39,16 @@ describe('Dropdown', () => {
     expect(container.querySelector('.dropdown-top')).toBeTruthy();
   });
 
-  it('applies dropdown-hover class', () => {
+  it('opens on hover when hover prop is true', async () => {
     const { container } = render(Dropdown, { props: { hover: true } });
-    expect(container.querySelector('.dropdown-hover')).toBeTruthy();
+    const dropdown = container.firstElementChild!;
+    await fireEvent.mouseEnter(dropdown);
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+
+    await fireEvent.mouseLeave(dropdown);
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeFalsy();
   });
 
   it('toggles open on trigger click in uncontrolled mode', async () => {

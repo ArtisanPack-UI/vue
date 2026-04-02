@@ -17,8 +17,10 @@ const emit = defineEmits<{
 const isControlled = computed(() => props.openIndices !== undefined);
 
 // Normalize initial indices: single mode allows at most one open panel
-const normalizeIndices = (indices: number[]): number[] =>
-  props.multiple ? indices : indices.slice(0, 1);
+const normalizeIndices = (indices: number[]): number[] => {
+  const unique = [...new Set(indices)];
+  return props.multiple ? unique : unique.slice(0, 1);
+};
 
 const internalIndices = ref<number[]>(normalizeIndices(props.defaultOpenIndices ?? []));
 

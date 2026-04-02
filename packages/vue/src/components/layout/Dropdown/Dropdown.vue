@@ -81,6 +81,31 @@ function handleMenuKeydown(e: KeyboardEvent) {
     triggerRef.value?.focus();
   } else if (e.key === 'Tab') {
     setOpen(false);
+  } else if (e.key === 'Enter' || e.key === ' ') {
+    // Close on item activation
+    setOpen(false);
+    triggerRef.value?.focus();
+  }
+}
+
+function handleMenuClick(e: MouseEvent) {
+  const target = e.target as HTMLElement;
+  const menuItem = target.closest('[role="menuitem"]:not([disabled]):not([aria-disabled="true"])');
+  if (menuItem) {
+    setOpen(false);
+    triggerRef.value?.focus();
+  }
+}
+
+function handleMouseEnter() {
+  if (props.hover) {
+    setOpen(true);
+  }
+}
+
+function handleMouseLeave() {
+  if (props.hover) {
+    setOpen(false);
   }
 }
 
@@ -116,14 +141,18 @@ const dropdownClasses = computed(() =>
     'dropdown',
     props.end && 'dropdown-end',
     props.top && 'dropdown-top',
-    props.hover && 'dropdown-hover',
     isOpen.value && 'dropdown-open',
   ),
 );
 </script>
 
 <template>
-  <div ref="dropdownRef" :class="dropdownClasses">
+  <div
+    ref="dropdownRef"
+    :class="dropdownClasses"
+    @mouseenter="handleMouseEnter"
+    @mouseleave="handleMouseLeave"
+  >
     <div
       :id="triggerId"
       ref="triggerRef"
@@ -147,6 +176,7 @@ const dropdownClasses = computed(() =>
       :aria-labelledby="triggerId"
       class="dropdown-content menu bg-base-100 rounded-box z-10 w-52 p-2 shadow-sm"
       @keydown="handleMenuKeydown"
+      @click="handleMenuClick"
     >
       <slot />
     </ul>

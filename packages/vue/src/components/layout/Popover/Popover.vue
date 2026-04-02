@@ -49,9 +49,10 @@ function show() {
 }
 
 function hide(force = false) {
-  if (props.persistent && !force) return;
+  // Persistent only blocks non-hover, non-forced dismissals (e.g. Escape, click-outside)
+  if (props.persistent && !force && props.triggerMode !== 'hover') return;
   clearTimers();
-  if (props.hideDelay > 0 && props.triggerMode === 'hover' && !force) {
+  if (props.hideDelay > 0 && props.triggerMode === 'hover') {
     hideTimer.value = setTimeout(() => setOpen(false), props.hideDelay);
   } else {
     setOpen(false);

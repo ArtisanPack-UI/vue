@@ -35,12 +35,7 @@ function getFocusableElements(): HTMLElement[] {
 }
 
 function handleKeydown(e: KeyboardEvent) {
-  if (e.key === 'Escape' && !props.persistent) {
-    e.preventDefault();
-    emit('update:open', false);
-    return;
-  }
-
+  // Escape is handled by the native dialog cancel event via handleCancel
   if (e.key === 'Tab') {
     const focusable = getFocusableElements();
     if (focusable.length === 0) {
@@ -83,7 +78,9 @@ watch(
     if (isOpen) {
       previousActiveElement.value = document.activeElement as HTMLElement;
       await nextTick();
-      dialogRef.value?.showModal();
+      if (dialogRef.value && !dialogRef.value.open) {
+        dialogRef.value.showModal();
+      }
       const focusable = getFocusableElements();
       if (focusable.length > 0) {
         focusable[0].focus();

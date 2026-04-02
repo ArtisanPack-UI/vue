@@ -102,6 +102,8 @@ const variantMap: Record<'bordered' | 'lifted' | 'boxed', string> = {
   boxed: 'tabs-boxed',
 };
 
+const isVertical = computed(() => props.vertical || props.verticalRight);
+
 const tabListClasses = computed(() =>
   cn(
     'tabs',
@@ -111,8 +113,6 @@ const tabListClasses = computed(() =>
     props.tabListClassName,
   ),
 );
-
-const isVertical = computed(() => props.vertical || props.verticalRight);
 
 function getTabClasses(tabName: string, disabled?: boolean) {
   const isActive = currentTab.value === tabName;

@@ -21,8 +21,8 @@ if (!isParentControlled && !openModel.value && props.defaultOpen) {
 }
 
 const autoId = useId();
-const contentId = computed(() => `collapse-content-${autoId}`);
-const headerId = computed(() => `collapse-header-${autoId}`);
+const contentId = `collapse-content-${autoId}`;
+const headerId = `collapse-header-${autoId}`;
 
 const isOpen = computed(() => !!openModel.value);
 
