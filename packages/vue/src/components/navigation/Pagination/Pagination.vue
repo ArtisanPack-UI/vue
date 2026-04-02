@@ -22,9 +22,14 @@ const sizeMap: Record<Size, string> = {
 
 const ELLIPSIS = '…';
 
+const normalizedTotal = computed(() => Math.max(1, props.totalPages));
+const normalizedCurrent = computed(() =>
+  Math.min(Math.max(1, props.currentPage), normalizedTotal.value),
+);
+
 const pages = computed(() => {
-  const total = Math.max(1, props.totalPages);
-  const current = Math.min(Math.max(1, props.currentPage), total);
+  const total = normalizedTotal.value;
+  const current = normalizedCurrent.value;
   const siblings = Math.max(0, props.siblingCount);
 
   if (total <= 1) return [];
@@ -65,7 +70,7 @@ const pages = computed(() => {
 });
 
 function goToPage(page: number) {
-  if (page < 1 || page > props.totalPages || page === props.currentPage) return;
+  if (page < 1 || page > normalizedTotal.value || page === normalizedCurrent.value) return;
   emit('update:currentPage', page);
 }
 
@@ -77,10 +82,10 @@ const btnClasses = computed(() => cn('join-item btn', props.size && sizeMap[prop
     <div class="join">
       <button
         :class="btnClasses"
-        :disabled="currentPage <= 1"
+        :disabled="normalizedCurrent <= 1"
         aria-label="Previous page"
         type="button"
-        @click="goToPage(currentPage - 1)"
+        @click="goToPage(normalizedCurrent - 1)"
       >
         «
       </button>
@@ -90,8 +95,8 @@ const btnClasses = computed(() => cn('join-item btn', props.size && sizeMap[prop
       >
         <button
           v-if="typeof page === 'number'"
-          :class="cn(btnClasses, page === currentPage && 'btn-active')"
-          :aria-current="page === currentPage ? 'page' : undefined"
+          :class="cn(btnClasses, page === normalizedCurrent && 'btn-active')"
+          :aria-current="page === normalizedCurrent ? 'page' : undefined"
           :aria-label="`Page ${page}`"
           type="button"
           @click="goToPage(page)"
@@ -104,10 +109,10 @@ const btnClasses = computed(() => cn('join-item btn', props.size && sizeMap[prop
       </template>
       <button
         :class="btnClasses"
-        :disabled="currentPage >= totalPages"
+        :disabled="normalizedCurrent >= normalizedTotal"
         aria-label="Next page"
         type="button"
-        @click="goToPage(currentPage + 1)"
+        @click="goToPage(normalizedCurrent + 1)"
       >
         »
       </button>

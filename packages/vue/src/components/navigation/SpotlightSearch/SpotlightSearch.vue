@@ -121,9 +121,18 @@ function getItemId(item: SpotlightItem) {
   return `spotlight-item-${autoId}-${item.id}`;
 }
 
-// Reset state on query change
+// Reset active index on query change
 watch(query, () => {
   activeIndex.value = 0;
+});
+
+// Clamp active index when filtered list shrinks
+watch(filteredItems, (items) => {
+  if (items.length === 0) {
+    activeIndex.value = 0;
+  } else if (activeIndex.value >= items.length) {
+    activeIndex.value = items.length - 1;
+  }
 });
 
 watch(
