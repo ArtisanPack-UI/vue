@@ -17,4 +17,6 @@ export interface ModalProps {
   glass?: boolean;
   /** When true, renders as a bottom sheet on mobile. @defaultValue `false` */
   bottom?: boolean;
+  /** Accessible label for the dialog when no title is provided. */
+  ariaLabel?: string;
 }

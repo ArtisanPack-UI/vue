@@ -20,6 +20,8 @@ const isOpen = computed(() => !!openModel.value);
 
 const dropdownRef = ref<HTMLElement | null>(null);
 const menuRef = ref<HTMLElement | null>(null);
+const triggerRef = ref<HTMLElement | null>(null);
+const lastOpenKey = ref<string | null>(null);
 
 function setOpen(value: boolean) {
   openModel.value = value;
@@ -48,6 +50,7 @@ function focusItem(index: number) {
 function handleTriggerKeydown(e: KeyboardEvent) {
   if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
     e.preventDefault();
+    lastOpenKey.value = e.key;
     setOpen(true);
   } else if (e.key === 'Enter' || e.key === ' ') {
     e.preventDefault();
@@ -74,6 +77,7 @@ function handleMenuKeydown(e: KeyboardEvent) {
   } else if (e.key === 'Escape') {
     e.preventDefault();
     setOpen(false);
+    triggerRef.value?.focus();
   } else if (e.key === 'Tab') {
     setOpen(false);
   }
@@ -96,7 +100,13 @@ onBeforeUnmount(() => {
 watch(isOpen, async (open) => {
   if (open) {
     await nextTick();
-    focusItem(0);
+    const items = getMenuItems();
+    if (lastOpenKey.value === 'ArrowUp' && items.length > 0) {
+      focusItem(items.length - 1);
+    } else {
+      focusItem(0);
+    }
+    lastOpenKey.value = null;
   }
 });
 
@@ -114,6 +124,7 @@ const dropdownClasses = computed(() =>
 <template>
   <div ref="dropdownRef" :class="dropdownClasses">
     <div
+      ref="triggerRef"
       tabindex="0"
       role="button"
       class="btn btn-ghost m-1"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** @module Collapse */
-import { computed, useId } from 'vue';
+import { computed, getCurrentInstance, useId } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { CollapseProps } from './types';
 
@@ -13,8 +13,10 @@ const props = withDefaults(defineProps<Omit<CollapseProps, 'open'>>(), {
 
 const openModel = defineModel<boolean>('open', { default: false });
 
-// Seed the model with defaultOpen on first render
-if (!openModel.value && props.defaultOpen) {
+// Only seed from defaultOpen when the parent has not bound v-model:open
+const vnodeProps = getCurrentInstance()?.vnode.props ?? {};
+const isParentControlled = 'open' in vnodeProps || 'onUpdate:open' in vnodeProps;
+if (!isParentControlled && !openModel.value && props.defaultOpen) {
   openModel.value = true;
 }
 

@@ -20,6 +20,7 @@ const contentId = `popover-content-${autoId}`;
 const isOpen = computed(() => !!openModel.value);
 
 const containerRef = ref<HTMLElement | null>(null);
+const triggerRef = ref<HTMLElement | null>(null);
 const showTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 const hideTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 
@@ -47,10 +48,10 @@ function show() {
   }
 }
 
-function hide() {
-  if (props.persistent) return;
+function hide(force = false) {
+  if (props.persistent && !force) return;
   clearTimers();
-  if (props.hideDelay > 0 && props.triggerMode === 'hover') {
+  if (props.hideDelay > 0 && props.triggerMode === 'hover' && !force) {
     hideTimer.value = setTimeout(() => setOpen(false), props.hideDelay);
   } else {
     setOpen(false);
@@ -60,7 +61,7 @@ function hide() {
 function handleTriggerClick() {
   if (props.triggerMode === 'click') {
     if (isOpen.value) {
-      hide();
+      hide(true);
     } else {
       show();
     }
@@ -75,16 +76,23 @@ function handleMouseEnter() {
 
 function handleMouseLeave() {
   if (props.triggerMode === 'hover') {
-    hide();
+    hide(true);
   }
 }
 
 function handleKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape' && !props.persistent) {
     setOpen(false);
-  } else if ((e.key === 'Enter' || e.key === ' ') && props.triggerMode === 'click') {
-    e.preventDefault();
-    handleTriggerClick();
+    return;
+  }
+
+  // Only toggle on Enter/Space when the trigger element has focus
+  if ((e.key === 'Enter' || e.key === ' ') && props.triggerMode === 'click') {
+    const target = e.target as HTMLElement;
+    if (triggerRef.value?.contains(target)) {
+      e.preventDefault();
+      handleTriggerClick();
+    }
   }
 }
 
@@ -129,6 +137,7 @@ const containerClasses = computed(() =>
     @keydown="handleKeydown"
   >
     <div
+      ref="triggerRef"
       tabindex="0"
       :role="triggerMode === 'click' ? 'button' : undefined"
       :aria-expanded="isOpen"
@@ -141,6 +150,7 @@ const containerClasses = computed(() =>
       :id="contentId"
       tabindex="0"
       role="dialog"
+      :aria-label="ariaLabel"
       class="dropdown-content bg-base-100 rounded-box z-50 shadow-lg p-4"
     >
       <slot />

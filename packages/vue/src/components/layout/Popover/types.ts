@@ -16,4 +16,6 @@ export interface PopoverProps {
   open?: boolean;
   /** When true, prevents closing via Escape or click-outside. @defaultValue `false` */
   persistent?: boolean;
+  /** Accessible label for the popover dialog. */
+  ariaLabel?: string;
 }

@@ -75,14 +75,18 @@ watch(
         focusable[0].focus();
       }
     } else {
-      previousActiveElement.value?.focus();
+      if (previousActiveElement.value?.isConnected) {
+        previousActiveElement.value.focus();
+      }
       previousActiveElement.value = null;
     }
   },
 );
 
 onBeforeUnmount(() => {
-  previousActiveElement.value?.focus();
+  if (previousActiveElement.value?.isConnected) {
+    previousActiveElement.value.focus();
+  }
 });
 </script>
 

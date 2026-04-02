@@ -82,4 +82,34 @@ describe('Popover', () => {
     });
     expect(container.querySelector('.dropdown-top')).toBeTruthy();
   });
+
+  it('persistent popover can still be toggled via trigger click', async () => {
+    const { container } = render(Popover, {
+      props: { triggerMode: 'click', persistent: true },
+      slots: { trigger: '<button>Click me</button>', default: 'Persistent' },
+    });
+    await fireEvent.click(screen.getByText('Click me'));
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+
+    await fireEvent.click(screen.getByText('Click me'));
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeFalsy();
+  });
+
+  it('Enter/Space only toggles when trigger has focus', async () => {
+    const { container } = render(Popover, {
+      props: { triggerMode: 'click' },
+      slots: {
+        trigger: '<button>Trigger</button>',
+        default: '<button>Inner Button</button>',
+      },
+    });
+
+    // Enter on trigger should open
+    const triggerWrapper = container.querySelector('[aria-expanded]') as HTMLElement;
+    await fireEvent.keyDown(triggerWrapper, { key: 'Enter' });
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+  });
 });

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** @module Tabs */
-import { computed, ref, useId } from 'vue';
+import { computed, ref, useId, watch } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { DaisyColor, Size } from '@artisanpack-ui/tokens';
 import type { TabsProps } from './types';
@@ -17,11 +17,36 @@ const emit = defineEmits<{
 
 const autoId = useId();
 
+function sanitizeId(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 const isControlled = computed(() => props.activeTab !== undefined);
 
 const firstSelectableTab = computed(() => props.tabs.find((t) => !t.disabled)?.name ?? '');
 
-const internalTab = ref(props.defaultTab ?? firstSelectableTab.value);
+function resolveValidTab(name: string | undefined): string {
+  if (name) {
+    const tab = props.tabs.find((t) => t.name === name && !t.disabled);
+    if (tab) return tab.name;
+  }
+  return firstSelectableTab.value;
+}
+
+const internalTab = ref(resolveValidTab(props.defaultTab));
+
+// Keep uncontrolled state in sync when tabs change
+watch(firstSelectableTab, (first) => {
+  if (!isControlled.value) {
+    const current = props.tabs.find((t) => t.name === internalTab.value && !t.disabled);
+    if (!current) {
+      internalTab.value = first;
+    }
+  }
+});
 
 const currentTab = computed(() =>
   isControlled.value ? (props.activeTab ?? firstSelectableTab.value) : internalTab.value,
@@ -116,17 +141,17 @@ function handleKeydown(e: KeyboardEvent) {
 
   if (targetIndex >= 0) {
     selectTab(selectable[targetIndex].name);
-    const tabEl = document.getElementById(`tab-${autoId}-${selectable[targetIndex].name}`);
+    const tabEl = document.getElementById(tabId(selectable[targetIndex].name));
     tabEl?.focus();
   }
 }
 
 function tabPanelId(name: string) {
-  return `tabpanel-${autoId}-${name}`;
+  return `tabpanel-${autoId}-${sanitizeId(name)}`;
 }
 
 function tabId(name: string) {
-  return `tab-${autoId}-${name}`;
+  return `tab-${autoId}-${sanitizeId(name)}`;
 }
 </script>
 

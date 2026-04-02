@@ -63,6 +63,14 @@ function handleKeydown(e: KeyboardEvent) {
   }
 }
 
+function handleCancel(e: Event) {
+  if (props.persistent) {
+    e.preventDefault();
+  } else {
+    emit('update:open', false);
+  }
+}
+
 function handleBackdropClick(e: MouseEvent) {
   if (e.target === dialogRef.value) {
     close();
@@ -82,10 +90,13 @@ watch(
       }
     } else {
       dialogRef.value?.close();
-      previousActiveElement.value?.focus();
+      if (previousActiveElement.value?.isConnected) {
+        previousActiveElement.value.focus();
+      }
       previousActiveElement.value = null;
     }
   },
+  { immediate: true },
 );
 
 onBeforeUnmount(() => {
@@ -101,9 +112,11 @@ const modalBoxClasses = computed(() => cn('modal-box', props.glass && 'glass'));
       ref="dialogRef"
       :class="cn('modal', bottom && 'modal-bottom')"
       :aria-labelledby="title ? titleId : undefined"
+      :aria-label="!title ? ariaLabel : undefined"
       aria-modal="true"
       @keydown="handleKeydown"
       @click="handleBackdropClick"
+      @cancel="handleCancel"
     >
       <div :class="modalBoxClasses">
         <button

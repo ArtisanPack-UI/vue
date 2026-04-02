@@ -63,6 +63,28 @@ describe('Collapse', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
   });
 
+  it('toggles on Enter key', async () => {
+    render(Collapse, { props: { title: 'Test' }, slots: { default: 'Content' } });
+    const trigger = screen.getByRole('button');
+
+    await fireEvent.keyDown(trigger, { key: 'Enter' });
+    await nextTick();
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+
+    await fireEvent.keyDown(trigger, { key: 'Enter' });
+    await nextTick();
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('toggles on Space key', async () => {
+    render(Collapse, { props: { title: 'Test' }, slots: { default: 'Content' } });
+    const trigger = screen.getByRole('button');
+
+    await fireEvent.keyDown(trigger, { key: ' ' });
+    await nextTick();
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+  });
+
   it('starts open when defaultOpen is true', async () => {
     render(Collapse, {
       props: { title: 'Test', defaultOpen: true },
@@ -77,11 +99,29 @@ describe('Collapse', () => {
     expect(screen.getByText('Inner content')).toBeTruthy();
   });
 
-  it('applies disabled styling', () => {
+  it('applies disabled styling and prevents toggle', async () => {
     const { container } = render(Collapse, {
       props: { title: 'Test', disabled: true },
       slots: { default: 'Content' },
     });
     expect(container.querySelector('.opacity-50')).toBeTruthy();
+
+    const trigger = screen.getByRole('button');
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+
+    await fireEvent.click(trigger);
+    await nextTick();
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('emits update:open in controlled mode', async () => {
+    const { emitted } = render(Collapse, {
+      props: { title: 'Test', open: false, 'onUpdate:open': () => {} },
+      slots: { default: 'Content' },
+    });
+    const trigger = screen.getByRole('button');
+    await fireEvent.click(trigger);
+    expect(emitted()['update:open']).toBeTruthy();
+    expect(emitted()['update:open'][0]).toEqual([true]);
   });
 });

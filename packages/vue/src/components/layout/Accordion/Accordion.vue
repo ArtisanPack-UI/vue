@@ -15,10 +15,15 @@ const emit = defineEmits<{
 }>();
 
 const isControlled = computed(() => props.openIndices !== undefined);
-const internalIndices = ref<number[]>(props.defaultOpenIndices ?? []);
+
+// Normalize initial indices: single mode allows at most one open panel
+const normalizeIndices = (indices: number[]): number[] =>
+  props.multiple ? indices : indices.slice(0, 1);
+
+const internalIndices = ref<number[]>(normalizeIndices(props.defaultOpenIndices ?? []));
 
 const currentIndices = computed(() =>
-  isControlled.value ? (props.openIndices ?? []) : internalIndices.value,
+  isControlled.value ? normalizeIndices(props.openIndices ?? []) : internalIndices.value,
 );
 
 function toggleIndex(index: number) {
