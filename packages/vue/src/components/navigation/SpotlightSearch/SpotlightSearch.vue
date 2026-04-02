@@ -146,7 +146,12 @@ watch(filteredItems, (items) => {
 
 watch(
   openModel,
-  async (isOpen) => {
+  async (isOpen, _oldValue, onCleanup) => {
+    let canceled = false;
+    onCleanup(() => {
+      canceled = true;
+    });
+
     if (isOpen) {
       if (typeof document !== 'undefined') {
         previousActiveElement.value = document.activeElement as HTMLElement;
@@ -154,6 +159,7 @@ watch(
       query.value = '';
       activeIndex.value = 0;
       await nextTick();
+      if (canceled) return;
       if (dialogRef.value && !dialogRef.value.open) {
         dialogRef.value.showModal();
       }
