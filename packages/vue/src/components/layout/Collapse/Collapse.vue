@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** @module Collapse */
-import { computed, ref, useAttrs, useId } from 'vue';
+import { computed, useId } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { CollapseProps } from './types';
 
@@ -11,26 +11,22 @@ const props = withDefaults(defineProps<Omit<CollapseProps, 'open'>>(), {
   disabled: false,
 });
 
-const openModel = defineModel<boolean>('open');
-const attrs = useAttrs();
+const openModel = defineModel<boolean>('open', { default: false });
+
+// Seed the model with defaultOpen on first render
+if (!openModel.value && props.defaultOpen) {
+  openModel.value = true;
+}
 
 const autoId = useId();
 const contentId = computed(() => `collapse-content-${autoId}`);
 const headerId = computed(() => `collapse-header-${autoId}`);
 
-const internalOpen = ref(props.defaultOpen);
-
-const isControlled = computed(() => 'onUpdate:open' in attrs);
-const isOpen = computed(() => (isControlled.value ? !!openModel.value : internalOpen.value));
+const isOpen = computed(() => !!openModel.value);
 
 function toggle() {
   if (props.disabled) return;
-  const next = !isOpen.value;
-  if (isControlled.value) {
-    openModel.value = next;
-  } else {
-    internalOpen.value = next;
-  }
+  openModel.value = !isOpen.value;
 }
 
 const iconClass = computed(() => {
@@ -63,7 +59,7 @@ const collapseClasses = computed(() =>
       :id="headerId"
       class="collapse-title cursor-pointer"
       role="button"
-      tabindex="0"
+      :tabindex="disabled ? -1 : 0"
       :aria-expanded="isOpen"
       :aria-controls="contentId"
       :aria-disabled="disabled || undefined"
@@ -73,12 +69,7 @@ const collapseClasses = computed(() =>
     >
       {{ title }}
     </div>
-    <div
-      :id="contentId"
-      class="collapse-content"
-      role="region"
-      :aria-labelledby="headerId"
-    >
+    <div :id="contentId" class="collapse-content" role="region" :aria-labelledby="headerId">
       <slot />
     </div>
   </div>

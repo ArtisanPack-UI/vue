@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** @module Accordion */
-import { computed, provide, reactive, ref } from 'vue';
+import { computed, provide, ref } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { AccordionProps } from './types';
 import { ACCORDION_KEY } from './keys';
@@ -36,11 +36,9 @@ function toggleIndex(index: number) {
   }
 }
 
-provide(ACCORDION_KEY, reactive({ currentIndices, toggleIndex }));
+provide(ACCORDION_KEY, { currentIndices, toggleIndex });
 
-const accordionClasses = computed(() =>
-  cn(props.join && 'join join-vertical w-full'),
-);
+const accordionClasses = computed(() => cn(props.join && 'join join-vertical w-full'));
 </script>
 
 <template>

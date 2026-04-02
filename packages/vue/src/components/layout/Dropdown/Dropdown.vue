@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** @module Dropdown */
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, useAttrs, useId, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { DropdownProps } from './types';
 
@@ -11,25 +11,18 @@ const props = withDefaults(defineProps<Omit<DropdownProps, 'open'>>(), {
   hover: false,
 });
 
-const openModel = defineModel<boolean>('open');
-const attrs = useAttrs();
+const openModel = defineModel<boolean>('open', { default: false });
 
 const autoId = useId();
 const menuId = `dropdown-menu-${autoId}`;
 
-const isControlled = computed(() => 'onUpdate:open' in attrs);
-const internalOpen = ref(false);
-const isOpen = computed(() => (isControlled.value ? !!openModel.value : internalOpen.value));
+const isOpen = computed(() => !!openModel.value);
 
 const dropdownRef = ref<HTMLElement | null>(null);
 const menuRef = ref<HTMLElement | null>(null);
 
 function setOpen(value: boolean) {
-  if (isControlled.value) {
-    openModel.value = value;
-  } else {
-    internalOpen.value = value;
-  }
+  openModel.value = value;
 }
 
 function toggle() {
@@ -56,6 +49,9 @@ function handleTriggerKeydown(e: KeyboardEvent) {
   if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
     e.preventDefault();
     setOpen(true);
+  } else if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    toggle();
   }
 }
 

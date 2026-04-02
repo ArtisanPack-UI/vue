@@ -95,7 +95,6 @@ onBeforeUnmount(() => {
       :checked="open"
       :aria-hidden="true"
       tabindex="-1"
-      @change="close"
     />
     <div class="drawer-content">
       <slot />

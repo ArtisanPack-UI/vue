@@ -10,7 +10,10 @@ describe('Collapse', () => {
   });
 
   it('applies arrow icon class by default', () => {
-    const { container } = render(Collapse, { props: { title: 'Test' }, slots: { default: 'Content' } });
+    const { container } = render(Collapse, {
+      props: { title: 'Test' },
+      slots: { default: 'Content' },
+    });
     expect(container.querySelector('.collapse-arrow')).toBeTruthy();
   });
 

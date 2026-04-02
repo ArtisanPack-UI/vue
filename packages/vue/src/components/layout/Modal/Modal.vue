@@ -92,9 +92,7 @@ onBeforeUnmount(() => {
   dialogRef.value?.close();
 });
 
-const modalBoxClasses = computed(() =>
-  cn('modal-box', props.glass && 'glass'),
-);
+const modalBoxClasses = computed(() => cn('modal-box', props.glass && 'glass'));
 </script>
 
 <template>
@@ -108,16 +106,15 @@ const modalBoxClasses = computed(() =>
       @click="handleBackdropClick"
     >
       <div :class="modalBoxClasses">
-        <form v-if="!persistent" method="dialog">
-          <button
-            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-            aria-label="Close"
-            type="button"
-            @click="emit('update:open', false)"
-          >
-            &times;
-          </button>
-        </form>
+        <button
+          v-if="!persistent"
+          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+          aria-label="Close"
+          type="button"
+          @click="emit('update:open', false)"
+        >
+          &times;
+        </button>
         <h3 v-if="title" :id="titleId" class="font-bold text-lg">{{ title }}</h3>
         <p v-if="subtitle" class="text-base-content/70">{{ subtitle }}</p>
         <div class="py-4">

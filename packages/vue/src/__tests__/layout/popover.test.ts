@@ -15,7 +15,7 @@ describe('Popover', () => {
     const { container } = render(Popover, {
       slots: { trigger: '<button>Open</button>', default: 'Popover body' },
     });
-    expect(container.querySelector('[role="tooltip"]')).toBeTruthy();
+    expect(container.querySelector('[role="dialog"]')).toBeTruthy();
   });
 
   it('does not have dropdown-open class when closed', () => {

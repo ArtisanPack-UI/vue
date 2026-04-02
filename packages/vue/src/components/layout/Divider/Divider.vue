@@ -30,6 +30,7 @@ const labelPositionMap: Record<string, string> = {
 const dividerClasses = computed(() =>
   cn(
     'divider',
+    // DaisyUI naming: 'divider-horizontal' renders a vertical divider (separates horizontally-arranged items)
     props.vertical && 'divider-horizontal',
     props.color && colorMap[props.color],
     props.labelPosition && labelPositionMap[props.labelPosition],

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** @module Popover */
-import { computed, onBeforeUnmount, onMounted, ref, useAttrs, useId } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, useId } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { PopoverProps } from './types';
 
@@ -12,26 +12,19 @@ const props = withDefaults(defineProps<Omit<PopoverProps, 'open'>>(), {
   persistent: false,
 });
 
-const openModel = defineModel<boolean>('open');
-const attrs = useAttrs();
+const openModel = defineModel<boolean>('open', { default: false });
 
 const autoId = useId();
 const contentId = `popover-content-${autoId}`;
 
-const isControlled = computed(() => 'onUpdate:open' in attrs);
-const internalOpen = ref(false);
-const isOpen = computed(() => (isControlled.value ? !!openModel.value : internalOpen.value));
+const isOpen = computed(() => !!openModel.value);
 
 const containerRef = ref<HTMLElement | null>(null);
 const showTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 const hideTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 
 function setOpen(value: boolean) {
-  if (isControlled.value) {
-    openModel.value = value;
-  } else {
-    internalOpen.value = value;
-  }
+  openModel.value = value;
 }
 
 function clearTimers() {
@@ -123,11 +116,7 @@ const positionMap: Record<string, string> = {
 };
 
 const containerClasses = computed(() =>
-  cn(
-    'dropdown',
-    positionMap[props.position],
-    isOpen.value && 'dropdown-open',
-  ),
+  cn('dropdown', positionMap[props.position], isOpen.value && 'dropdown-open'),
 );
 </script>
 
@@ -141,6 +130,7 @@ const containerClasses = computed(() =>
   >
     <div
       tabindex="0"
+      :role="triggerMode === 'click' ? 'button' : undefined"
       :aria-expanded="isOpen"
       :aria-controls="contentId"
       @click.stop="handleTriggerClick"
@@ -150,7 +140,7 @@ const containerClasses = computed(() =>
     <div
       :id="contentId"
       tabindex="0"
-      role="tooltip"
+      role="dialog"
       class="dropdown-content bg-base-100 rounded-box z-50 shadow-lg p-4"
     >
       <slot />

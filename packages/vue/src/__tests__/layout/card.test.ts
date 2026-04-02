@@ -10,7 +10,10 @@ describe('Card', () => {
   });
 
   it('renders as an anchor when link prop is provided', () => {
-    const { container } = render(Card, { props: { link: '/dashboard' }, slots: { default: 'Content' } });
+    const { container } = render(Card, {
+      props: { link: '/dashboard' },
+      slots: { default: 'Content' },
+    });
     const card = container.querySelector('.card');
     expect(card?.tagName).toBe('A');
     expect(card?.getAttribute('href')).toBe('/dashboard');
@@ -42,12 +45,18 @@ describe('Card', () => {
   });
 
   it('removes shadow when noShadow is true', () => {
-    const { container } = render(Card, { props: { noShadow: true }, slots: { default: 'Content' } });
+    const { container } = render(Card, {
+      props: { noShadow: true },
+      slots: { default: 'Content' },
+    });
     expect(container.querySelector('.shadow-xl')).toBeFalsy();
   });
 
   it('applies bordered class', () => {
-    const { container } = render(Card, { props: { bordered: true }, slots: { default: 'Content' } });
+    const { container } = render(Card, {
+      props: { bordered: true },
+      slots: { default: 'Content' },
+    });
     expect(container.querySelector('.card-border')).toBeTruthy();
   });
 

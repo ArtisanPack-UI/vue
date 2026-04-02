@@ -55,7 +55,7 @@ const sizeMap: Record<Size, string> = {
   lg: 'tabs-lg',
 };
 
-const variantMap: Record<string, string> = {
+const variantMap: Record<'bordered' | 'lifted' | 'boxed', string> = {
   bordered: 'tabs-bordered',
   lifted: 'tabs-lifted',
   boxed: 'tabs-boxed',
