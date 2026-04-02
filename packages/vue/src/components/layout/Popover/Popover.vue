@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** @module Popover */
-import { computed, onBeforeUnmount, onMounted, ref, useId } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { PopoverProps } from './types';
 
@@ -128,6 +128,17 @@ onMounted(() => {
     document.addEventListener('mousedown', handleClickOutside);
   }
 });
+
+watch(
+  () => props.triggerMode,
+  (newMode, oldMode) => {
+    if (newMode === 'click' && oldMode !== 'click') {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else if (newMode !== 'click' && oldMode === 'click') {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+  },
+);
 
 onBeforeUnmount(() => {
   document.removeEventListener('mousedown', handleClickOutside);

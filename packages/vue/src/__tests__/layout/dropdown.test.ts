@@ -170,6 +170,29 @@ describe('Dropdown', () => {
     expect(container.querySelector('.dropdown-open')).toBeFalsy();
   });
 
+  it('closes when a menu item is activated via keyboard', async () => {
+    const { container } = render(Dropdown, {
+      slots: {
+        default: `
+          <li role="none"><button role="menuitem">Action A</button></li>
+          <li role="none"><button role="menuitem">Action B</button></li>
+        `,
+      },
+    });
+    const trigger = screen.getByRole('button');
+    await fireEvent.click(trigger);
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+
+    const items = container.querySelectorAll('[role="menuitem"]');
+    expect(document.activeElement).toBe(items[0]);
+
+    // Native click fires on Enter keyup for buttons — simulate the click
+    await fireEvent.click(items[0]);
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeFalsy();
+  });
+
   it('closes on click outside', async () => {
     const { container } = render(Dropdown);
     const trigger = screen.getByRole('button');
