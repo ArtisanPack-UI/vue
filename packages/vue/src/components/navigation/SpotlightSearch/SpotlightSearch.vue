@@ -213,6 +213,7 @@ function handleCancel(_e: Event) {
             :placeholder="placeholder"
             class="input input-ghost w-full border-0 focus:outline-none"
             role="combobox"
+            :aria-label="ariaLabel"
             :aria-expanded="filteredItems.length > 0"
             :aria-controls="listboxId"
             :aria-activedescendant="
