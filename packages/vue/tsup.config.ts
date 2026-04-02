@@ -1,4 +1,5 @@
 import { defineConfig } from 'tsup';
+import vue from 'esbuild-plugin-vue3';
 
 export default defineConfig({
   entry: {
@@ -13,9 +14,10 @@ export default defineConfig({
     composables: 'src/composables/index.ts',
   },
   format: ['esm'],
-  dts: true,
+  dts: false,
   clean: true,
   sourcemap: true,
   external: ['vue', '@artisanpack-ui/tokens'],
   outExtension: () => ({ js: '.mjs' }),
+  esbuildPlugins: [vue()],
 });
