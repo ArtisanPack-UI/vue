@@ -126,6 +126,15 @@ watch(query, () => {
   activeIndex.value = 0;
 });
 
+// Scroll active item into view on index change
+watch(activeIndex, async () => {
+  await nextTick();
+  const item = filteredItems.value[activeIndex.value];
+  if (!item) return;
+  const el = document.getElementById(getItemId(item));
+  el?.scrollIntoView({ block: 'nearest' });
+});
+
 // Clamp active index when filtered list shrinks
 watch(filteredItems, (items) => {
   if (items.length === 0) {
