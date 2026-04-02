@@ -110,6 +110,26 @@ describe('Dropdown', () => {
     expect(document.activeElement).toBe(trigger);
   });
 
+  it('closes when a menu item is clicked', async () => {
+    const { container } = render(Dropdown, {
+      slots: {
+        default: `
+          <li role="none"><button role="menuitem">Item 1</button></li>
+          <li role="none"><button role="menuitem">Item 2</button></li>
+        `,
+      },
+    });
+    const trigger = screen.getByRole('button');
+    await fireEvent.click(trigger);
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+
+    const menuItem = screen.getByText('Item 1');
+    await fireEvent.click(menuItem);
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeFalsy();
+  });
+
   it('closes on click outside', async () => {
     const { container } = render(Dropdown);
     const trigger = screen.getByRole('button');

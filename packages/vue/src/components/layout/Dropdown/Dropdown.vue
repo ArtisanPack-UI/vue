@@ -81,10 +81,6 @@ function handleMenuKeydown(e: KeyboardEvent) {
     triggerRef.value?.focus();
   } else if (e.key === 'Tab') {
     setOpen(false);
-  } else if (e.key === 'Enter' || e.key === ' ') {
-    // Close on item activation
-    setOpen(false);
-    triggerRef.value?.focus();
   }
 }
 

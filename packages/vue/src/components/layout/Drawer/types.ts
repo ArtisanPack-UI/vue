@@ -11,4 +11,8 @@ export interface DrawerProps {
   end?: boolean;
   /** When true, prevents closing via Escape key or overlay click. @defaultValue `false` */
   persistent?: boolean;
+  /** Accessible label for the drawer dialog. */
+  ariaLabel?: string;
+  /** ID of an element that labels the drawer dialog. Takes precedence over ariaLabel. */
+  ariaLabelledby?: string;
 }

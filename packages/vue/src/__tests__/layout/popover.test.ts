@@ -83,6 +83,21 @@ describe('Popover', () => {
     expect(container.querySelector('.dropdown-top')).toBeTruthy();
   });
 
+  it('opens on focus and closes on blur in hover mode', async () => {
+    const { container } = render(Popover, {
+      props: { triggerMode: 'hover', showDelay: 0, hideDelay: 0 },
+      slots: { trigger: '<button>Focus me</button>', default: 'Focus content' },
+    });
+    const triggerEl = container.querySelector('[aria-expanded]') as HTMLElement;
+    await fireEvent.focusIn(triggerEl);
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+
+    await fireEvent.focusOut(triggerEl);
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeFalsy();
+  });
+
   it('persistent popover can still be toggled via trigger click', async () => {
     const { container } = render(Popover, {
       props: { triggerMode: 'click', persistent: true },

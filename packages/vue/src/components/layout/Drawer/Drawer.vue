@@ -38,6 +38,7 @@ function handleKeydown(e: KeyboardEvent) {
     const focusable = getFocusableElements(sideRef.value);
     if (focusable.length === 0) {
       e.preventDefault();
+      sideRef.value?.focus();
       return;
     }
     const first = focusable[0];
@@ -114,6 +115,8 @@ onBeforeUnmount(() => {
         role="dialog"
         aria-modal="true"
         :aria-hidden="!open"
+        :aria-labelledby="ariaLabelledby || undefined"
+        :aria-label="!ariaLabelledby ? ariaLabel : undefined"
       >
         <slot name="side" />
       </div>

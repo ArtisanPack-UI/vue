@@ -81,6 +81,18 @@ function handleMouseLeave() {
   }
 }
 
+function handleFocusIn() {
+  if (props.triggerMode === 'hover') {
+    show();
+  }
+}
+
+function handleFocusOut() {
+  if (props.triggerMode === 'hover') {
+    hide();
+  }
+}
+
 function handleKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape' && !props.persistent) {
     setOpen(false);
@@ -137,6 +149,8 @@ const containerClasses = computed(() =>
     :class="containerClasses"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
+    @focusin="handleFocusIn"
+    @focusout="handleFocusOut"
     @keydown="handleKeydown"
   >
     <div
