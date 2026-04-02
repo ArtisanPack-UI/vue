@@ -76,16 +76,11 @@ function handleDetailsToggle(item: { name: string }, e: Event) {
 </script>
 
 <template>
-  <ul
-    role="menubar"
-    :aria-orientation="horizontal ? 'horizontal' : 'vertical'"
-    :class="menuClasses"
-  >
-    <li v-for="item in items" :key="item.name" role="none" :class="getItemClasses(item)">
+  <ul :class="menuClasses">
+    <li v-for="item in items" :key="item.name" :class="getItemClasses(item)">
       <template v-if="item.children && item.children.length > 0">
         <details @toggle="handleDetailsToggle(item, $event)">
           <summary
-            role="menuitem"
             :class="getLinkClasses(item)"
             :aria-disabled="item.disabled || undefined"
             :aria-haspopup="'menu'"
@@ -97,17 +92,11 @@ function handleDetailsToggle(item: { name: string }, e: Event) {
               {{ item.label }}
             </slot>
           </summary>
-          <ul role="menu">
-            <li
-              v-for="child in item.children"
-              :key="child.name"
-              role="none"
-              :class="getItemClasses(child)"
-            >
+          <ul>
+            <li v-for="child in item.children" :key="child.name" :class="getItemClasses(child)">
               <a
                 v-if="child.href"
                 :href="child.href"
-                role="menuitem"
                 :class="getLinkClasses(child)"
                 :aria-disabled="child.disabled || undefined"
                 :aria-current="child.active ? 'page' : undefined"
@@ -119,10 +108,8 @@ function handleDetailsToggle(item: { name: string }, e: Event) {
               <button
                 v-else
                 type="button"
-                role="menuitem"
                 :class="getLinkClasses(child)"
                 :disabled="child.disabled"
-                :aria-disabled="child.disabled || undefined"
                 :aria-current="child.active ? 'page' : undefined"
                 @click="handleClick(child, $event)"
               >
@@ -138,7 +125,6 @@ function handleDetailsToggle(item: { name: string }, e: Event) {
         <a
           v-if="item.href"
           :href="item.href"
-          role="menuitem"
           :class="getLinkClasses(item)"
           :aria-disabled="item.disabled || undefined"
           :aria-current="item.active ? 'page' : undefined"
@@ -150,10 +136,8 @@ function handleDetailsToggle(item: { name: string }, e: Event) {
         <button
           v-else
           type="button"
-          role="menuitem"
           :class="getLinkClasses(item)"
           :disabled="item.disabled"
-          :aria-disabled="item.disabled || undefined"
           :aria-current="item.active ? 'page' : undefined"
           @click="handleClick(item, $event)"
         >

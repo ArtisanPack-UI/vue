@@ -130,7 +130,9 @@ watch(
   openModel,
   async (isOpen) => {
     if (isOpen) {
-      previousActiveElement.value = document.activeElement as HTMLElement;
+      if (typeof document !== 'undefined') {
+        previousActiveElement.value = document.activeElement as HTMLElement;
+      }
       query.value = '';
       activeIndex.value = 0;
       await nextTick();

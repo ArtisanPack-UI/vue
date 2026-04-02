@@ -41,15 +41,10 @@ describe('Menu', () => {
     expect(contact.tagName).toBe('BUTTON');
   });
 
-  it('has menubar role on container', () => {
+  it('renders as a ul with menu class', () => {
     const { container } = render(Menu, { props: { items: testItems } });
-    expect(container.querySelector('[role="menubar"]')).toBeTruthy();
-  });
-
-  it('has menuitem role on items', () => {
-    const { container } = render(Menu, { props: { items: testItems } });
-    const menuItems = container.querySelectorAll('[role="menuitem"]');
-    expect(menuItems.length).toBe(3);
+    const ul = container.querySelector('ul.menu');
+    expect(ul).toBeTruthy();
   });
 
   it('applies horizontal class', () => {
@@ -62,23 +57,10 @@ describe('Menu', () => {
     expect(container.querySelector('.menu-lg')).toBeTruthy();
   });
 
-  it('sets aria-orientation to horizontal', () => {
-    const { container } = render(Menu, { props: { items: testItems, horizontal: true } });
-    const menubar = container.querySelector('[role="menubar"]');
-    expect(menubar?.getAttribute('aria-orientation')).toBe('horizontal');
-  });
-
-  it('sets aria-orientation to vertical by default', () => {
-    const { container } = render(Menu, { props: { items: testItems } });
-    const menubar = container.querySelector('[role="menubar"]');
-    expect(menubar?.getAttribute('aria-orientation')).toBe('vertical');
-  });
-
   it('disables items with disabled prop', () => {
     render(Menu, { props: { items: testItems } });
     const contact = screen.getByText('Contact');
     expect(contact.getAttribute('disabled')).not.toBeNull();
-    expect(contact.getAttribute('aria-disabled')).toBe('true');
   });
 
   it('marks active item with aria-current', () => {
@@ -110,10 +92,10 @@ describe('Menu', () => {
     expect(screen.getByText('Pants')).toBeTruthy();
   });
 
-  it('renders submenu as nested menu role', () => {
+  it('renders submenu as nested ul', () => {
     const { container } = render(Menu, { props: { items: nestedItems } });
-    const submenus = container.querySelectorAll('[role="menu"]');
-    expect(submenus.length).toBe(1);
+    const nestedUls = container.querySelectorAll('details ul');
+    expect(nestedUls.length).toBe(1);
   });
 
   it('applies custom className', () => {

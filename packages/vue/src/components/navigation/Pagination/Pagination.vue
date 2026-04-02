@@ -23,9 +23,9 @@ const sizeMap: Record<Size, string> = {
 const ELLIPSIS = '…';
 
 const pages = computed(() => {
-  const total = props.totalPages;
-  const current = props.currentPage;
-  const siblings = props.siblingCount;
+  const total = Math.max(1, props.totalPages);
+  const current = Math.min(Math.max(1, props.currentPage), total);
+  const siblings = Math.max(0, props.siblingCount);
 
   if (total <= 1) return [];
 
