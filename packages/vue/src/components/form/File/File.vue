@@ -26,8 +26,8 @@ const describedBy = computed(
 );
 
 function handleDragOver(e: DragEvent) {
-  if (props.disabled) return;
   e.preventDefault();
+  if (props.disabled) return;
   isDragging.value = true;
 }
 
@@ -36,8 +36,8 @@ function handleDragLeave() {
 }
 
 function handleDrop(e: DragEvent) {
-  if (props.disabled) return;
   e.preventDefault();
+  if (props.disabled) return;
   isDragging.value = false;
   if (e.dataTransfer?.files.length) {
     emit('filesSelected', e.dataTransfer.files);

@@ -4,6 +4,8 @@ import { computed, useId } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { SelectProps } from './types';
 
+defineOptions({ inheritAttrs: false });
+
 const props = withDefaults(defineProps<SelectProps>(), {
   placeholderValue: '',
   inline: false,
@@ -37,6 +39,7 @@ const describedBy = computed(
       <select
         :id="inputId"
         v-model="model"
+        v-bind="$attrs"
         class="grow"
         :aria-labelledby="!inline ? `${inputId}-label` : undefined"
         :aria-invalid="error ? true : undefined"
