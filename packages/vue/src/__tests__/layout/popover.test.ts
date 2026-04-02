@@ -1,0 +1,85 @@
+import { describe, it, expect } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/vue';
+import { nextTick } from 'vue';
+import { Popover } from '../../components/layout';
+
+describe('Popover', () => {
+  it('renders trigger slot', () => {
+    render(Popover, {
+      slots: { trigger: '<button>Open</button>', default: 'Popover content' },
+    });
+    expect(screen.getByText('Open')).toBeTruthy();
+  });
+
+  it('renders content slot', () => {
+    const { container } = render(Popover, {
+      slots: { trigger: '<button>Open</button>', default: 'Popover body' },
+    });
+    expect(container.querySelector('[role="tooltip"]')).toBeTruthy();
+  });
+
+  it('does not have dropdown-open class when closed', () => {
+    const { container } = render(Popover, {
+      slots: { trigger: '<button>Open</button>', default: 'Hidden content' },
+    });
+    expect(container.querySelector('.dropdown-open')).toBeFalsy();
+  });
+
+  it('adds dropdown-open class after clicking trigger in click mode', async () => {
+    const { container } = render(Popover, {
+      props: { triggerMode: 'click' },
+      slots: { trigger: '<button>Open</button>', default: 'Visible content' },
+    });
+    await fireEvent.click(screen.getByText('Open'));
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+  });
+
+  it('sets aria-expanded to true when open', async () => {
+    const { container } = render(Popover, {
+      props: { triggerMode: 'click' },
+      slots: { trigger: '<button>Open</button>', default: 'Content' },
+    });
+    await fireEvent.click(screen.getByText('Open'));
+    await nextTick();
+    const trigger = container.querySelector('[aria-expanded]');
+    expect(trigger?.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('toggles dropdown-open on and off on click in uncontrolled click mode', async () => {
+    const { container } = render(Popover, {
+      props: { triggerMode: 'click' },
+      slots: { trigger: '<button>Click me</button>', default: 'Content' },
+    });
+    await fireEvent.click(screen.getByText('Click me'));
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+
+    await fireEvent.click(screen.getByText('Click me'));
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeFalsy();
+  });
+
+  it('adds dropdown-open on mouse enter in hover mode', async () => {
+    const { container } = render(Popover, {
+      props: { triggerMode: 'hover', showDelay: 0, hideDelay: 0 },
+      slots: { trigger: '<button>Hover</button>', default: 'Hover content' },
+    });
+    const wrapper = container.firstElementChild!;
+    await fireEvent.mouseEnter(wrapper);
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+
+    await fireEvent.mouseLeave(wrapper);
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeFalsy();
+  });
+
+  it('applies position class', () => {
+    const { container } = render(Popover, {
+      props: { position: 'top' },
+      slots: { trigger: '<button>Open</button>', default: 'Content' },
+    });
+    expect(container.querySelector('.dropdown-top')).toBeTruthy();
+  });
+});
