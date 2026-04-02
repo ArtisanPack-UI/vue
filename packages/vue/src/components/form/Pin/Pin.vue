@@ -86,8 +86,9 @@ function handlePaste(e: ClipboardEvent) {
   e.preventDefault();
   const startIndex = inputs.value.findIndex((i) => i === document.activeElement);
   const start = startIndex >= 0 ? startIndex : 0;
-  const rawData = (e.clipboardData?.getData('text') ?? '').slice(0, props.length - start);
-  const pastedData = props.numeric ? rawData.replace(/\D/g, '') : rawData;
+  const rawData = e.clipboardData?.getData('text') ?? '';
+  const sanitized = props.numeric ? rawData.replace(/\D/g, '') : rawData;
+  const pastedData = sanitized.slice(0, props.length - start);
 
   for (let i = 0; i < props.length; i++) {
     const input = inputs.value[i];

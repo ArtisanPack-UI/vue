@@ -25,7 +25,7 @@ const describedBy = computed(
 
 <template>
   <fieldset class="fieldset">
-    <legend v-if="label && !inline" class="fieldset-legend">
+    <legend v-if="label && !inline" :id="`${inputId}-label`" class="fieldset-legend">
       {{ label }}
       <span v-if="required" class="text-error ml-1">*</span>
     </legend>
@@ -38,6 +38,7 @@ const describedBy = computed(
         :id="inputId"
         v-model="model"
         class="grow"
+        :aria-labelledby="!inline ? `${inputId}-label` : undefined"
         :aria-invalid="error ? true : undefined"
         :aria-describedby="describedBy"
         :aria-required="required || undefined"
