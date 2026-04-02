@@ -44,7 +44,12 @@ const describedBy = computed(
         :required="required"
         :disabled="disabled"
       >
-        <option v-if="placeholder" :value="placeholderValue" disabled>
+        <option
+          v-if="placeholder"
+          :value="placeholderValue"
+          disabled
+          :selected="model === undefined || model === placeholderValue"
+        >
           {{ placeholder }}
         </option>
         <option

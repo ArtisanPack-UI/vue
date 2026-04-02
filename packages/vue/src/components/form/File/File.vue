@@ -83,6 +83,7 @@ function handleKeyDown(e: KeyboardEvent) {
         role="button"
         :tabindex="disabled ? -1 : 0"
         :aria-label="label ?? 'File upload'"
+        :aria-describedby="describedBy"
         :aria-disabled="disabled || undefined"
         @dragover="handleDragOver"
         @dragleave="handleDragLeave"

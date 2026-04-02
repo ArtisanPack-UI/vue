@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** @module Pin */
-import { computed, ref, useId, watch } from 'vue';
+import { computed, onMounted, ref, useId, watch } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { PinProps } from './types';
 
@@ -94,8 +94,6 @@ function handlePaste(e: ClipboardEvent) {
     if (input) {
       if (i >= start && i < start + pastedData.length) {
         input.value = pastedData[i - start] ?? '';
-      } else if (i >= start + pastedData.length) {
-        input.value = '';
       }
     }
   }
@@ -111,18 +109,18 @@ function handlePaste(e: ClipboardEvent) {
 }
 
 // Sync controlled value to individual inputs
-watch(
-  () => model.value,
-  (newValue) => {
-    if (newValue === undefined) return;
-    const normalized = props.numeric ? newValue.replace(/\D/g, '') : newValue;
-    const sliced = normalized.slice(0, props.length);
-    inputs.value.forEach((input, i) => {
-      if (input) input.value = sliced[i] ?? '';
-    });
-  },
-  { immediate: true },
-);
+function syncModelToInputs() {
+  const val = model.value;
+  if (val === undefined) return;
+  const normalized = props.numeric ? val.replace(/\D/g, '') : val;
+  const sliced = normalized.slice(0, props.length);
+  inputs.value.forEach((input, i) => {
+    if (input) input.value = sliced[i] ?? '';
+  });
+}
+
+watch(() => model.value, syncModelToInputs);
+onMounted(syncModelToInputs);
 </script>
 
 <template>

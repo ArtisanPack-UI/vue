@@ -62,6 +62,10 @@ function getOptionId(option: RadioOption, index: number): string {
   return `${fieldsetId.value}-${String(getOptionValue(option, index))}`;
 }
 
+function getOptionHintId(option: RadioOption, index: number): string | undefined {
+  return getOptionHint(option) ? `${getOptionId(option, index)}-hint` : undefined;
+}
+
 const firstEnabledIndex = computed(() => props.options.findIndex((opt) => !opt.disabled));
 </script>
 
@@ -106,10 +110,15 @@ const firstEnabledIndex = computed(() => props.options.findIndex((opt) => !opt.d
           :disabled="option.disabled === true"
           :required="required && index === firstEnabledIndex"
           :class="cn('radio', color && colorMap[color])"
+          :aria-describedby="getOptionHintId(option, index)"
         />
         <div>
           <span>{{ getOptionLabel(option) }}</span>
-          <p v-if="getOptionHint(option)" class="text-xs opacity-60">
+          <p
+            v-if="getOptionHint(option)"
+            :id="getOptionHintId(option, index)"
+            class="text-xs opacity-60"
+          >
             {{ getOptionHint(option) }}
           </p>
         </div>
