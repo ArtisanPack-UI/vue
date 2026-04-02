@@ -12,7 +12,7 @@ const props = withDefaults(defineProps<SelectProps>(), {
   options: () => [],
 });
 
-const model = defineModel<string>();
+const model = defineModel<string | number>();
 
 const autoId = useId();
 const inputId = computed(() => props.id ?? autoId);
@@ -50,7 +50,7 @@ const describedBy = computed(
         <option
           v-for="(option, index) in options"
           :key="String(option[optionValue] ?? index)"
-          :value="String(option[optionValue] ?? '')"
+          :value="option[optionValue] ?? ''"
           :disabled="option.disabled === true"
         >
           {{ String(option[optionLabel] ?? '') }}
@@ -61,7 +61,10 @@ const describedBy = computed(
         <slot name="iconRight" />
       </span>
     </label>
-    <label v-if="inline && label" class="fieldset-label" :for="inputId">{{ label }}</label>
+    <label v-if="inline && label" class="fieldset-label" :for="inputId">
+      {{ label }}
+      <span v-if="required" class="text-error ml-1">*</span>
+    </label>
     <p v-if="hint && !error" :id="hintId" class="fieldset-label">{{ hint }}</p>
     <p v-if="error" :id="errorId" class="fieldset-label text-error" role="alert">{{ error }}</p>
   </fieldset>

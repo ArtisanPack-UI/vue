@@ -39,8 +39,7 @@ function handleDrop(e: DragEvent) {
   if (props.disabled) return;
   e.preventDefault();
   isDragging.value = false;
-  if (e.dataTransfer?.files.length && inputRef.value) {
-    inputRef.value.files = e.dataTransfer.files;
+  if (e.dataTransfer?.files.length) {
     emit('filesSelected', e.dataTransfer.files);
   }
 }

@@ -1,5 +1,5 @@
-/** @module Button */
 <script setup lang="ts">
+/** @module Button */
 import { computed } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { Size } from '@artisanpack-ui/tokens';
@@ -48,8 +48,28 @@ const buttonClasses = computed(() =>
   ),
 );
 
-function handleLinkClick(e: MouseEvent) {
-  if (props.disabled || props.loading) {
+const tag = computed(() => (props.link ? 'a' : 'button'));
+
+const elementAttrs = computed(() => {
+  if (props.link) {
+    return {
+      href: props.link,
+      target: props.external ? '_blank' : undefined,
+      rel: props.external ? 'noopener noreferrer' : undefined,
+      role: 'button',
+      'aria-busy': props.loading || undefined,
+      'aria-disabled': props.disabled || props.loading || undefined,
+    };
+  }
+  return {
+    type: props.type,
+    disabled: props.disabled || props.loading,
+    'aria-busy': props.loading || undefined,
+  };
+});
+
+function handleClick(e: MouseEvent) {
+  if (props.link && (props.disabled || props.loading)) {
     e.preventDefault();
   }
 }
@@ -61,17 +81,7 @@ function handleLinkClick(e: MouseEvent) {
     :class="cn('tooltip', tooltipPositionMap[tooltipPosition])"
     :data-tip="tooltip"
   >
-    <a
-      v-if="link"
-      :href="link"
-      :class="buttonClasses"
-      :target="external ? '_blank' : undefined"
-      :rel="external ? 'noopener noreferrer' : undefined"
-      role="button"
-      :aria-busy="loading || undefined"
-      :aria-disabled="disabled || loading || undefined"
-      @click="handleLinkClick"
-    >
+    <component :is="tag" :class="buttonClasses" v-bind="elementAttrs" @click="handleClick">
       <span v-if="loading" class="loading loading-spinner loading-sm" aria-hidden="true" />
       <template v-else>
         <span v-if="$slots.icon" aria-hidden="true"><slot name="icon" /></span>
@@ -80,35 +90,9 @@ function handleLinkClick(e: MouseEvent) {
       <slot />
       <span v-if="$slots.iconRight" aria-hidden="true"><slot name="iconRight" /></span>
       <span v-if="badge" :class="cn('badge', badgeClasses)">{{ badge }}</span>
-    </a>
-    <button
-      v-else
-      :type="type"
-      :disabled="disabled || loading"
-      :class="buttonClasses"
-      :aria-busy="loading || undefined"
-    >
-      <span v-if="loading" class="loading loading-spinner loading-sm" aria-hidden="true" />
-      <template v-else>
-        <span v-if="$slots.icon" aria-hidden="true"><slot name="icon" /></span>
-      </template>
-      <span v-if="label" :class="cn(responsive && 'hidden sm:inline')">{{ label }}</span>
-      <slot />
-      <span v-if="$slots.iconRight" aria-hidden="true"><slot name="iconRight" /></span>
-      <span v-if="badge" :class="cn('badge', badgeClasses)">{{ badge }}</span>
-    </button>
+    </component>
   </div>
-  <a
-    v-else-if="link"
-    :href="link"
-    :class="buttonClasses"
-    :target="external ? '_blank' : undefined"
-    :rel="external ? 'noopener noreferrer' : undefined"
-    role="button"
-    :aria-busy="loading || undefined"
-    :aria-disabled="disabled || loading || undefined"
-    @click="handleLinkClick"
-  >
+  <component v-else :is="tag" :class="buttonClasses" v-bind="elementAttrs" @click="handleClick">
     <span v-if="loading" class="loading loading-spinner loading-sm" aria-hidden="true" />
     <template v-else>
       <span v-if="$slots.icon" aria-hidden="true"><slot name="icon" /></span>
@@ -117,21 +101,5 @@ function handleLinkClick(e: MouseEvent) {
     <slot />
     <span v-if="$slots.iconRight" aria-hidden="true"><slot name="iconRight" /></span>
     <span v-if="badge" :class="cn('badge', badgeClasses)">{{ badge }}</span>
-  </a>
-  <button
-    v-else
-    :type="type"
-    :disabled="disabled || loading"
-    :class="buttonClasses"
-    :aria-busy="loading || undefined"
-  >
-    <span v-if="loading" class="loading loading-spinner loading-sm" aria-hidden="true" />
-    <template v-else>
-      <span v-if="$slots.icon" aria-hidden="true"><slot name="icon" /></span>
-    </template>
-    <span v-if="label" :class="cn(responsive && 'hidden sm:inline')">{{ label }}</span>
-    <slot />
-    <span v-if="$slots.iconRight" aria-hidden="true"><slot name="iconRight" /></span>
-    <span v-if="badge" :class="cn('badge', badgeClasses)">{{ badge }}</span>
-  </button>
+  </component>
 </template>

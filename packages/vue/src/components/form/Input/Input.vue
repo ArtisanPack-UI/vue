@@ -1,5 +1,5 @@
-/** @module Input */
 <script setup lang="ts">
+/** @module Input */
 import { computed, useId } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { InputProps } from './types';
@@ -23,6 +23,12 @@ const errorId = computed(() => (props.error ? `${inputId.value}-error` : undefin
 const describedBy = computed(
   () => [hintId.value, errorId.value].filter(Boolean).join(' ') || undefined,
 );
+
+function handleClear() {
+  if (props.readonly || props.disabled) return;
+  model.value = '';
+  emit('clear');
+}
 </script>
 
 <template>
@@ -69,12 +75,8 @@ const describedBy = computed(
         type="button"
         class="opacity-50 hover:opacity-100 cursor-pointer"
         aria-label="Clear input"
-        @click="
-          () => {
-            model = '';
-            emit('clear');
-          }
-        "
+        :disabled="readonly || disabled"
+        @click="handleClear"
       >
         &#x2715;
       </button>

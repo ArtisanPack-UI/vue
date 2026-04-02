@@ -1,8 +1,10 @@
-/** @module Toggle */
 <script setup lang="ts">
+/** @module Toggle */
 import { computed, useId } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { ToggleProps } from './types';
+
+defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(defineProps<ToggleProps>(), {
   right: false,
@@ -39,6 +41,7 @@ const describedBy = computed(
       <input
         :id="inputId"
         v-model="model"
+        v-bind="$attrs"
         type="checkbox"
         :class="cn('toggle', color && colorMap[color])"
         role="switch"

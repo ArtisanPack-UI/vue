@@ -38,7 +38,8 @@ describe('ColorPicker', () => {
     const { emitted } = render(ColorPicker, { props: { random: true } });
     await fireEvent.click(screen.getByLabelText('Generate random color'));
     expect(emitted().randomColor).toBeTruthy();
-    const color = emitted().randomColor[0][0] as string;
+    const events = emitted().randomColor as unknown[][];
+    const color = events[0][0] as string;
     expect(color).toMatch(/^#[0-9a-f]{6}$/i);
   });
 

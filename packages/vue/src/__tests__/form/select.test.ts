@@ -14,19 +14,21 @@ describe('Select', () => {
   });
 
   it('renders a select element', () => {
-    render(Select, { props: { options } });
-    expect(document.querySelector('select')).toBeTruthy();
+    const { container } = render(Select, { props: { options } });
+    expect(container.querySelector('select')).toBeTruthy();
   });
 
   it('renders all options', () => {
-    render(Select, { props: { options } });
-    const opts = document.querySelectorAll('option');
+    const { container } = render(Select, { props: { options } });
+    const opts = container.querySelectorAll('option');
     expect(opts).toHaveLength(2);
   });
 
   it('renders placeholder option', () => {
-    render(Select, { props: { options, placeholder: 'Select a country' } });
-    const placeholder = document.querySelector('option[disabled]');
+    const { container } = render(Select, {
+      props: { options, placeholder: 'Select a country' },
+    });
+    const placeholder = container.querySelector('option[disabled]');
     expect(placeholder?.textContent?.trim()).toBe('Select a country');
   });
 
@@ -47,16 +49,18 @@ describe('Select', () => {
   });
 
   it('applies select-error class on error', () => {
-    render(Select, { props: { options, error: 'Error' } });
-    const label = document.querySelector('label.select');
+    const { container } = render(Select, { props: { options, error: 'Error' } });
+    const label = container.querySelector('label.select');
     expect(label?.classList.contains('select-error')).toBe(true);
   });
 
   it('renders inline label', () => {
-    render(Select, { props: { label: 'Inline', options, inline: true } });
-    expect(document.querySelector('.fieldset-legend')).toBeNull();
-    const inlineLabel = document.querySelector('label.fieldset-label');
-    expect(inlineLabel?.textContent?.trim()).toBe('Inline');
+    const { container } = render(Select, {
+      props: { label: 'Inline', options, inline: true },
+    });
+    expect(container.querySelector('.fieldset-legend')).toBeNull();
+    const inlineLabel = container.querySelector('label.fieldset-label');
+    expect(inlineLabel?.textContent?.trim()).toContain('Inline');
   });
 
   it('supports custom option keys', () => {
@@ -67,5 +71,11 @@ describe('Select', () => {
     render(Select, { props: { options: opts, optionValue: 'value', optionLabel: 'text' } });
     expect(screen.getByText('One')).toBeTruthy();
     expect(screen.getByText('Two')).toBeTruthy();
+  });
+
+  it('sets aria-invalid on error', () => {
+    const { container } = render(Select, { props: { options, error: 'Required field' } });
+    const select = container.querySelector('select');
+    expect(select?.getAttribute('aria-invalid')).toBe('true');
   });
 });

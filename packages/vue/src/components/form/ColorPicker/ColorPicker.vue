@@ -35,12 +35,14 @@ function generateRandomHex(): string {
 }
 
 function handleRandomClick() {
+  if (props.disabled) return;
   const color = generateRandomHex();
   model.value = color;
   emit('randomColor', color);
 }
 
 function handleClear() {
+  if (props.disabled) return;
   model.value = props.defaultValue;
   emit('clear');
 }
@@ -79,6 +81,8 @@ function handleClear() {
         :aria-describedby="describedBy"
         :aria-label="label ?? 'Color picker'"
         :disabled="disabled"
+        :required="required"
+        :aria-required="required || undefined"
       />
       <span v-if="$slots.icon" class="opacity-50" aria-hidden="true"><slot name="icon" /></span>
       <span class="grow font-mono text-sm">{{ model }}</span>
@@ -87,6 +91,7 @@ function handleClear() {
         type="button"
         class="opacity-50 hover:opacity-100 cursor-pointer"
         aria-label="Generate random color"
+        :disabled="disabled"
         @click="handleRandomClick"
       >
         <slot name="randomIcon">
@@ -102,6 +107,7 @@ function handleClear() {
         type="button"
         class="opacity-50 hover:opacity-100 cursor-pointer"
         aria-label="Clear color"
+        :disabled="disabled"
         @click="handleClear"
       >
         &#x2715;

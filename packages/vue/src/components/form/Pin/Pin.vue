@@ -1,6 +1,6 @@
-/** @module Pin */
 <script setup lang="ts">
-import { computed, onMounted, ref, useId, watch } from 'vue';
+/** @module Pin */
+import { computed, ref, useId, watch } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { PinProps } from './types';
 
@@ -84,17 +84,23 @@ function handleKeyDown(index: number, e: KeyboardEvent) {
 
 function handlePaste(e: ClipboardEvent) {
   e.preventDefault();
-  const rawData = (e.clipboardData?.getData('text') ?? '').slice(0, props.length);
+  const startIndex = inputs.value.findIndex((i) => i === document.activeElement);
+  const start = startIndex >= 0 ? startIndex : 0;
+  const rawData = (e.clipboardData?.getData('text') ?? '').slice(0, props.length - start);
   const pastedData = props.numeric ? rawData.replace(/\D/g, '') : rawData;
 
   for (let i = 0; i < props.length; i++) {
     const input = inputs.value[i];
     if (input) {
-      input.value = pastedData[i] ?? '';
+      if (i >= start && i < start + pastedData.length) {
+        input.value = pastedData[i - start] ?? '';
+      } else if (i >= start + pastedData.length) {
+        input.value = '';
+      }
     }
   }
 
-  const lastFilledIndex = Math.min(pastedData.length, props.length) - 1;
+  const lastFilledIndex = start + Math.min(pastedData.length, props.length - start) - 1;
   if (lastFilledIndex >= 0 && lastFilledIndex < props.length - 1) {
     inputs.value[lastFilledIndex + 1]?.focus();
   } else if (lastFilledIndex === props.length - 1) {
@@ -109,23 +115,14 @@ watch(
   () => model.value,
   (newValue) => {
     if (newValue === undefined) return;
+    const normalized = props.numeric ? newValue.replace(/\D/g, '') : newValue;
+    const sliced = normalized.slice(0, props.length);
     inputs.value.forEach((input, i) => {
-      if (input) {
-        input.value = newValue[i] ?? '';
-      }
+      if (input) input.value = sliced[i] ?? '';
     });
   },
+  { immediate: true },
 );
-
-onMounted(() => {
-  if (model.value) {
-    inputs.value.forEach((input, i) => {
-      if (input) {
-        input.value = model.value[i] ?? '';
-      }
-    });
-  }
-});
 </script>
 
 <template>

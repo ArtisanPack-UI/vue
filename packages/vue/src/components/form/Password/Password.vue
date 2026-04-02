@@ -53,8 +53,10 @@ const describedBy = computed(
         type="button"
         class="opacity-50 hover:opacity-100 cursor-pointer"
         aria-label="Clear password"
+        :disabled="disabled"
         @click="
           () => {
+            if (disabled) return;
             model = '';
             emit('clear');
           }
@@ -67,7 +69,13 @@ const describedBy = computed(
         type="button"
         class="opacity-50 hover:opacity-100 cursor-pointer"
         :aria-label="visible ? 'Hide password' : 'Show password'"
-        @click="visible = !visible"
+        :disabled="disabled"
+        @click="
+          () => {
+            if (disabled) return;
+            visible = !visible;
+          }
+        "
       >
         <slot v-if="visible" name="visibleIcon">
           <svg

@@ -38,8 +38,8 @@ describe('Button', () => {
   });
 
   it('shows loading spinner when loading', () => {
-    render(Button, { props: { label: 'Loading', loading: true } });
-    const spinner = document.querySelector('.loading-spinner');
+    const { container } = render(Button, { props: { label: 'Loading', loading: true } });
+    const spinner = container.querySelector('.loading-spinner');
     expect(spinner).toBeTruthy();
   });
 
@@ -60,15 +60,17 @@ describe('Button', () => {
   });
 
   it('wraps in tooltip when tooltip prop is provided', () => {
-    render(Button, { props: { label: 'Tip', tooltip: 'Hello' } });
-    const tooltip = document.querySelector('.tooltip');
+    const { container } = render(Button, { props: { label: 'Tip', tooltip: 'Hello' } });
+    const tooltip = container.querySelector('.tooltip');
     expect(tooltip).toBeTruthy();
     expect(tooltip?.getAttribute('data-tip')).toBe('Hello');
   });
 
   it('applies tooltip position class', () => {
-    render(Button, { props: { label: 'Tip', tooltip: 'Hello', tooltipPosition: 'bottom' } });
-    const tooltip = document.querySelector('.tooltip');
+    const { container } = render(Button, {
+      props: { label: 'Tip', tooltip: 'Hello', tooltipPosition: 'bottom' },
+    });
+    const tooltip = container.querySelector('.tooltip');
     expect(tooltip?.classList.contains('tooltip-bottom')).toBe(true);
   });
 

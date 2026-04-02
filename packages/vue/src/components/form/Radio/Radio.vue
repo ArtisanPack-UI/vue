@@ -61,6 +61,8 @@ function getOptionHint(option: RadioOption): string | undefined {
 function getOptionId(option: RadioOption, index: number): string {
   return `${fieldsetId.value}-${String(getOptionValue(option, index))}`;
 }
+
+const firstEnabledIndex = computed(() => props.options.findIndex((opt) => !opt.disabled));
 </script>
 
 <template>
@@ -85,7 +87,7 @@ function getOptionId(option: RadioOption, index: number): string {
             ? cn(
                 'flex items-center gap-3 p-4 border rounded-lg cursor-pointer',
                 'hover:bg-base-200 transition-colors',
-                color && cardColorMap[color] ? cardColorMap[color] : cardColorMap.primary,
+                color && cardColorMap[color],
                 option.disabled && 'opacity-50 cursor-not-allowed',
                 cardClass,
               )
@@ -102,7 +104,7 @@ function getOptionId(option: RadioOption, index: number): string {
           :name="groupName"
           :value="getOptionValue(option, index)"
           :disabled="option.disabled === true"
-          :required="required && index === 0"
+          :required="required && index === firstEnabledIndex"
           :class="cn('radio', color && colorMap[color])"
         />
         <div>
