@@ -21,11 +21,13 @@
     "@changesets/changelog-github": "^0.6.0",
     "@changesets/cli": "^2.27.0",
     "@eslint/js": "^9.0.0",
+    "esbuild-plugin-vue3": "^0.5.1",
     "eslint": "^9.0.0",
     "eslint-plugin-vue": "^9.32.0",
     "prettier": "^3.4.0",
     "typescript": "^5.7.0",
     "typescript-eslint": "^8.0.0",
-    "vue-eslint-parser": "^9.4.0"
+    "vue-eslint-parser": "^9.4.0",
+    "vue-tsc": "^3.2.6"
   }
 }
