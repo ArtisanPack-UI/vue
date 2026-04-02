@@ -83,6 +83,10 @@ describe('Collapse', () => {
     await fireEvent.keyDown(trigger, { key: ' ' });
     await nextTick();
     expect(trigger.getAttribute('aria-expanded')).toBe('true');
+
+    await fireEvent.keyDown(trigger, { key: ' ' });
+    await nextTick();
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
   });
 
   it('starts open when defaultOpen is true', async () => {

@@ -50,7 +50,8 @@ const collapseClasses = computed(() =>
 <template>
   <div :class="collapseClasses">
     <input
-      type="checkbox"
+      :type="name ? 'radio' : 'checkbox'"
+      :name="name || undefined"
       :checked="isOpen"
       :disabled="disabled"
       class="peer"

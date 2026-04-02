@@ -15,6 +15,7 @@ const openModel = defineModel<boolean>('open', { default: false });
 
 const autoId = useId();
 const menuId = `dropdown-menu-${autoId}`;
+const triggerId = `dropdown-trigger-${autoId}`;
 
 const isOpen = computed(() => !!openModel.value);
 
@@ -124,6 +125,7 @@ const dropdownClasses = computed(() =>
 <template>
   <div ref="dropdownRef" :class="dropdownClasses">
     <div
+      :id="triggerId"
       ref="triggerRef"
       tabindex="0"
       role="button"
@@ -142,6 +144,7 @@ const dropdownClasses = computed(() =>
       :id="menuId"
       ref="menuRef"
       role="menu"
+      :aria-labelledby="triggerId"
       class="dropdown-content menu bg-base-100 rounded-box z-10 w-52 p-2 shadow-sm"
       @keydown="handleMenuKeydown"
     >

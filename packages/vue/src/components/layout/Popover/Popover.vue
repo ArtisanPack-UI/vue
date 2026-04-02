@@ -76,7 +76,7 @@ function handleMouseEnter() {
 
 function handleMouseLeave() {
   if (props.triggerMode === 'hover') {
-    hide(true);
+    hide();
   }
 }
 
@@ -150,7 +150,7 @@ const containerClasses = computed(() =>
       :id="contentId"
       tabindex="0"
       role="dialog"
-      :aria-label="ariaLabel"
+      :aria-label="ariaLabel || 'Popover'"
       class="dropdown-content bg-base-100 rounded-box z-50 shadow-lg p-4"
     >
       <slot />

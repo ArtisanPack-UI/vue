@@ -112,7 +112,7 @@ const modalBoxClasses = computed(() => cn('modal-box', props.glass && 'glass'));
       ref="dialogRef"
       :class="cn('modal', bottom && 'modal-bottom')"
       :aria-labelledby="title ? titleId : undefined"
-      :aria-label="!title ? ariaLabel : undefined"
+      :aria-label="!title ? ariaLabel || 'Dialog' : undefined"
       aria-modal="true"
       @keydown="handleKeydown"
       @click="handleBackdropClick"

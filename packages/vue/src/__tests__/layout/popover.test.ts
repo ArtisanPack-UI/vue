@@ -106,9 +106,30 @@ describe('Popover', () => {
       },
     });
 
-    // Enter on trigger should open
     const triggerWrapper = container.querySelector('[aria-expanded]') as HTMLElement;
+
+    // Enter on trigger should open
     await fireEvent.keyDown(triggerWrapper, { key: 'Enter' });
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+
+    // Space on trigger should close
+    await fireEvent.keyDown(triggerWrapper, { key: ' ' });
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeFalsy();
+
+    // Re-open for content descendant test
+    await fireEvent.keyDown(triggerWrapper, { key: 'Enter' });
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+
+    // Enter/Space on content descendant should NOT toggle the popover
+    const innerButton = container.querySelector('[role="dialog"] button') as HTMLElement;
+    await fireEvent.keyDown(innerButton, { key: 'Enter' });
+    await nextTick();
+    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+
+    await fireEvent.keyDown(innerButton, { key: ' ' });
     await nextTick();
     expect(container.querySelector('.dropdown-open')).toBeTruthy();
   });

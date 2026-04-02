@@ -73,6 +73,8 @@ watch(
       const focusable = getFocusableElements();
       if (focusable.length > 0) {
         focusable[0].focus();
+      } else {
+        sideRef.value?.focus();
       }
     } else {
       if (previousActiveElement.value?.isConnected) {
@@ -81,6 +83,7 @@ watch(
       previousActiveElement.value = null;
     }
   },
+  { immediate: true },
 );
 
 onBeforeUnmount(() => {
@@ -108,7 +111,7 @@ onBeforeUnmount(() => {
         :for="drawerId"
         class="drawer-overlay"
         :aria-label="!persistent ? 'Close drawer' : undefined"
-        @click="close"
+        @click.prevent="close"
       />
       <div
         ref="sideRef"

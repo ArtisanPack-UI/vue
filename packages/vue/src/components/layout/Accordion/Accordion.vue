@@ -23,7 +23,9 @@ const normalizeIndices = (indices: number[]): number[] =>
 const internalIndices = ref<number[]>(normalizeIndices(props.defaultOpenIndices ?? []));
 
 const currentIndices = computed(() =>
-  isControlled.value ? normalizeIndices(props.openIndices ?? []) : internalIndices.value,
+  isControlled.value
+    ? normalizeIndices(props.openIndices ?? [])
+    : normalizeIndices(internalIndices.value),
 );
 
 function toggleIndex(index: number) {

@@ -17,11 +17,21 @@ const emit = defineEmits<{
 
 const autoId = useId();
 
+function djb2Hash(str: string): string {
+  let hash = 5381;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 33) ^ str.charCodeAt(i);
+  }
+  return (hash >>> 0).toString(16).slice(0, 6);
+}
+
 function sanitizeId(name: string): string {
-  return name
+  const slug = name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
+  const hash = djb2Hash(name);
+  return slug ? `${slug}-${hash}` : hash;
 }
 
 const isControlled = computed(() => props.activeTab !== undefined);
@@ -38,19 +48,25 @@ function resolveValidTab(name: string | undefined): string {
 
 const internalTab = ref(resolveValidTab(props.defaultTab));
 
+const selectableTabs = computed(() => props.tabs.filter((t) => !t.disabled));
+
 // Keep uncontrolled state in sync when tabs change
-watch(firstSelectableTab, (first) => {
+watch(selectableTabs, () => {
   if (!isControlled.value) {
-    const current = props.tabs.find((t) => t.name === internalTab.value && !t.disabled);
+    const current = selectableTabs.value.find((t) => t.name === internalTab.value);
     if (!current) {
-      internalTab.value = first;
+      internalTab.value = firstSelectableTab.value;
     }
   }
 });
 
-const currentTab = computed(() =>
-  isControlled.value ? (props.activeTab ?? firstSelectableTab.value) : internalTab.value,
-);
+const currentTab = computed(() => {
+  if (isControlled.value) {
+    const valid = selectableTabs.value.find((t) => t.name === props.activeTab);
+    return valid ? props.activeTab! : firstSelectableTab.value;
+  }
+  return internalTab.value;
+});
 
 function selectTab(name: string) {
   const tab = props.tabs.find((t) => t.name === name);
