@@ -149,7 +149,11 @@ const colorDotMap: Record<string, string> = {
 </script>
 
 <template>
-  <div :class="cn('card bg-base-100 shadow-sm p-4', props.className)" role="grid" aria-label="Calendar">
+  <div
+    :class="cn('card bg-base-100 shadow-sm p-4', props.className)"
+    role="grid"
+    aria-label="Calendar"
+  >
     <div class="flex items-center justify-between mb-4">
       <button class="btn btn-ghost btn-sm" aria-label="Previous month" @click="prevMonth">‹</button>
       <span class="font-semibold" aria-live="polite">{{ monthLabel }}</span>
@@ -167,14 +171,16 @@ const colorDotMap: Record<string, string> = {
       <button
         v-for="(cell, index) in calendarDays"
         :key="index"
-        :class="cn(
-          'p-1 rounded-lg text-sm relative transition-colors',
-          !cell.isCurrentMonth && 'opacity-30',
-          cell.isToday && 'font-bold ring-1 ring-primary',
-          modelValue === cell.date && 'bg-primary text-primary-content',
-          isDisabled(cell.date) && 'opacity-20 cursor-not-allowed',
-          !isDisabled(cell.date) && 'hover:bg-base-200 cursor-pointer',
-        )"
+        :class="
+          cn(
+            'p-1 rounded-lg text-sm relative transition-colors',
+            !cell.isCurrentMonth && 'opacity-30',
+            cell.isToday && 'font-bold ring-1 ring-primary',
+            modelValue === cell.date && 'bg-primary text-primary-content',
+            isDisabled(cell.date) && 'opacity-20 cursor-not-allowed',
+            !isDisabled(cell.date) && 'hover:bg-base-200 cursor-pointer',
+          )
+        "
         :disabled="isDisabled(cell.date)"
         :aria-selected="modelValue === cell.date"
         :aria-label="`${cell.date}${getEventsForDate(cell.date).length ? `, ${getEventsForDate(cell.date).length} ${getEventsForDate(cell.date).length === 1 ? 'event' : 'events'}` : ''}`"
@@ -189,7 +195,9 @@ const colorDotMap: Record<string, string> = {
           <span
             v-for="event in getEventsForDate(cell.date).slice(0, 3)"
             :key="event.id"
-            :class="cn('w-1 h-1 rounded-full', event.color ? colorDotMap[event.color] : 'bg-primary')"
+            :class="
+              cn('w-1 h-1 rounded-full', event.color ? colorDotMap[event.color] : 'bg-primary')
+            "
           />
         </div>
       </button>

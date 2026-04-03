@@ -51,7 +51,7 @@ describe('Table', () => {
     const { container } = render(Table, {
       props: { columns, rows, compact: true },
     });
-    expect(container.querySelector('.table-compact')).toBeTruthy();
+    expect(container.querySelector('.table-xs')).toBeTruthy();
   });
 
   it('emits sort event on sortable column click', async () => {

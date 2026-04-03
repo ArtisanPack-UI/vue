@@ -95,7 +95,12 @@ const wrapperClasses = computed(() => cn('relative w-full overflow-hidden', prop
       <button
         v-for="(slide, index) in slides"
         :key="slide.id"
-        :class="cn('w-2 h-2 rounded-full transition-colors', index === activeIndex ? 'bg-primary' : 'bg-base-300')"
+        :class="
+          cn(
+            'w-2 h-2 rounded-full transition-colors',
+            index === activeIndex ? 'bg-primary' : 'bg-base-300',
+          )
+        "
         :aria-label="`Go to slide ${index + 1}`"
         :aria-current="index === activeIndex ? 'true' : undefined"
         @click="goTo(index)"

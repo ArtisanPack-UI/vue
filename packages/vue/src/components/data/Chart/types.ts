@@ -27,7 +27,15 @@ export interface ChartSeries {
 /**
  * Supported chart types.
  */
-export type ChartType = 'bar' | 'line' | 'area' | 'donut' | 'pie' | 'radialBar' | 'radar' | 'polarArea';
+export type ChartType =
+  | 'bar'
+  | 'line'
+  | 'area'
+  | 'donut'
+  | 'pie'
+  | 'radialBar'
+  | 'radar'
+  | 'polarArea';
 
 /**
  * Props for the Chart component.

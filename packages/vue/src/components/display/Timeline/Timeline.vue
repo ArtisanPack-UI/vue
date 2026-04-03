@@ -33,7 +33,10 @@ const timelineClasses = computed(() =>
 );
 
 function dotClasses(color?: string) {
-  return cn('timeline-middle', color && colorMap[color] ? `${colorMap[color]} rounded-full w-4 h-4` : '');
+  return cn(
+    'timeline-middle',
+    color && colorMap[color] ? `${colorMap[color]} rounded-full w-4 h-4` : '',
+  );
 }
 </script>
 
@@ -41,17 +44,23 @@ function dotClasses(color?: string) {
   <ul :class="timelineClasses" role="list" aria-label="Timeline">
     <li v-for="(item, index) in items" :key="item.id">
       <hr v-if="index > 0" />
-      <div v-if="item.time" class="timeline-start">{{ item.time }}</div>
+      <div v-if="item.time" class="timeline-start">
+        {{ item.time }}
+      </div>
       <div :class="dotClasses(item.color)">
         <slot name="marker" :item="item" :index="index">
           <div
-            :class="cn('w-3 h-3 rounded-full', item.color ? colorMap[item.color] : 'bg-base-content')"
+            :class="
+              cn('w-3 h-3 rounded-full', item.color ? colorMap[item.color] : 'bg-base-content')
+            "
           />
         </slot>
       </div>
       <div class="timeline-end timeline-box">
         <slot name="item" :item="item" :index="index">
-          <h3 v-if="item.title" class="font-semibold">{{ item.title }}</h3>
+          <h3 v-if="item.title" class="font-semibold">
+            {{ item.title }}
+          </h3>
           <p v-if="item.description" class="text-sm text-base-content/70">
             {{ item.description }}
           </p>

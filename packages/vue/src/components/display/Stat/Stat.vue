@@ -29,10 +29,18 @@ const hasActions = computed(() => !!slots.actions);
     <div v-if="hasFigure" class="stat-figure">
       <slot name="figure" />
     </div>
-    <div class="stat-title">{{ title }}</div>
-    <div class="stat-value">{{ value }}</div>
-    <div v-if="description && !change" class="stat-desc">{{ description }}</div>
-    <div v-if="change" :class="changeClasses">{{ change }}</div>
+    <div class="stat-title">
+      {{ title }}
+    </div>
+    <div class="stat-value">
+      {{ value }}
+    </div>
+    <div v-if="description && !change" class="stat-desc">
+      {{ description }}
+    </div>
+    <div v-if="change" :class="changeClasses">
+      {{ change }}
+    </div>
     <div v-if="hasActions" class="stat-actions">
       <slot name="actions" />
     </div>

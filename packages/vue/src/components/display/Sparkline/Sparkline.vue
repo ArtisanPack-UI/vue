@@ -53,9 +53,7 @@ interface Point {
   y: number;
 }
 
-const points = computed<Point[]>(() =>
-  props.data.map((v, i) => ({ x: scaleX(i), y: scaleY(v) })),
-);
+const points = computed<Point[]>(() => props.data.map((v, i) => ({ x: scaleX(i), y: scaleY(v) })));
 
 function catmullRomPath(pts: Point[]): string {
   if (pts.length < 2) return '';

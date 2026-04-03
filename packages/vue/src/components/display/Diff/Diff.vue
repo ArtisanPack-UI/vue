@@ -52,15 +52,23 @@ function statusClasses(status: DiffLine['status'], side: 'before' | 'after') {
 </script>
 
 <template>
-  <div :class="cn('overflow-x-auto font-mono text-sm', props.className)" role="region" aria-label="Diff viewer">
+  <div
+    :class="cn('overflow-x-auto font-mono text-sm', props.className)"
+    role="region"
+    aria-label="Diff viewer"
+  >
     <!-- Side-by-side mode -->
     <table v-if="mode === 'side-by-side'" class="w-full border-collapse">
       <thead>
         <tr class="text-left">
           <th v-if="lineNumbers" class="px-2 py-1 text-base-content/50 w-8">#</th>
-          <th class="px-3 py-1 w-1/2 border-r border-base-300 font-semibold">{{ beforeLabel }}</th>
+          <th class="px-3 py-1 w-1/2 border-r border-base-300 font-semibold">
+            {{ beforeLabel }}
+          </th>
           <th v-if="lineNumbers" class="px-2 py-1 text-base-content/50 w-8">#</th>
-          <th class="px-3 py-1 w-1/2 font-semibold">{{ afterLabel }}</th>
+          <th class="px-3 py-1 w-1/2 font-semibold">
+            {{ afterLabel }}
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -69,16 +77,19 @@ function statusClasses(status: DiffLine['status'], side: 'before' | 'after') {
             {{ line.status !== 'added' ? line.lineNumber : '' }}
           </td>
           <td
-            :class="cn('px-3 py-0.5 whitespace-pre border-r border-base-300', statusClasses(line.status, 'before'))"
+            :class="
+              cn(
+                'px-3 py-0.5 whitespace-pre border-r border-base-300',
+                statusClasses(line.status, 'before'),
+              )
+            "
           >
             {{ line.status !== 'added' ? line.before : '' }}
           </td>
           <td v-if="lineNumbers" class="px-2 py-0.5 text-base-content/30 select-none text-right">
             {{ line.status !== 'removed' ? line.lineNumber : '' }}
           </td>
-          <td
-            :class="cn('px-3 py-0.5 whitespace-pre', statusClasses(line.status, 'after'))"
-          >
+          <td :class="cn('px-3 py-0.5 whitespace-pre', statusClasses(line.status, 'after'))">
             {{ line.status !== 'removed' ? line.after : '' }}
           </td>
         </tr>
@@ -95,13 +106,19 @@ function statusClasses(status: DiffLine['status'], side: 'before' | 'after') {
       </thead>
       <tbody>
         <template v-for="line in diffLines" :key="line.lineNumber">
-          <tr v-if="line.status === 'removed' || line.status === 'modified'" class="border-t border-base-200">
+          <tr
+            v-if="line.status === 'removed' || line.status === 'modified'"
+            class="border-t border-base-200"
+          >
             <td v-if="lineNumbers" class="px-2 py-0.5 text-base-content/30 select-none text-right">
               {{ line.lineNumber }}
             </td>
             <td class="px-3 py-0.5 whitespace-pre bg-error/20">- {{ line.before }}</td>
           </tr>
-          <tr v-if="line.status === 'added' || line.status === 'modified'" class="border-t border-base-200">
+          <tr
+            v-if="line.status === 'added' || line.status === 'modified'"
+            class="border-t border-base-200"
+          >
             <td v-if="lineNumbers" class="px-2 py-0.5 text-base-content/30 select-none text-right">
               {{ line.lineNumber }}
             </td>
@@ -111,7 +128,9 @@ function statusClasses(status: DiffLine['status'], side: 'before' | 'after') {
             <td v-if="lineNumbers" class="px-2 py-0.5 text-base-content/30 select-none text-right">
               {{ line.lineNumber }}
             </td>
-            <td class="px-3 py-0.5 whitespace-pre">{{ line.before }}</td>
+            <td class="px-3 py-0.5 whitespace-pre">
+              {{ line.before }}
+            </td>
           </tr>
         </template>
       </tbody>

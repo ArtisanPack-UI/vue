@@ -7,6 +7,7 @@ import { defineComponent, h } from 'vue';
 vi.mock('vue3-apexcharts', () => {
   const MockChart = defineComponent({
     name: 'VueApexCharts',
+    // eslint-disable-next-line vue/require-prop-types
     props: ['type', 'height', 'width', 'options', 'series'],
     render() {
       return h(

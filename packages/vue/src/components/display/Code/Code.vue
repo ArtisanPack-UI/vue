@@ -40,7 +40,9 @@ async function copyToClipboard() {
 <template>
   <code v-if="inline" class="badge badge-ghost font-mono text-sm">{{ code }}</code>
   <div v-else :class="wrapperClasses">
-    <div v-if="language" class="absolute right-2 top-2 text-xs opacity-50">{{ language }}</div>
+    <div v-if="language" class="absolute right-2 top-2 text-xs opacity-50">
+      {{ language }}
+    </div>
     <button
       v-if="copyable"
       class="btn btn-ghost btn-xs absolute right-2 top-8"

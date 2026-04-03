@@ -27,8 +27,14 @@ const daisyToHex: Record<string, string> = {
 };
 
 const defaultPalette = [
-  '#6366f1', '#f43f5e', '#10b981', '#f59e0b',
-  '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6',
+  '#6366f1',
+  '#f43f5e',
+  '#10b981',
+  '#f59e0b',
+  '#3b82f6',
+  '#8b5cf6',
+  '#ec4899',
+  '#14b8a6',
 ];
 
 function resolveColor(color?: string): string | undefined {
@@ -55,10 +61,14 @@ const chartSeries = computed(() => {
 
 const chartColors = computed(() => {
   if (isSingleSeries.value && props.data) {
-    return props.data.map((d, i) => resolveColor(d.color) || defaultPalette[i % defaultPalette.length]);
+    return props.data.map(
+      (d, i) => resolveColor(d.color) || defaultPalette[i % defaultPalette.length],
+    );
   }
   if (props.series) {
-    return props.series.map((s, i) => resolveColor(s.color) || defaultPalette[i % defaultPalette.length]);
+    return props.series.map(
+      (s, i) => resolveColor(s.color) || defaultPalette[i % defaultPalette.length],
+    );
   }
   return defaultPalette;
 });
@@ -70,14 +80,21 @@ const chartLabels = computed(() => {
   return props.labels || [];
 });
 
-function deepMerge(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
+function deepMerge(
+  target: Record<string, unknown>,
+  source: Record<string, unknown>,
+): Record<string, unknown> {
   const result = { ...target };
   for (const key of Object.keys(source)) {
     const s = source[key];
     const t = target[key];
     if (
-      s !== null && typeof s === 'object' && !Array.isArray(s) &&
-      t !== null && typeof t === 'object' && !Array.isArray(t)
+      s !== null &&
+      typeof s === 'object' &&
+      !Array.isArray(s) &&
+      t !== null &&
+      typeof t === 'object' &&
+      !Array.isArray(t)
     ) {
       result[key] = deepMerge(t as Record<string, unknown>, s as Record<string, unknown>);
     } else {
@@ -135,7 +152,9 @@ const chartOptions = computed(() => {
 
 <template>
   <div :class="cn('w-full', props.className)">
-    <h3 v-if="title" class="text-lg font-semibold mb-2">{{ title }}</h3>
+    <h3 v-if="title" class="text-lg font-semibold mb-2">
+      {{ title }}
+    </h3>
     <VueApexCharts
       :type="type"
       :height="height"

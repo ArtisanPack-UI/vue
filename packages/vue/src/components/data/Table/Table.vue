@@ -22,7 +22,7 @@ const tableClasses = computed(() =>
   cn(
     'table',
     props.striped && 'table-zebra',
-    props.compact && 'table-compact',
+    props.compact && 'table-xs',
     props.hoverable && '[&_tr:hover]:bg-base-200',
     props.pinRows && 'table-pin-rows',
     props.pinCols && 'table-pin-cols',
@@ -62,15 +62,23 @@ function getCellValue(row: Record<string, unknown>, key: string): unknown {
           <th
             v-for="column in columns"
             :key="column.key"
-            :class="cn(
-              alignMap[column.align || 'left'],
-              column.sortable && 'cursor-pointer select-none hover:bg-base-200',
-              column.className,
-            )"
+            :class="
+              cn(
+                alignMap[column.align || 'left'],
+                column.sortable && 'cursor-pointer select-none hover:bg-base-200',
+                column.className,
+              )
+            "
             :style="column.width ? { width: column.width } : undefined"
             :tabindex="column.sortable ? 0 : undefined"
             :role="column.sortable ? 'button' : undefined"
-            :aria-sort="sort?.key === column.key ? (sort.direction === 'asc' ? 'ascending' : 'descending') : undefined"
+            :aria-sort="
+              sort?.key === column.key
+                ? sort.direction === 'asc'
+                  ? 'ascending'
+                  : 'descending'
+                : undefined
+            "
             @click="handleSort(column)"
             @keydown.enter="handleSort(column)"
             @keydown.space.prevent="handleSort(column)"
@@ -82,12 +90,18 @@ function getCellValue(row: Record<string, unknown>, key: string): unknown {
       <tbody>
         <tr v-if="loading">
           <td :colspan="columns.length" class="text-center py-8">
-            <span class="loading loading-spinner loading-md" role="status" aria-label="Loading table data" />
+            <span
+              class="loading loading-spinner loading-md"
+              role="status"
+              aria-label="Loading table data"
+            />
           </td>
         </tr>
         <tr v-else-if="rows.length === 0">
           <td :colspan="columns.length" class="text-center py-8 text-base-content/50">
-            <slot name="empty">{{ emptyMessage }}</slot>
+            <slot name="empty">
+              {{ emptyMessage }}
+            </slot>
           </td>
         </tr>
         <template v-else>
