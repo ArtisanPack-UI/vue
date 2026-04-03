@@ -52,6 +52,7 @@ describe('Checkbox', () => {
     expect(checkbox.checked).toBe(true);
     await fireEvent.click(checkbox);
     expect(emitted()['update:modelValue']).toBeTruthy();
+    expect(emitted()['update:modelValue'][0]).toEqual([false]);
   });
 
   it('sets aria-invalid on error', () => {

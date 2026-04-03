@@ -38,7 +38,10 @@ const copied = ref(false);
 let copyTimeout: ReturnType<typeof setTimeout> | null = null;
 
 onUnmounted(() => {
-  if (copyTimeout) clearTimeout(copyTimeout);
+  if (copyTimeout) {
+    clearTimeout(copyTimeout);
+    copyTimeout = null;
+  }
 });
 
 const buttonClasses = computed(() =>
@@ -47,7 +50,10 @@ const buttonClasses = computed(() =>
 
 async function handleCopy() {
   if (!navigator.clipboard?.writeText) {
-    if (copyTimeout) clearTimeout(copyTimeout);
+    if (copyTimeout) {
+      clearTimeout(copyTimeout);
+      copyTimeout = null;
+    }
     copied.value = false;
     emit('error', new Error('Clipboard API not available'));
     return;
@@ -56,12 +62,19 @@ async function handleCopy() {
     await navigator.clipboard.writeText(props.text);
     copied.value = true;
     emit('copy');
-    if (copyTimeout) clearTimeout(copyTimeout);
+    if (copyTimeout) {
+      clearTimeout(copyTimeout);
+      copyTimeout = null;
+    }
     copyTimeout = setTimeout(() => {
       copied.value = false;
+      copyTimeout = null;
     }, props.successDuration);
   } catch (error) {
-    if (copyTimeout) clearTimeout(copyTimeout);
+    if (copyTimeout) {
+      clearTimeout(copyTimeout);
+      copyTimeout = null;
+    }
     copied.value = false;
     emit('error', error);
   }

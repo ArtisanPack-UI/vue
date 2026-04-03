@@ -41,8 +41,10 @@ describe('Breadcrumbs', () => {
   it('does not set aria-current on non-last items', () => {
     const { container } = render(Breadcrumbs, { props: { items: testItems } });
     const listItems = container.querySelectorAll('li');
-    expect(listItems[0].getAttribute('aria-current')).toBeNull();
-    expect(listItems[1].getAttribute('aria-current')).toBeNull();
+    const firstInner = listItems[0].querySelector('a, span');
+    const secondInner = listItems[1].querySelector('a, span');
+    expect(firstInner?.getAttribute('aria-current')).toBeNull();
+    expect(secondInner?.getAttribute('aria-current')).toBeNull();
   });
 
   it('applies breadcrumbs class', () => {

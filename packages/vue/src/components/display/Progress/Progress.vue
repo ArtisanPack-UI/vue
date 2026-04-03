@@ -41,6 +41,8 @@ const percentage = computed(() => {
       :aria-valuemin="0"
       :aria-valuemax="max"
     />
-    <span v-if="showValue" class="text-sm text-base-content/70">{{ percentage }}%</span>
+    <span v-if="showValue && value !== undefined" class="text-sm text-base-content/70"
+      >{{ percentage }}%</span
+    >
   </div>
 </template>

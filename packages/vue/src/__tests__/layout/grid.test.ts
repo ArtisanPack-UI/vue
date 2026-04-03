@@ -52,7 +52,7 @@ describe('Grid', () => {
     });
     const el = container.firstElementChild!;
     expect(el.classList.contains('gap-x-6')).toBe(true);
-    expect(el.classList.contains('gap-4')).toBe(false);
+    expect(el.classList.contains('gap-y-4')).toBe(false);
   });
 
   it('uses gapY only when gapX is not set', () => {
@@ -62,7 +62,7 @@ describe('Grid', () => {
     });
     const el = container.firstElementChild!;
     expect(el.classList.contains('gap-y-10')).toBe(true);
-    expect(el.classList.contains('gap-4')).toBe(false);
+    expect(el.classList.contains('gap-x-4')).toBe(false);
   });
 
   it('renders slot content', () => {

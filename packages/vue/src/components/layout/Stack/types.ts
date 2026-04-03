@@ -14,4 +14,6 @@ export interface StackProps {
   justify?: 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly';
   /** When true, allows items to wrap to the next line. @defaultValue `false` */
   wrap?: boolean;
+  /** Additional CSS classes. */
+  className?: string;
 }

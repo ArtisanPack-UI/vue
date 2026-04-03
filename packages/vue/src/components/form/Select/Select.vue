@@ -29,7 +29,7 @@ const describedBy = computed(
   <fieldset class="fieldset">
     <legend v-if="label && !inline" :id="`${inputId}-label`" class="fieldset-legend">
       {{ label }}
-      <span v-if="required" class="text-error ml-1">*</span>
+      <span v-if="required" class="text-error ml-1" aria-hidden="true">*</span>
     </legend>
     <label
       :class="cn('select', 'w-full', error && 'select-error')"
@@ -72,7 +72,7 @@ const describedBy = computed(
     </label>
     <label v-if="inline && label" class="fieldset-label" :for="inputId">
       {{ label }}
-      <span v-if="required" class="text-error ml-1">*</span>
+      <span v-if="required" class="text-error ml-1" aria-hidden="true">*</span>
     </label>
     <p v-if="hint && !error" :id="hintId" class="fieldset-label">{{ hint }}</p>
     <p v-if="error" :id="errorId" class="fieldset-label text-error" role="alert">{{ error }}</p>
