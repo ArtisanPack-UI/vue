@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/vue';
+import { render } from '@testing-library/vue';
 import { Markdown } from '../../components/utility';
 
 describe('Markdown', () => {

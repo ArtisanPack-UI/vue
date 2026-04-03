@@ -45,9 +45,12 @@ const tooltipClasses = computed(() =>
   <div
     :class="tooltipClasses"
     :data-tip="text"
-    :aria-describedby="tooltipId"
   >
-    <slot />
-    <span :id="tooltipId" role="tooltip" class="sr-only">{{ text }}</span>
+    <slot :tooltip-id="tooltipId" />
+    <span
+      :id="tooltipId"
+      role="tooltip"
+      class="sr-only"
+    >{{ text }}</span>
   </div>
 </template>

@@ -72,7 +72,17 @@ async function handleCopy() {
     :aria-label="copied ? successLabel : label"
     @click="handleCopy"
   >
-    <slot v-if="!copied" name="default">{{ label }}</slot>
-    <slot v-else name="success">{{ successLabel }}</slot>
+    <slot
+      v-if="!copied"
+      name="default"
+    >
+      {{ label }}
+    </slot>
+    <slot
+      v-else
+      name="success"
+    >
+      {{ successLabel }}
+    </slot>
   </button>
 </template>

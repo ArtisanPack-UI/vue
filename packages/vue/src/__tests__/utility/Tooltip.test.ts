@@ -83,19 +83,25 @@ describe('Tooltip', () => {
     expect(container.querySelector('.tooltip-open')).toBeFalsy();
   });
 
-  it('has aria-describedby linking to a role="tooltip" element', () => {
+  it('exposes tooltipId via slot props and has role="tooltip" element', () => {
     const { container } = render(Tooltip, {
       props: { text: 'Accessible tip' },
-      slots: { default: '<span>Trigger</span>' },
+      slots: {
+        default: `<template #default="{ tooltipId }">
+          <span :aria-describedby="tooltipId">Trigger</span>
+        </template>`,
+      },
     });
-    const wrapper = container.querySelector('.tooltip');
-    const describedBy = wrapper?.getAttribute('aria-describedby');
-    expect(describedBy).toBeTruthy();
 
     const tooltipEl = screen.getByRole('tooltip');
     expect(tooltipEl).toBeTruthy();
-    expect(tooltipEl.id).toBe(describedBy);
     expect(tooltipEl.textContent).toBe('Accessible tip');
+    expect(tooltipEl.id).toBeTruthy();
+
+    // Verify the slot consumer can use the tooltipId
+    const trigger = container.querySelector('[aria-describedby]');
+    expect(trigger).toBeTruthy();
+    expect(trigger?.getAttribute('aria-describedby')).toBe(tooltipEl.id);
   });
 
   it('hides the tooltip text visually with sr-only', () => {

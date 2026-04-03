@@ -13,10 +13,13 @@ const props = defineProps<MarkdownProps>();
  */
 function parseMarkdown(md: string): string {
   let html = md;
+  const codeBlocks: string[] = [];
 
-  // Fenced code blocks (``` ... ```)
+  // Fenced code blocks (``` ... ```) — replace with placeholders
   html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_match, _lang, code) => {
-    return `<pre><code>${escapeHtml(code.trimEnd())}</code></pre>`;
+    const index = codeBlocks.length;
+    codeBlocks.push(`<pre><code>${escapeHtml(code.trimEnd())}</code></pre>`);
+    return `__CODE_BLOCK_${index}__`;
   });
 
   // Split into lines for block-level processing
@@ -25,11 +28,16 @@ function parseMarkdown(md: string): string {
   let inList: 'ul' | 'ol' | null = null;
 
   for (let i = 0; i < lines.length; i++) {
-    let line = lines[i];
+    const line = lines[i];
 
-    // Skip lines inside pre blocks (already handled)
-    if (line.includes('<pre>') || line.includes('</pre>')) {
-      result.push(line);
+    // Restore code block placeholders
+    const codeBlockMatch = line.match(/^__CODE_BLOCK_(\d+)__$/);
+    if (codeBlockMatch) {
+      if (inList) {
+        result.push(inList === 'ul' ? '</ul>' : '</ol>');
+        inList = null;
+      }
+      result.push(codeBlocks[Number(codeBlockMatch[1])]);
       continue;
     }
 
@@ -125,8 +133,15 @@ function sanitizeUrl(url: string): string {
 function applyInline(text: string): string {
   // First escape HTML to prevent XSS
   let result = escapeHtml(text);
-  // Inline code
-  result = result.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+  // Extract inline code spans into placeholders so their content is not re-parsed
+  const codeSpans: string[] = [];
+  result = result.replace(/`([^`]+)`/g, (_m, content: string) => {
+    const index = codeSpans.length;
+    codeSpans.push(`<code>${content}</code>`);
+    return `\uE000CS${index}\uE001`;
+  });
+
   // Images (before links to avoid conflict)
   result = result.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_m, alt: string, src: string) =>
     `<img src="${sanitizeUrl(src)}" alt="${alt}">`,
@@ -141,6 +156,10 @@ function applyInline(text: string): string {
   // Italic
   result = result.replace(/\*(.+?)\*/g, '<em>$1</em>');
   result = result.replace(/_(.+?)_/g, '<em>$1</em>');
+
+  // Restore code span placeholders
+  result = result.replace(/\uE000CS(\d+)\uE001/g, (_m, index: string) => codeSpans[Number(index)]);
+
   return result;
 }
 
@@ -161,5 +180,8 @@ const containerClasses = computed(() => cn('prose', props.className));
 
 <template>
   <!-- eslint-disable-next-line vue/no-v-html -->
-  <div :class="containerClasses" v-html="renderedHtml" />
+  <div
+    :class="containerClasses"
+    v-html="renderedHtml"
+  />
 </template>
