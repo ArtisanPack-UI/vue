@@ -1,4 +1,5 @@
 import { defineConfig } from 'tsup';
+import vue from 'esbuild-plugin-vue3';
 
 export default defineConfig({
   entry: {
@@ -8,12 +9,15 @@ export default defineConfig({
     navigation: 'src/components/navigation/index.ts',
     display: 'src/components/display/index.ts',
     data: 'src/components/data/index.ts',
+    feedback: 'src/components/feedback/index.ts',
     utility: 'src/components/utility/index.ts',
+    composables: 'src/composables/index.ts',
   },
   format: ['esm'],
-  dts: true,
+  dts: false,
   clean: true,
   sourcemap: true,
-  external: ['vue'],
+  external: ['vue', '@artisanpack-ui/tokens', 'apexcharts', 'vue3-apexcharts'],
   outExtension: () => ({ js: '.mjs' }),
+  esbuildPlugins: [vue()],
 });

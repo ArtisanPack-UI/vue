@@ -30,29 +30,58 @@
       "import": "./dist/data.mjs",
       "types": "./dist/data.d.ts"
     },
+    "./feedback": {
+      "import": "./dist/feedback.mjs",
+      "types": "./dist/feedback.d.ts"
+    },
     "./utility": {
       "import": "./dist/utility.mjs",
       "types": "./dist/utility.d.ts"
+    },
+    "./composables": {
+      "import": "./dist/composables.mjs",
+      "types": "./dist/composables.d.ts"
     }
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && vue-tsc --project tsconfig.build.json",
+    "type-check": "vue-tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@artisanpack-ui/tokens": "*"
   },
   "devDependencies": {
     "@testing-library/vue": "^8.1.0",
     "@vitejs/plugin-vue": "^5.2.0",
+    "apexcharts": "^5.10.4",
+    "jsdom": "^27.0.1",
     "tsup": "^8.3.0",
     "typescript": "^5.7.0",
     "vitest": "^2.1.0",
-    "vue": "^3.5.0"
+    "vue": "^3.5.0",
+    "vue-tsc": "^3.2.6",
+    "vue3-apexcharts": "^1.11.1"
   },
   "peerDependencies": {
-    "vue": "^3.4.0"
+    "apexcharts": "^5.10.0",
+    "vue": "^3.5.0",
+    "vue3-apexcharts": "^1.7.0"
+  },
+  "peerDependenciesMeta": {
+    "apexcharts": {
+      "optional": true
+    },
+    "vue3-apexcharts": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "license": "MIT"
 }
