@@ -17,7 +17,7 @@ const props = defineProps<{
 <template>
   <nav :class="cn('breadcrumbs text-sm', props.className)" aria-label="Breadcrumb">
     <ul>
-      <li v-for="(item, index) in items" :key="item.href ?? item.label">
+      <li v-for="(item, index) in items" :key="`${index}-${item.label}`">
         <Link v-if="item.href && index !== items.length - 1" :href="item.href">
           <slot name="item" :item="item" :index="index" :is-last="false">
             {{ item.label }}

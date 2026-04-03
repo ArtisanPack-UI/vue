@@ -49,7 +49,7 @@ export function useInertiaForm<T extends Record<string, unknown>>(
    * directly to the `error` prop on ArtisanPack UI form components.
    */
   function getError(field: keyof T): string | undefined {
-    return (form.errors as Record<string, string>)[field as string] || undefined;
+    return (form.errors as Record<string, string>)[field as string] ?? undefined;
   }
 
   /** Clear errors for specific fields or all errors. */
