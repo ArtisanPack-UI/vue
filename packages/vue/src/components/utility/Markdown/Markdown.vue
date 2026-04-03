@@ -143,16 +143,21 @@ function applyInline(text: string): string {
     return `\uE000CS${index}\uE001`;
   });
 
+  // Images and links — tokenize to protect from emphasis regexes
+  const tags: string[] = [];
   // Images (before links to avoid conflict)
-  result = result.replace(
-    /!\[([^\]]*)\]\(([^)]+)\)/g,
-    (_m, alt: string, src: string) => `<img src="${sanitizeUrl(src)}" alt="${alt}">`,
-  );
+  result = result.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_m, alt: string, src: string) => {
+    const index = tags.length;
+    tags.push(`<img src="${sanitizeUrl(src)}" alt="${alt}">`);
+    return `\uE000TG${index}\uE001`;
+  });
   // Links
-  result = result.replace(
-    /\[([^\]]+)\]\(([^)]+)\)/g,
-    (_m, label: string, href: string) => `<a href="${sanitizeUrl(href)}">${label}</a>`,
-  );
+  result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, label: string, href: string) => {
+    const index = tags.length;
+    tags.push(`<a href="${sanitizeUrl(href)}">${label}</a>`);
+    return `\uE000TG${index}\uE001`;
+  });
+
   // Bold
   result = result.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   result = result.replace(/__(.+?)__/g, '<strong>$1</strong>');
@@ -160,7 +165,8 @@ function applyInline(text: string): string {
   result = result.replace(/\*(.+?)\*/g, '<em>$1</em>');
   result = result.replace(/_(.+?)_/g, '<em>$1</em>');
 
-  // Restore code span placeholders
+  // Restore tag and code span placeholders
+  result = result.replace(/\uE000TG(\d+)\uE001/g, (_m, index: string) => tags[Number(index)]);
   result = result.replace(/\uE000CS(\d+)\uE001/g, (_m, index: string) => codeSpans[Number(index)]);
 
   return result;

@@ -46,6 +46,10 @@ const buttonClasses = computed(() =>
 );
 
 async function handleCopy() {
+  if (!navigator.clipboard?.writeText) {
+    emit('error', new Error('Clipboard API not available'));
+    return;
+  }
   try {
     await navigator.clipboard.writeText(props.text);
     copied.value = true;
