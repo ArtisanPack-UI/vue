@@ -1,12 +1,23 @@
 <script setup lang="ts">
 /** @module Chart */
-import { computed, defineAsyncComponent } from 'vue';
+import { computed, defineAsyncComponent, defineComponent, h } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { ChartProps } from './types';
 
-const VueApexCharts = defineAsyncComponent(() =>
-  import('vue3-apexcharts').then((m) => m.default || m),
-);
+const ChartError = defineComponent({
+  render() {
+    return h(
+      'div',
+      { class: 'p-4 text-sm text-base-content/60 border border-base-300 rounded-lg text-center' },
+      'Chart requires apexcharts and vue3-apexcharts. Install with: npm install apexcharts vue3-apexcharts',
+    );
+  },
+});
+
+const VueApexCharts = defineAsyncComponent({
+  loader: () => import('vue3-apexcharts').then((m) => m.default || m),
+  errorComponent: ChartError,
+});
 
 const props = withDefaults(defineProps<ChartProps>(), {
   type: 'bar',

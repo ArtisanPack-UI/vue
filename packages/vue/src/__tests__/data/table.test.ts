@@ -104,17 +104,11 @@ describe('Table', () => {
     expect(container.querySelector('[role="table"]')).toBeTruthy();
   });
 
-  it('renders sortable column header as a button', () => {
-    const { container } = render(Table, { props: { columns, rows } });
-    const sortButton = container.querySelector('th button');
-    expect(sortButton).toBeTruthy();
-    expect(sortButton?.textContent).toContain('Name');
-  });
-
   it('renders sortable header as a button element', () => {
     const { container } = render(Table, { props: { columns, rows } });
     const sortButton = container.querySelector('th button') as HTMLButtonElement;
     expect(sortButton).toBeTruthy();
+    expect(sortButton.textContent).toContain('Name');
     expect(sortButton.type).toBe('button');
   });
 
