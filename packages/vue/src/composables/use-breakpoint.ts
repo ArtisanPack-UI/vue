@@ -98,8 +98,6 @@ export function useBreakpoint(): BreakpointContext {
   const cleanups: (() => void)[] = [];
 
   onMounted(() => {
-    if (typeof window === 'undefined') return;
-
     // Use matchMedia for each breakpoint for efficient change detection
     for (const bp of BREAKPOINT_ORDER) {
       if (bp === 'xs') continue;

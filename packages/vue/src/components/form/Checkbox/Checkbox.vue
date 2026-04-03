@@ -1,5 +1,5 @@
-/** @module Checkbox */
 <script setup lang="ts">
+/** @module Checkbox */
 import { computed, useId } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { CheckboxProps } from './types';

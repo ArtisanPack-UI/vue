@@ -1,5 +1,5 @@
-/** @module Textarea */
 <script setup lang="ts">
+/** @module Textarea */
 import { computed, useId } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { TextareaProps } from './types';

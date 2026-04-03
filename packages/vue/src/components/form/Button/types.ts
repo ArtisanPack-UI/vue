@@ -21,6 +21,8 @@ export interface ButtonProps {
   external?: boolean;
   /** Text content for an inline badge rendered after the button label. */
   badge?: string;
+  /** DaisyUI color variant applied to the badge element. */
+  badgeColor?: DaisyColor | 'ghost' | 'outline';
   /** Additional CSS classes applied to the badge element. */
   badgeClasses?: string;
   /** When true, hides the label on small screens and only shows it on `sm` breakpoint and above. */

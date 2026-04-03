@@ -1,5 +1,5 @@
-/** @module ColorPicker */
 <script setup lang="ts">
+/** @module ColorPicker */
 import { computed, useId } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { ColorPickerProps } from './types';

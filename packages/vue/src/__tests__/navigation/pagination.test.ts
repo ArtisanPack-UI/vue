@@ -77,7 +77,7 @@ describe('Pagination', () => {
 
   it('does not render page buttons for single page', () => {
     const { container } = render(Pagination, { props: { currentPage: 1, totalPages: 1 } });
-    const pageButtons = container.querySelectorAll('.btn-active');
+    const pageButtons = container.querySelectorAll('[aria-label^="Page "]');
     expect(pageButtons.length).toBe(0);
   });
 

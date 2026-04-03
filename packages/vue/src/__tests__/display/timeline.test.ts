@@ -56,8 +56,7 @@ describe('Timeline', () => {
 
   it('has correct ARIA role', () => {
     const { container } = render(Timeline, { props: { items: sampleItems } });
-    expect(container.querySelector('[role="list"]')).toBeTruthy();
-    expect(container.querySelector('[aria-label="Timeline"]')).toBeTruthy();
+    expect(container.querySelector('ul[aria-label="Timeline"]')).toBeTruthy();
   });
 
   it('renders correct number of list items', () => {

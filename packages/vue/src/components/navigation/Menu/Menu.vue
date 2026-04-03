@@ -83,7 +83,7 @@ function handleDetailsToggle(item: { name: string }, e: Event) {
           <summary
             :class="getLinkClasses(item)"
             :aria-disabled="item.disabled || undefined"
-            :aria-haspopup="'menu'"
+            aria-haspopup="menu"
             :aria-expanded="detailsOpen.get(item.name) ?? false"
             :tabindex="item.disabled ? -1 : 0"
             @click="handleSummaryClick(item, $event)"

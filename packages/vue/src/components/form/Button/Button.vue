@@ -68,6 +68,23 @@ const elementAttrs = computed(() => {
   };
 });
 
+const badgeColorMap: Record<string, string> = {
+  primary: 'badge-primary',
+  secondary: 'badge-secondary',
+  accent: 'badge-accent',
+  success: 'badge-success',
+  warning: 'badge-warning',
+  error: 'badge-error',
+  info: 'badge-info',
+  neutral: 'badge-neutral',
+  ghost: 'badge-ghost',
+  outline: 'badge-outline',
+};
+
+const computedBadgeClasses = computed(() =>
+  cn(props.badgeColor && badgeColorMap[props.badgeColor], props.badgeClasses),
+);
+
 function handleClick(e: MouseEvent) {
   if (props.link && (props.disabled || props.loading)) {
     e.preventDefault();
@@ -89,7 +106,7 @@ function handleClick(e: MouseEvent) {
       <span v-if="label" :class="cn(responsive && 'hidden sm:inline')">{{ label }}</span>
       <slot />
       <span v-if="$slots.iconRight" aria-hidden="true"><slot name="iconRight" /></span>
-      <span v-if="badge" :class="cn('badge', badgeClasses)">{{ badge }}</span>
+      <span v-if="badge" :class="cn('badge', computedBadgeClasses)">{{ badge }}</span>
     </component>
   </div>
   <component v-else :is="tag" :class="buttonClasses" v-bind="elementAttrs" @click="handleClick">
@@ -100,6 +117,6 @@ function handleClick(e: MouseEvent) {
     <span v-if="label" :class="cn(responsive && 'hidden sm:inline')">{{ label }}</span>
     <slot />
     <span v-if="$slots.iconRight" aria-hidden="true"><slot name="iconRight" /></span>
-    <span v-if="badge" :class="cn('badge', badgeClasses)">{{ badge }}</span>
+    <span v-if="badge" :class="cn('badge', computedBadgeClasses)">{{ badge }}</span>
   </component>
 </template>

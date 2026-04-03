@@ -48,6 +48,7 @@
   ],
   "scripts": {
     "build": "tsup && vue-tsc --project tsconfig.build.json",
+    "type-check": "vue-tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
   },

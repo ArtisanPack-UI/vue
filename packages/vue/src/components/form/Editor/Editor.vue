@@ -1,5 +1,5 @@
-/** @module Editor */
 <script setup lang="ts">
+/** @module Editor */
 import { computed, useId } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { EditorProps } from './types';

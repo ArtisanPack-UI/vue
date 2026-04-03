@@ -57,6 +57,7 @@ const collapseClasses = computed(() =>
       class="peer"
       :aria-hidden="true"
       tabindex="-1"
+      @change="openModel = ($event.target as HTMLInputElement).checked"
     />
     <div
       :id="headerId"

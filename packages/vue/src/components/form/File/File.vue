@@ -1,5 +1,5 @@
-/** @module File */
 <script setup lang="ts">
+/** @module File */
 import { computed, ref, useId } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { FileProps } from './types';

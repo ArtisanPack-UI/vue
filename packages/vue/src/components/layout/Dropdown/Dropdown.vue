@@ -155,7 +155,7 @@ const dropdownClasses = computed(() =>
       tabindex="0"
       role="button"
       class="btn btn-ghost m-1"
-      :aria-haspopup="true"
+      aria-haspopup="menu"
       :aria-expanded="isOpen"
       :aria-controls="menuId"
       @click="toggle"

@@ -35,14 +35,14 @@ describe('Checkbox', () => {
   });
 
   it('renders card layout', () => {
-    render(Checkbox, { props: { label: 'Card', card: true } });
-    const label = document.querySelector('label');
+    const { container } = render(Checkbox, { props: { label: 'Card', card: true } });
+    const label = container.querySelector('label');
     expect(label?.classList.contains('p-4')).toBe(true);
   });
 
   it('reverses order with right prop', () => {
-    render(Checkbox, { props: { label: 'Right', right: true } });
-    const label = document.querySelector('label');
+    const { container } = render(Checkbox, { props: { label: 'Right', right: true } });
+    const label = container.querySelector('label');
     expect(label?.classList.contains('flex-row-reverse')).toBe(true);
   });
 

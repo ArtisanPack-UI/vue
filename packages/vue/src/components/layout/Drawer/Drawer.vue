@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** @module Drawer */
-import { onBeforeUnmount, ref, useId, watch } from 'vue';
+import { nextTick, onBeforeUnmount, ref, useId, watch } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { DrawerProps } from './types';
 import { getFocusableElements } from '../utils/focusable';
@@ -64,12 +64,14 @@ watch(
   (isOpen) => {
     if (isOpen) {
       previousActiveElement.value = document.activeElement as HTMLElement;
-      const focusable = getFocusableElements(sideRef.value);
-      if (focusable.length > 0) {
-        focusable[0].focus();
-      } else {
-        sideRef.value?.focus();
-      }
+      nextTick(() => {
+        const focusable = getFocusableElements(sideRef.value);
+        if (focusable.length > 0) {
+          focusable[0].focus();
+        } else {
+          sideRef.value?.focus();
+        }
+      });
     } else {
       if (previousActiveElement.value?.isConnected) {
         previousActiveElement.value.focus();
@@ -96,6 +98,7 @@ onBeforeUnmount(() => {
       :checked="open"
       :aria-hidden="true"
       tabindex="-1"
+      @change="$emit('update:open', ($event.target as HTMLInputElement).checked)"
     />
     <div class="drawer-content">
       <slot />

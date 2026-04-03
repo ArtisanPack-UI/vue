@@ -71,6 +71,7 @@ jobs:
         run: npm test
 
   build:
+    needs: [lint, type-check]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     name: Build

@@ -20,7 +20,7 @@ export interface InputProps {
   /** Whether the input is required. */
   required?: boolean;
   /** Input type. @defaultValue `'text'` */
-  type?: 'text' | 'email' | 'number' | 'search' | 'tel' | 'url' | 'hidden';
+  type?: 'text' | 'email' | 'number' | 'password' | 'search' | 'tel' | 'url' | 'hidden';
   /** Placeholder text. */
   placeholder?: string;
   /** Whether the input is disabled. */

@@ -7,7 +7,7 @@
  *
  * @example
  * ```vue
- * import { Avatar, Badge, Progress, Stat, Timeline, Code, Carousel, Diff } from '@artisanpack-ui/vue';
+ * import { Avatar, Badge, Progress, Stat, Timeline, Code, Carousel, Diff, Sparkline } from '@artisanpack-ui/vue';
  * ```
  */
 

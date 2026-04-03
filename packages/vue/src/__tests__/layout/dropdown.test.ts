@@ -17,7 +17,7 @@ describe('Dropdown', () => {
   it('has correct ARIA attributes on trigger', () => {
     render(Dropdown);
     const trigger = screen.getByRole('button');
-    expect(trigger.getAttribute('aria-haspopup')).toBe('true');
+    expect(trigger.getAttribute('aria-haspopup')).toBe('menu');
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
   });
 

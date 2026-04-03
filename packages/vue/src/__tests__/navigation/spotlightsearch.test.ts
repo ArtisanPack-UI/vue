@@ -3,16 +3,6 @@ import { render, screen, fireEvent } from '@testing-library/vue';
 import { nextTick } from 'vue';
 import { SpotlightSearch } from '../../components/navigation';
 
-// Mock HTMLDialogElement methods
-beforeEach(() => {
-  HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) {
-    this.setAttribute('open', '');
-  });
-  HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
-    this.removeAttribute('open');
-  });
-});
-
 const testItems = [
   { id: 'home', label: 'Go to Home', description: 'Navigate to the home page' },
   { id: 'settings', label: 'Open Settings', description: 'Manage your preferences' },
@@ -37,6 +27,16 @@ async function waitForDialog() {
 }
 
 describe('SpotlightSearch', () => {
+  // Mock HTMLDialogElement methods
+  beforeEach(() => {
+    HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) {
+      this.setAttribute('open', '');
+    });
+    HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
+      this.removeAttribute('open');
+    });
+  });
+
   it('renders dialog element', () => {
     render(SpotlightSearch, { props: { items: testItems } });
     expect(queryBody('dialog')).toBeTruthy();

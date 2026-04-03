@@ -33,7 +33,7 @@ const describedBy = computed(
 </script>
 
 <template>
-  <fieldset class="fieldset" role="group" :aria-label="label || undefined">
+  <fieldset class="fieldset" :aria-label="label || undefined">
     <label
       :for="inputId"
       :class="cn('flex items-center gap-2 cursor-pointer', right && 'flex-row-reverse')"

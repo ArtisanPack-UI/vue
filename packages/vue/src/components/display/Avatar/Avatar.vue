@@ -28,8 +28,7 @@ const maskMap: Record<string, string> = {
 const containerClasses = computed(() =>
   cn(
     'avatar',
-    props.online && 'avatar-online',
-    props.offline && 'avatar-offline',
+    props.offline ? 'avatar-offline' : props.online && 'avatar-online',
     !props.src && 'avatar-placeholder',
     props.className,
   ),

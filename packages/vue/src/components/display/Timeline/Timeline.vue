@@ -34,7 +34,7 @@ const timelineClasses = computed(() =>
 </script>
 
 <template>
-  <ul :class="timelineClasses" role="list" aria-label="Timeline">
+  <ul :class="timelineClasses" aria-label="Timeline">
     <li v-for="(item, index) in items" :key="item.id">
       <hr v-if="index > 0 && !item.start" />
       <div v-if="item.time" class="timeline-start">
@@ -46,7 +46,7 @@ const timelineClasses = computed(() =>
             :class="
               cn(
                 'w-3 h-3 rounded-full',
-                item.color ? (colorMap[item.color] ?? 'bg-base-content') : 'bg-base-content',
+                colorMap[item.color] ?? 'bg-base-content',
               )
             "
           />

@@ -1,5 +1,5 @@
-/** @module Password */
 <script setup lang="ts">
+/** @module Password */
 import { computed, ref, useId } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { PasswordProps } from './types';

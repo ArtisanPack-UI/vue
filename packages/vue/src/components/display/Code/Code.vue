@@ -10,6 +10,10 @@ const props = withDefaults(defineProps<CodeProps>(), {
   lineNumbers: false,
 });
 
+const emit = defineEmits<{
+  'copy-failed': [error: unknown];
+}>();
+
 const copied = ref(false);
 let copyTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -21,7 +25,7 @@ const wrapperClasses = computed(() =>
   cn('mockup-code', !props.inline && 'relative', props.className),
 );
 
-const lines = computed(() => props.code.split('\n'));
+const lines = computed(() => (props.code ?? '').split('\n'));
 
 async function copyToClipboard() {
   try {
@@ -31,8 +35,8 @@ async function copyToClipboard() {
     copyTimeout = setTimeout(() => {
       copied.value = false;
     }, 2000);
-  } catch {
-    // Clipboard API not available
+  } catch (err) {
+    emit('copy-failed', err);
   }
 }
 </script>

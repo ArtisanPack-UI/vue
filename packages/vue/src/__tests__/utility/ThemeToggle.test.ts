@@ -39,6 +39,7 @@ describe('ThemeToggle', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
+    localStorage.clear();
   });
 
   it('renders a button', () => {

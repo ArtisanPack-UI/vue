@@ -49,6 +49,7 @@ const stackClasses = computed(() =>
     props.align && alignMap[props.align],
     props.justify && justifyMap[props.justify],
     props.wrap && 'flex-wrap',
+    props.className,
   ),
 );
 </script>

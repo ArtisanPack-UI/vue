@@ -1,5 +1,5 @@
-/** @module Radio */
 <script setup lang="ts">
+/** @module Radio */
 import { computed, useId } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { RadioOption, RadioProps } from './types';

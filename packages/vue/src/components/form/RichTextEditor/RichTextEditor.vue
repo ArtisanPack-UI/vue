@@ -1,5 +1,5 @@
-/** @module RichTextEditor */
 <script setup lang="ts">
+/** @module RichTextEditor */
 import { computed, onMounted, ref, useId, watch } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { RichTextEditorProps } from './types';
@@ -65,6 +65,7 @@ onMounted(() => {
         aria-multiline="true"
         :aria-label="label"
         :aria-invalid="error ? true : undefined"
+        :aria-required="required || undefined"
         :aria-describedby="describedBy"
         :class="
           cn('p-4 outline-none prose max-w-none', disabled && 'opacity-50 cursor-not-allowed')

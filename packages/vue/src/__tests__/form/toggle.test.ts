@@ -24,8 +24,8 @@ describe('Toggle', () => {
   });
 
   it('reverses order with right prop', () => {
-    render(Toggle, { props: { label: 'Right', right: true } });
-    const label = document.querySelector('label');
+    const { container } = render(Toggle, { props: { label: 'Right', right: true } });
+    const label = container.querySelector('label');
     expect(label?.classList.contains('flex-row-reverse')).toBe(true);
   });
 

@@ -1,5 +1,5 @@
-/** @module Select */
 <script setup lang="ts">
+/** @module Select */
 import { computed, useId } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { SelectProps } from './types';

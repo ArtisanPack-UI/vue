@@ -90,6 +90,7 @@ describe('useBreakpoint', () => {
 
     expect(screen.getByTestId('current').textContent).toBe('xl');
     expect(screen.getByTestId('is-sm').textContent).toBe('true');
+    expect(screen.getByTestId('is-md').textContent).toBe('true');
     expect(screen.getByTestId('is-lg').textContent).toBe('true');
     expect(screen.getByTestId('is-xl').textContent).toBe('true');
     expect(screen.getByTestId('is-2xl').textContent).toBe('false');
