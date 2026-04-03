@@ -15,7 +15,10 @@
     "type-check": "tsc --noEmit",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "changeset publish"
+    "release": "changeset publish",
+    "story:dev": "npm run story:dev --workspace=packages/vue",
+    "story:build": "npm run story:build --workspace=packages/vue",
+    "story:preview": "npm run story:preview --workspace=packages/vue"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.6.0",

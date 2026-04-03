@@ -50,16 +50,24 @@
     "build": "tsup && vue-tsc --project tsconfig.build.json",
     "type-check": "vue-tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "story:dev": "histoire dev",
+    "story:build": "histoire build",
+    "story:preview": "histoire preview"
   },
   "dependencies": {
     "@artisanpack-ui/tokens": "*"
   },
   "devDependencies": {
+    "@histoire/plugin-vue": "^0.17.17",
+    "@tailwindcss/vite": "^4.2.2",
     "@testing-library/vue": "^8.1.0",
     "@vitejs/plugin-vue": "^5.2.0",
     "apexcharts": "^5.10.4",
+    "daisyui": "^5.5.19",
+    "histoire": "^0.17.17",
     "jsdom": "^27.0.1",
+    "tailwindcss": "^4.2.2",
     "tsup": "^8.3.0",
     "typescript": "^5.7.0",
     "vitest": "^2.1.0",
