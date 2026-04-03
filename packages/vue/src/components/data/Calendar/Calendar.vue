@@ -100,8 +100,17 @@ function formatDate(year: number, month: number, day: number): string {
   return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 
+const eventsByDate = computed(() => {
+  const map: Record<string, CalendarEvent[]> = {};
+  for (const event of props.events) {
+    if (!map[event.date]) map[event.date] = [];
+    map[event.date].push(event);
+  }
+  return map;
+});
+
 function getEventsForDate(date: string): CalendarEvent[] {
-  return props.events.filter((e) => e.date === date);
+  return eventsByDate.value[date] ?? [];
 }
 
 function isDisabled(date: string): boolean {
@@ -169,8 +178,8 @@ const colorDotMap: Record<string, string> = {
         {{ day }}
       </div>
       <button
-        v-for="(cell, index) in calendarDays"
-        :key="index"
+        v-for="cell in calendarDays"
+        :key="cell.date"
         :class="
           cn(
             'p-1 rounded-lg text-sm relative transition-colors',

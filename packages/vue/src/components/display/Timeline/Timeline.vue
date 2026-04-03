@@ -32,11 +32,8 @@ const timelineClasses = computed(() =>
   ),
 );
 
-function dotClasses(color?: string) {
-  return cn(
-    'timeline-middle',
-    color && colorMap[color] ? `${colorMap[color]} rounded-full w-4 h-4` : '',
-  );
+function dotClasses() {
+  return 'timeline-middle';
 }
 </script>
 
@@ -47,7 +44,7 @@ function dotClasses(color?: string) {
       <div v-if="item.time" class="timeline-start">
         {{ item.time }}
       </div>
-      <div :class="dotClasses(item.color)">
+      <div :class="dotClasses()">
         <slot name="marker" :item="item" :index="index">
           <div
             :class="

@@ -45,6 +45,7 @@ async function copyToClipboard() {
     </div>
     <button
       v-if="copyable"
+      type="button"
       class="btn btn-ghost btn-xs absolute right-2 top-8"
       :aria-label="copied ? 'Copied' : 'Copy code'"
       @click="copyToClipboard"

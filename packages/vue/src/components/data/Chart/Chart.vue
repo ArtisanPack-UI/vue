@@ -59,17 +59,22 @@ const chartSeries = computed(() => {
   return [];
 });
 
+const defaultColor = computed(() => resolveColor(props.color));
+
 const chartColors = computed(() => {
   if (isSingleSeries.value && props.data) {
     return props.data.map(
-      (d, i) => resolveColor(d.color) || defaultPalette[i % defaultPalette.length],
+      (d, i) =>
+        resolveColor(d.color) || defaultColor.value || defaultPalette[i % defaultPalette.length],
     );
   }
   if (props.series) {
     return props.series.map(
-      (s, i) => resolveColor(s.color) || defaultPalette[i % defaultPalette.length],
+      (s, i) =>
+        resolveColor(s.color) || defaultColor.value || defaultPalette[i % defaultPalette.length],
     );
   }
+  if (defaultColor.value) return [defaultColor.value];
   return defaultPalette;
 });
 

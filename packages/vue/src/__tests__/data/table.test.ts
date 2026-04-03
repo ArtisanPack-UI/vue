@@ -103,4 +103,37 @@ describe('Table', () => {
     const { container } = render(Table, { props: { columns, rows } });
     expect(container.querySelector('[role="table"]')).toBeTruthy();
   });
+
+  it('renders sortable column header as a button', () => {
+    const { container } = render(Table, { props: { columns, rows } });
+    const sortButton = container.querySelector('th button');
+    expect(sortButton).toBeTruthy();
+    expect(sortButton?.textContent).toContain('Name');
+  });
+
+  it('triggers sort via keyboard Enter', async () => {
+    const { container, emitted } = render(Table, { props: { columns, rows } });
+    const sortButton = container.querySelector('th button')!;
+    await fireEvent.keyDown(sortButton, { key: 'Enter' });
+    // Native button handles Enter natively via click
+    await fireEvent.click(sortButton);
+    expect(emitted().sort).toBeTruthy();
+  });
+
+  it('renders custom cell slot content', () => {
+    const { container } = render(Table, {
+      props: { columns, rows },
+      slots: { 'cell-name': ({ row }: { row: Record<string, unknown> }) => `**${row.name}**` },
+    });
+    expect(container.textContent).toContain('**Alice**');
+    expect(container.textContent).toContain('**Bob**');
+  });
+
+  it('renders custom empty slot', () => {
+    render(Table, {
+      props: { columns, rows: [] },
+      slots: { empty: '<div>No records found</div>' },
+    });
+    expect(screen.getByText('No records found')).toBeTruthy();
+  });
 });

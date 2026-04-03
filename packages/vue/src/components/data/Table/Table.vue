@@ -62,16 +62,8 @@ function getCellValue(row: Record<string, unknown>, key: string): unknown {
           <th
             v-for="column in columns"
             :key="column.key"
-            :class="
-              cn(
-                alignMap[column.align || 'left'],
-                column.sortable && 'cursor-pointer select-none hover:bg-base-200',
-                column.className,
-              )
-            "
+            :class="cn(alignMap[column.align || 'left'], column.className)"
             :style="column.width ? { width: column.width } : undefined"
-            :tabindex="column.sortable ? 0 : undefined"
-            :role="column.sortable ? 'button' : undefined"
             :aria-sort="
               sort?.key === column.key
                 ? sort.direction === 'asc'
@@ -79,11 +71,18 @@ function getCellValue(row: Record<string, unknown>, key: string): unknown {
                   : 'descending'
                 : undefined
             "
-            @click="handleSort(column)"
-            @keydown.enter="handleSort(column)"
-            @keydown.space.prevent="handleSort(column)"
           >
-            {{ column.label }}{{ getSortIndicator(column) }}
+            <button
+              v-if="column.sortable"
+              type="button"
+              class="w-full text-left cursor-pointer select-none hover:bg-base-200 px-0 py-0 bg-transparent border-none font-inherit"
+              @click="handleSort(column)"
+            >
+              {{ column.label }}{{ getSortIndicator(column) }}
+            </button>
+            <template v-else>
+              {{ column.label }}
+            </template>
           </th>
         </tr>
       </thead>

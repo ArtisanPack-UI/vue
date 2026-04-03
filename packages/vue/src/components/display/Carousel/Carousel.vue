@@ -75,6 +75,7 @@ const wrapperClasses = computed(() => cn('relative w-full overflow-hidden', prop
     <!-- Navigation arrows -->
     <template v-if="showArrows && slides.length > 1">
       <button
+        type="button"
         class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-base-100/80 hover:bg-base-100 text-base-content flex items-center justify-center text-lg shadow-sm backdrop-blur-sm transition-colors cursor-pointer"
         aria-label="Previous slide"
         @click="prev"
@@ -82,6 +83,7 @@ const wrapperClasses = computed(() => cn('relative w-full overflow-hidden', prop
         ‹
       </button>
       <button
+        type="button"
         class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-base-100/80 hover:bg-base-100 text-base-content flex items-center justify-center text-lg shadow-sm backdrop-blur-sm transition-colors cursor-pointer"
         aria-label="Next slide"
         @click="next"
@@ -95,6 +97,7 @@ const wrapperClasses = computed(() => cn('relative w-full overflow-hidden', prop
       <button
         v-for="(slide, index) in slides"
         :key="slide.id"
+        type="button"
         :class="
           cn(
             'w-2 h-2 rounded-full transition-colors',
