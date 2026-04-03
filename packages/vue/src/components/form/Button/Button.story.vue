@@ -24,11 +24,7 @@ import Button from './Button.vue';
             'outline',
           ]"
         />
-        <HstSelect
-          v-model="state.size"
-          title="Size"
-          :options="['', 'xs', 'sm', 'md', 'lg']"
-        />
+        <HstSelect v-model="state.size" title="Size" :options="['', 'xs', 'sm', 'md', 'lg']" />
         <HstCheckbox v-model="state.loading" title="Loading" />
         <HstCheckbox v-model="state.disabled" title="Disabled" />
         <HstCheckbox v-model="state.responsive" title="Responsive" />
@@ -102,9 +98,7 @@ import Button from './Button.vue';
     <Variant title="As Link">
       <div style="display: flex; gap: 8px">
         <Button color="primary" link="https://example.com">Internal Link</Button>
-        <Button color="accent" link="https://example.com" :external="true"
-          >External Link</Button
-        >
+        <Button color="accent" link="https://example.com" :external="true">External Link</Button>
       </div>
     </Variant>
 

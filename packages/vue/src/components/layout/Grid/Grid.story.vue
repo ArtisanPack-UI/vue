@@ -12,7 +12,17 @@ import Grid from './Grid.vue';
 
       <template #default="{ state }">
         <Grid :cols="state.cols ?? 3" :gap="state.gap ?? 4">
-          <div v-for="i in 6" :key="i" style="background: #3b82f6; color: white; padding: 16px; border-radius: 8px; text-align: center">
+          <div
+            v-for="i in 6"
+            :key="i"
+            style="
+              background: #3b82f6;
+              color: white;
+              padding: 16px;
+              border-radius: 8px;
+              text-align: center;
+            "
+          >
             Item {{ i }}
           </div>
         </Grid>
@@ -21,7 +31,17 @@ import Grid from './Grid.vue';
 
     <Variant title="Responsive">
       <Grid :cols="1" :cols-sm="2" :cols-md="3" :cols-lg="4" :gap="4">
-        <div v-for="i in 8" :key="i" style="background: #8b5cf6; color: white; padding: 16px; border-radius: 8px; text-align: center">
+        <div
+          v-for="i in 8"
+          :key="i"
+          style="
+            background: #8b5cf6;
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+          "
+        >
           Item {{ i }}
         </div>
       </Grid>

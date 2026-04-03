@@ -34,7 +34,12 @@ const value = ref('#3b82f6');
 
     <Variant title="Clearable">
       <div style="max-width: 400px">
-        <ColorPicker v-model="value" label="Brand Color" :clearable="true" hint="Click X to clear" />
+        <ColorPicker
+          v-model="value"
+          label="Brand Color"
+          :clearable="true"
+          hint="Click X to clear"
+        />
       </div>
     </Variant>
   </Story>

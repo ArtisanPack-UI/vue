@@ -9,8 +9,16 @@ import Avatar from './Avatar.vue';
         <HstText v-model="state.src" title="Image URL" />
         <HstText v-model="state.initials" title="Initials" />
         <HstSelect v-model="state.size" title="Size" :options="['', 'xs', 'sm', 'md', 'lg']" />
-        <HstSelect v-model="state.shape" title="Shape" :options="['', 'circle', 'squircle', 'hexagon', 'triangle']" />
-        <HstSelect v-model="state.ring" title="Ring Color" :options="['', 'primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info']" />
+        <HstSelect
+          v-model="state.shape"
+          title="Shape"
+          :options="['', 'circle', 'squircle', 'hexagon', 'triangle']"
+        />
+        <HstSelect
+          v-model="state.ring"
+          title="Ring Color"
+          :options="['', 'primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info']"
+        />
         <HstCheckbox v-model="state.online" title="Online" />
         <HstCheckbox v-model="state.offline" title="Offline" />
       </template>

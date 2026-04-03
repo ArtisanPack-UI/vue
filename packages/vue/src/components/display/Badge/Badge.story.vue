@@ -7,7 +7,21 @@ import Badge from './Badge.vue';
     <Variant title="Playground">
       <template #controls="{ state }">
         <HstText v-model="state.value" title="Value" />
-        <HstSelect v-model="state.color" title="Color" :options="['', 'primary', 'secondary', 'accent', 'neutral', 'success', 'warning', 'error', 'info']" />
+        <HstSelect
+          v-model="state.color"
+          title="Color"
+          :options="[
+            '',
+            'primary',
+            'secondary',
+            'accent',
+            'neutral',
+            'success',
+            'warning',
+            'error',
+            'info',
+          ]"
+        />
         <HstSelect v-model="state.size" title="Size" :options="['', 'xs', 'sm', 'md', 'lg']" />
         <HstCheckbox v-model="state.outline" title="Outline" />
         <HstCheckbox v-model="state.ghost" title="Ghost" />
@@ -26,7 +40,21 @@ import Badge from './Badge.vue';
 
     <Variant title="Colors">
       <div style="display: flex; gap: 8px; flex-wrap: wrap">
-        <Badge v-for="c in ['primary', 'secondary', 'accent', 'neutral', 'success', 'warning', 'error', 'info']" :key="c" :value="c" :color="c" />
+        <Badge
+          v-for="c in [
+            'primary',
+            'secondary',
+            'accent',
+            'neutral',
+            'success',
+            'warning',
+            'error',
+            'info',
+          ]"
+          :key="c"
+          :value="c"
+          :color="c"
+        />
       </div>
     </Variant>
 

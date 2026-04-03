@@ -6,8 +6,16 @@ import Loading from './Loading.vue';
   <Story title="Feedback/Loading" group="feedback">
     <Variant title="Playground">
       <template #controls="{ state }">
-        <HstSelect v-model="state.variant" title="Variant" :options="['spinner', 'dots', 'ring', 'ball', 'bars', 'infinity']" />
-        <HstSelect v-model="state.color" title="Color" :options="['', 'primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info']" />
+        <HstSelect
+          v-model="state.variant"
+          title="Variant"
+          :options="['spinner', 'dots', 'ring', 'ball', 'bars', 'infinity']"
+        />
+        <HstSelect
+          v-model="state.color"
+          title="Color"
+          :options="['', 'primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info']"
+        />
         <HstSelect v-model="state.size" title="Size" :options="['', 'xs', 'sm', 'md', 'lg']" />
       </template>
 
@@ -22,7 +30,11 @@ import Loading from './Loading.vue';
 
     <Variant title="Variants">
       <div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap">
-        <div v-for="v in ['spinner', 'dots', 'ring', 'ball', 'bars', 'infinity']" :key="v" style="text-align: center">
+        <div
+          v-for="v in ['spinner', 'dots', 'ring', 'ball', 'bars', 'infinity']"
+          :key="v"
+          style="text-align: center"
+        >
           <Loading :variant="v" color="primary" size="lg" />
           <div style="margin-top: 8px; font-size: 0.75rem">{{ v }}</div>
         </div>
@@ -31,13 +43,25 @@ import Loading from './Loading.vue';
 
     <Variant title="Colors">
       <div style="display: flex; gap: 16px; align-items: center">
-        <Loading v-for="c in ['primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info']" :key="c" variant="spinner" :color="c" size="md" />
+        <Loading
+          v-for="c in ['primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info']"
+          :key="c"
+          variant="spinner"
+          :color="c"
+          size="md"
+        />
       </div>
     </Variant>
 
     <Variant title="Sizes">
       <div style="display: flex; gap: 16px; align-items: center">
-        <Loading v-for="s in ['xs', 'sm', 'md', 'lg']" :key="s" variant="spinner" color="primary" :size="s" />
+        <Loading
+          v-for="s in ['xs', 'sm', 'md', 'lg']"
+          :key="s"
+          variant="spinner"
+          color="primary"
+          :size="s"
+        />
       </div>
     </Variant>
   </Story>

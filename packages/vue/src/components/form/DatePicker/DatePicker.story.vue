@@ -52,7 +52,13 @@ const yearEnd = computed(() => `${currentYear}-12-31`);
 
     <Variant title="With Min/Max">
       <div style="max-width: 400px">
-        <DatePicker v-model="value" label="Booking Date" :min="yearStart" :max="yearEnd" :hint="`Select a date in ${currentYear}`" />
+        <DatePicker
+          v-model="value"
+          label="Booking Date"
+          :min="yearStart"
+          :max="yearEnd"
+          :hint="`Select a date in ${currentYear}`"
+        />
       </div>
     </Variant>
   </Story>

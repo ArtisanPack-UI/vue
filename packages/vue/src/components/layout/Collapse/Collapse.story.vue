@@ -7,11 +7,7 @@ import Collapse from './Collapse.vue';
     <Variant title="Playground">
       <template #controls="{ state }">
         <HstText v-model="state.title" title="Title" />
-        <HstSelect
-          v-model="state.icon"
-          title="Icon"
-          :options="['arrow', 'plus', 'none']"
-        />
+        <HstSelect v-model="state.icon" title="Icon" :options="['arrow', 'plus', 'none']" />
         <HstCheckbox v-model="state.bordered" title="Bordered" />
         <HstCheckbox v-model="state.defaultOpen" title="Default Open" />
         <HstCheckbox v-model="state.disabled" title="Disabled" />

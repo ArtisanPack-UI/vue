@@ -51,7 +51,15 @@ const value = ref(50);
 
     <Variant title="Custom Range">
       <div style="max-width: 400px">
-        <Range v-model="value" label="Temperature" :min="-20" :max="50" :step="5" hint="Celsius" color="warning" />
+        <Range
+          v-model="value"
+          label="Temperature"
+          :min="-20"
+          :max="50"
+          :step="5"
+          hint="Celsius"
+          color="warning"
+        />
       </div>
     </Variant>
   </Story>

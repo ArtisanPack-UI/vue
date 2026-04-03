@@ -13,7 +13,9 @@ const openEnd = ref(false);
       <Button color="primary" @click="open = true">Open Drawer</Button>
       <Drawer v-model:open="open">
         <div style="padding: 16px">
-          <h3 style="font-size: 1.125rem; font-weight: bold; margin-bottom: 12px">Drawer Content</h3>
+          <h3 style="font-size: 1.125rem; font-weight: bold; margin-bottom: 12px">
+            Drawer Content
+          </h3>
           <p>This is the drawer content. It slides in from the left.</p>
           <Button color="primary" style="margin-top: 16px" @click="open = false">Close</Button>
         </div>

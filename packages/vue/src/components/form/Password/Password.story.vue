@@ -49,12 +49,7 @@ const value = ref('');
 
     <Variant title="No Toggle">
       <div style="max-width: 400px">
-        <Password
-          v-model="value"
-          label="Secret"
-          placeholder="Enter secret"
-          :hide-toggle="true"
-        />
+        <Password v-model="value" label="Secret" placeholder="Enter secret" :hide-toggle="true" />
       </div>
     </Variant>
   </Story>

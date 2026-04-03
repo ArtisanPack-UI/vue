@@ -2,10 +2,34 @@
 import Timeline from './Timeline.vue';
 
 const items = [
-  { id: '1', title: 'Order Placed', description: 'Your order has been placed.', time: '10:00 AM', color: 'primary' as const },
-  { id: '2', title: 'Processing', description: 'Your order is being processed.', time: '11:30 AM', color: 'info' as const },
-  { id: '3', title: 'Shipped', description: 'Your order has been shipped.', time: '2:00 PM', color: 'success' as const },
-  { id: '4', title: 'Delivered', description: 'Your order has been delivered.', time: '5:00 PM', color: 'success' as const },
+  {
+    id: '1',
+    title: 'Order Placed',
+    description: 'Your order has been placed.',
+    time: '10:00 AM',
+    color: 'primary' as const,
+  },
+  {
+    id: '2',
+    title: 'Processing',
+    description: 'Your order is being processed.',
+    time: '11:30 AM',
+    color: 'info' as const,
+  },
+  {
+    id: '3',
+    title: 'Shipped',
+    description: 'Your order has been shipped.',
+    time: '2:00 PM',
+    color: 'success' as const,
+  },
+  {
+    id: '4',
+    title: 'Delivered',
+    description: 'Your order has been delivered.',
+    time: '5:00 PM',
+    color: 'success' as const,
+  },
 ];
 </script>
 
@@ -19,7 +43,12 @@ const items = [
       </template>
 
       <template #default="{ state }">
-        <Timeline :items="items" :vertical="state.vertical" :snap="state.snap" :compact="state.compact" />
+        <Timeline
+          :items="items"
+          :vertical="state.vertical"
+          :snap="state.snap"
+          :compact="state.compact"
+        />
       </template>
     </Variant>
 

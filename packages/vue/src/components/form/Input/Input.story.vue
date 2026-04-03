@@ -46,19 +46,36 @@ const value = ref('');
 
     <Variant title="With Label and Hint">
       <div style="max-width: 400px">
-        <Input v-model="value" label="Email" placeholder="you@example.com" hint="We'll never share your email." type="email" />
+        <Input
+          v-model="value"
+          label="Email"
+          placeholder="you@example.com"
+          hint="We'll never share your email."
+          type="email"
+        />
       </div>
     </Variant>
 
     <Variant title="With Error">
       <div style="max-width: 400px">
-        <Input v-model="value" label="Username" placeholder="Enter username" error="Username is already taken" />
+        <Input
+          v-model="value"
+          label="Username"
+          placeholder="Enter username"
+          error="Username is already taken"
+        />
       </div>
     </Variant>
 
     <Variant title="Clearable">
       <div style="max-width: 400px">
-        <Input v-model="value" label="Search" placeholder="Type to search..." :clearable="true" type="search" />
+        <Input
+          v-model="value"
+          label="Search"
+          placeholder="Type to search..."
+          :clearable="true"
+          type="search"
+        />
       </div>
     </Variant>
 

@@ -32,7 +32,12 @@ import File from './File.vue';
 
     <Variant title="Drag and Drop">
       <div style="max-width: 400px">
-        <File label="Documents" :with-drag-drop="true" accept=".pdf,.doc,.docx" hint="PDF or Word documents" />
+        <File
+          label="Documents"
+          :with-drag-drop="true"
+          accept=".pdf,.doc,.docx"
+          hint="PDF or Word documents"
+        />
       </div>
     </Variant>
 

@@ -7,7 +7,11 @@ import Sparkline from './Sparkline.vue';
     <Variant title="Playground">
       <template #controls="{ state }">
         <HstSelect v-model="state.type" title="Type" :options="['line', 'area', 'bar']" />
-        <HstSelect v-model="state.color" title="Color" :options="['', 'primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info']" />
+        <HstSelect
+          v-model="state.color"
+          title="Color"
+          :options="['', 'primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info']"
+        />
         <HstNumber v-model="state.height" title="Height" />
         <HstCheckbox v-model="state.showTooltip" title="Show Tooltip" />
       </template>

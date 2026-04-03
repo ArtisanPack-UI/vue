@@ -8,7 +8,11 @@ import Progress from './Progress.vue';
       <template #controls="{ state }">
         <HstNumber v-model="state.value" title="Value" />
         <HstNumber v-model="state.max" title="Max" />
-        <HstSelect v-model="state.color" title="Color" :options="['', 'primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info']" />
+        <HstSelect
+          v-model="state.color"
+          title="Color"
+          :options="['', 'primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info']"
+        />
         <HstCheckbox v-model="state.showValue" title="Show Value" />
       </template>
 

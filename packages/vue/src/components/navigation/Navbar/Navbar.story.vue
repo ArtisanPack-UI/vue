@@ -7,7 +7,11 @@ import Button from '../../form/Button/Button.vue';
   <Story title="Navigation/Navbar" group="navigation">
     <Variant title="Playground">
       <template #controls="{ state }">
-        <HstSelect v-model="state.color" title="Color" :options="['', 'primary', 'secondary', 'accent', 'neutral']" />
+        <HstSelect
+          v-model="state.color"
+          title="Color"
+          :options="['', 'primary', 'secondary', 'accent', 'neutral']"
+        />
         <HstCheckbox v-model="state.glass" title="Glass" />
       </template>
 

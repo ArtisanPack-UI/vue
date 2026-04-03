@@ -23,7 +23,11 @@ const items = [
       <template #controls="{ state }">
         <HstCheckbox v-model="state.horizontal" title="Horizontal" />
         <HstSelect v-model="state.size" title="Size" :options="['', 'xs', 'sm', 'md', 'lg']" />
-        <HstSelect v-model="state.color" title="Color" :options="['', 'primary', 'secondary', 'accent', 'neutral']" />
+        <HstSelect
+          v-model="state.color"
+          title="Color"
+          :options="['', 'primary', 'secondary', 'accent', 'neutral']"
+        />
       </template>
 
       <template #default="{ state }">

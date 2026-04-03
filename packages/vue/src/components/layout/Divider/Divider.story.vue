@@ -7,8 +7,16 @@ import Divider from './Divider.vue';
     <Variant title="Playground">
       <template #controls="{ state }">
         <HstText v-model="state.label" title="Label" />
-        <HstSelect v-model="state.labelPosition" title="Label Position" :options="['', 'start', 'center', 'end']" />
-        <HstSelect v-model="state.color" title="Color" :options="['', 'primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info']" />
+        <HstSelect
+          v-model="state.labelPosition"
+          title="Label Position"
+          :options="['', 'start', 'center', 'end']"
+        />
+        <HstSelect
+          v-model="state.color"
+          title="Color"
+          :options="['', 'primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info']"
+        />
         <HstCheckbox v-model="state.vertical" title="Vertical" />
       </template>
 

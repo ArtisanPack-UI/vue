@@ -2,9 +2,24 @@
 import Carousel from './Carousel.vue';
 
 const slides = [
-  { id: '1', src: 'https://picsum.photos/seed/1/800/400', alt: 'Slide 1', caption: 'First slide caption' },
-  { id: '2', src: 'https://picsum.photos/seed/2/800/400', alt: 'Slide 2', caption: 'Second slide caption' },
-  { id: '3', src: 'https://picsum.photos/seed/3/800/400', alt: 'Slide 3', caption: 'Third slide caption' },
+  {
+    id: '1',
+    src: 'https://picsum.photos/seed/1/800/400',
+    alt: 'Slide 1',
+    caption: 'First slide caption',
+  },
+  {
+    id: '2',
+    src: 'https://picsum.photos/seed/2/800/400',
+    alt: 'Slide 2',
+    caption: 'Second slide caption',
+  },
+  {
+    id: '3',
+    src: 'https://picsum.photos/seed/3/800/400',
+    alt: 'Slide 3',
+    caption: 'Third slide caption',
+  },
 ];
 </script>
 

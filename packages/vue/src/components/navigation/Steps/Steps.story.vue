@@ -14,7 +14,11 @@ const steps = [
     <Variant title="Playground">
       <template #controls="{ state }">
         <HstNumber v-model="state.currentStep" title="Current Step" />
-        <HstSelect v-model="state.color" title="Color" :options="['', 'primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info']" />
+        <HstSelect
+          v-model="state.color"
+          title="Color"
+          :options="['', 'primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info']"
+        />
         <HstCheckbox v-model="state.vertical" title="Vertical" />
       </template>
 

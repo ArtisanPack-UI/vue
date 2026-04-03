@@ -62,7 +62,14 @@ import Button from '../../form/Button/Button.vue';
     </Variant>
 
     <Variant title="Glass Effect">
-      <div style="max-width: 400px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px; border-radius: 8px">
+      <div
+        style="
+          max-width: 400px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          padding: 24px;
+          border-radius: 8px;
+        "
+      >
         <Card :glass="true">
           <template #header>
             <h3 style="font-size: 1.125rem; font-weight: bold; color: white">Glass Card</h3>

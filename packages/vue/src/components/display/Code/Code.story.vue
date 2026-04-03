@@ -34,7 +34,9 @@ console.log(greet('World'));`;
     </Variant>
 
     <Variant title="Inline">
-      <p>Use the <Code code="npm install @artisanpack-ui/vue" :inline="true" /> command to install.</p>
+      <p>
+        Use the <Code code="npm install @artisanpack-ui/vue" :inline="true" /> command to install.
+      </p>
     </Variant>
   </Story>
 </template>

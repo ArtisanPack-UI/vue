@@ -18,11 +18,7 @@ const tabs = [
           title="Variant"
           :options="['', 'bordered', 'lifted', 'boxed']"
         />
-        <HstSelect
-          v-model="state.size"
-          title="Size"
-          :options="['', 'xs', 'sm', 'md', 'lg']"
-        />
+        <HstSelect v-model="state.size" title="Size" :options="['', 'xs', 'sm', 'md', 'lg']" />
         <HstCheckbox v-model="state.vertical" title="Vertical" />
       </template>
 

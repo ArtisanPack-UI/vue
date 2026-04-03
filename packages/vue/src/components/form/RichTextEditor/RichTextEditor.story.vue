@@ -34,11 +34,7 @@ const value = ref('<p>Hello <strong>World</strong></p>');
 
     <Variant title="With Error">
       <div style="max-width: 600px">
-        <RichTextEditor
-          v-model="value"
-          label="Article Body"
-          error="Content is required"
-        />
+        <RichTextEditor v-model="value" label="Article Body" error="Content is required" />
       </div>
     </Variant>
   </Story>

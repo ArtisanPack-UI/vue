@@ -7,7 +7,11 @@ import Button from '../../form/Button/Button.vue';
   <Story title="Layout/Popover" group="layout">
     <Variant title="Playground">
       <template #controls="{ state }">
-        <HstSelect v-model="state.position" title="Position" :options="['top', 'bottom', 'left', 'right']" />
+        <HstSelect
+          v-model="state.position"
+          title="Position"
+          :options="['top', 'bottom', 'left', 'right']"
+        />
         <HstSelect v-model="state.triggerMode" title="Trigger" :options="['click', 'hover']" />
         <HstCheckbox v-model="state.persistent" title="Persistent" />
       </template>
@@ -32,7 +36,9 @@ import Button from '../../form/Button/Button.vue';
     </Variant>
 
     <Variant title="Positions">
-      <div style="display: flex; gap: 40px; padding: 100px; justify-content: center; flex-wrap: wrap">
+      <div
+        style="display: flex; gap: 40px; padding: 100px; justify-content: center; flex-wrap: wrap"
+      >
         <Popover v-for="pos in ['top', 'bottom', 'left', 'right']" :key="pos" :position="pos">
           <template #trigger>
             <Button color="secondary">{{ pos }}</Button>

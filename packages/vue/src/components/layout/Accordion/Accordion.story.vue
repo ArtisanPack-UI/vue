@@ -15,13 +15,19 @@ import Collapse from '../Collapse/Collapse.vue';
         <div style="max-width: 600px">
           <Accordion :multiple="state.multiple" :join="state.join">
             <Collapse title="What is ArtisanPack UI?">
-              <p>ArtisanPack UI is a comprehensive Vue 3 component library styled with DaisyUI and Tailwind CSS.</p>
+              <p>
+                ArtisanPack UI is a comprehensive Vue 3 component library styled with DaisyUI and
+                Tailwind CSS.
+              </p>
             </Collapse>
             <Collapse title="How do I install it?">
               <p>Install via npm: <code>npm install @artisanpack-ui/vue</code></p>
             </Collapse>
             <Collapse title="Is it accessible?">
-              <p>Yes, all components follow WAI-ARIA guidelines with proper keyboard navigation and screen reader support.</p>
+              <p>
+                Yes, all components follow WAI-ARIA guidelines with proper keyboard navigation and
+                screen reader support.
+              </p>
             </Collapse>
           </Accordion>
         </div>
