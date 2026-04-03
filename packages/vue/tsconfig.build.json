@@ -7,5 +7,5 @@
     "emitDeclarationOnly": true
   },
   "include": ["src", "env.d.ts"],
-  "exclude": ["src/__tests__", "node_modules", "dist"]
+  "exclude": ["src/__tests__", "src/**/*.story.vue", "node_modules", "dist"]
 }
