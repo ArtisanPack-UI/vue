@@ -47,17 +47,18 @@ function show(options: ToastOptions): string {
 
   toasts.value = [...toasts.value, { ...options, id }];
 
+  // Register timer before eviction so clearTimer can clean it up
+  if (duration > 0) {
+    const timer = setTimeout(() => dismiss(id), duration);
+    timers.set(id, timer);
+  }
+
   // Evict oldest toasts if over max
   if (toasts.value.length > props.max) {
     const evictCount = toasts.value.length - props.max;
     const evicted = toasts.value.slice(0, evictCount);
     toasts.value = toasts.value.slice(evictCount);
     evicted.forEach((t) => clearTimer(t.id));
-  }
-
-  if (duration > 0) {
-    const timer = setTimeout(() => dismiss(id), duration);
-    timers.set(id, timer);
   }
 
   return id;
