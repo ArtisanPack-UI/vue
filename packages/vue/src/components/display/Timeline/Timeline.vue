@@ -44,7 +44,7 @@ const timelineClasses = computed(() =>
         <slot name="marker" :item="item" :index="index">
           <div
             :class="
-              cn('w-3 h-3 rounded-full', item.color ? colorMap[item.color] : 'bg-base-content')
+              cn('w-3 h-3 rounded-full', (item.color && colorMap[item.color]) ?? 'bg-base-content')
             "
           />
         </slot>

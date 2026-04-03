@@ -59,7 +59,7 @@ const describedBy = computed(
         <option
           v-for="(option, index) in options"
           :key="String(option[optionValue] ?? index)"
-          :value="option[optionValue] ?? ''"
+          :value="option[optionValue] ?? index"
           :disabled="option.disabled === true"
         >
           {{ String(option[optionLabel] ?? '') }}

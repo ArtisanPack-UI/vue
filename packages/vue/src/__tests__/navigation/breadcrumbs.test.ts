@@ -56,7 +56,7 @@ describe('Breadcrumbs', () => {
     const { container } = render(Breadcrumbs, { props: { items: testItems } });
     const ul = container.querySelector('ul');
     expect(ul).toBeTruthy();
-    expect(ul?.querySelectorAll('li').length).toBe(3);
+    expect(ul?.querySelectorAll('li').length).toBe(testItems.length);
   });
 
   it('applies custom className', () => {
