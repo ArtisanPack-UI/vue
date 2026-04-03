@@ -14,8 +14,8 @@ interface InertiaFormInstance<T> {
   processing: boolean;
   recentlySuccessful: boolean;
   isDirty: boolean;
-  reset: (...fields: (keyof T)[]) => void;
-  clearErrors: (...fields: (keyof T)[]) => void;
+  reset: (...fields: (keyof T)[]) => InertiaFormInstance<T>;
+  clearErrors: (...fields: (keyof T)[]) => InertiaFormInstance<T>;
   submit: (method: string, url: string, options?: Record<string, unknown>) => void;
   [key: string]: unknown;
 }

@@ -33,6 +33,7 @@ interface FlashAlertsProps {
 
 withDefaults(defineProps<FlashAlertsProps>(), {
   dismissible: true,
+  className: undefined,
 });
 
 const COLOR_MAP: Record<string, AlertColor> = {
@@ -60,8 +61,16 @@ const alerts = computed(() => {
 </script>
 
 <template>
-  <div v-if="alerts.length > 0" :class="className">
-    <Alert v-for="alert in alerts" :key="alert.key" :color="alert.color" :dismissible="dismissible">
+  <div
+    v-if="alerts.length > 0"
+    :class="className"
+  >
+    <Alert
+      v-for="alert in alerts"
+      :key="alert.key"
+      :color="alert.color"
+      :dismissible="dismissible"
+    >
       {{ alert.message }}
     </Alert>
   </div>
