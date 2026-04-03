@@ -48,12 +48,12 @@ export function useInertiaForm<T extends Record<string, unknown>>(
    * Get the first validation error for a field, suitable for passing
    * directly to the `error` prop on ArtisanPack UI form components.
    */
-  function getError(field: keyof T): string | undefined {
+  function getError(field: keyof T | string): string | undefined {
     return (form.errors as Record<string, string>)[field as string] ?? undefined;
   }
 
   /** Clear errors for specific fields or all errors. */
-  function clearErrors(...fields: (keyof T)[]) {
+  function clearErrors(...fields: (keyof T | string)[]) {
     if (fields.length === 0) {
       form.clearErrors();
     } else {
@@ -62,7 +62,7 @@ export function useInertiaForm<T extends Record<string, unknown>>(
   }
 
   /** Reset the form to its initial values. Optionally reset only specific fields. */
-  function reset(...fields: (keyof T)[]) {
+  function reset(...fields: (keyof T | string)[]) {
     if (fields.length === 0) {
       form.reset();
     } else {
