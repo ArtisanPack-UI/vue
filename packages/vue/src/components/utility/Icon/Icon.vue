@@ -28,7 +28,12 @@ const sizeMap: Record<Size, string> = {
 };
 
 const iconClasses = computed(() =>
-  cn('inline-flex shrink-0', sizeMap[props.size], props.color && colorMap[props.color], props.className),
+  cn(
+    'inline-flex shrink-0',
+    sizeMap[props.size],
+    props.color && colorMap[props.color],
+    props.className,
+  ),
 );
 </script>
 

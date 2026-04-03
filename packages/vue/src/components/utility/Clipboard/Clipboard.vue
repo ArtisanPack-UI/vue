@@ -42,12 +42,7 @@ onUnmounted(() => {
 });
 
 const buttonClasses = computed(() =>
-  cn(
-    'btn',
-    props.color && colorMap[props.color],
-    sizeMap[props.size],
-    props.className,
-  ),
+  cn('btn', props.color && colorMap[props.color], sizeMap[props.size], props.className),
 );
 
 async function handleCopy() {
@@ -72,16 +67,10 @@ async function handleCopy() {
     :aria-label="copied ? successLabel : label"
     @click="handleCopy"
   >
-    <slot
-      v-if="!copied"
-      name="default"
-    >
+    <slot v-if="!copied" name="default">
       {{ label }}
     </slot>
-    <slot
-      v-else
-      name="success"
-    >
+    <slot v-else name="success">
       {{ successLabel }}
     </slot>
   </button>

@@ -22,9 +22,7 @@ const sizeMap: Record<Size, string> = {
   lg: 'btn-lg',
 };
 
-const toggleClasses = computed(() =>
-  cn('btn btn-ghost', sizeMap[props.size], props.className),
-);
+const toggleClasses = computed(() => cn('btn btn-ghost', sizeMap[props.size], props.className));
 
 const modes: ColorScheme[] = ['light', 'dark', 'system'];
 
@@ -78,12 +76,7 @@ const ariaLabel = computed(() => {
 </script>
 
 <template>
-  <button
-    type="button"
-    :class="toggleClasses"
-    :aria-label="ariaLabel"
-    @click="cycle"
-  >
+  <button type="button" :class="toggleClasses" :aria-label="ariaLabel" @click="cycle">
     <!-- Sun icon for light mode -->
     <svg
       v-if="colorScheme === 'light'"
@@ -93,6 +86,8 @@ const ariaLabel = computed(() => {
       stroke-width="1.5"
       stroke="currentColor"
       class="w-5 h-5"
+      aria-hidden="true"
+      focusable="false"
     >
       <path
         stroke-linecap="round"
@@ -109,6 +104,8 @@ const ariaLabel = computed(() => {
       stroke-width="1.5"
       stroke="currentColor"
       class="w-5 h-5"
+      aria-hidden="true"
+      focusable="false"
     >
       <path
         stroke-linecap="round"
@@ -125,6 +122,8 @@ const ariaLabel = computed(() => {
       stroke-width="1.5"
       stroke="currentColor"
       class="w-5 h-5"
+      aria-hidden="true"
+      focusable="false"
     >
       <path
         stroke-linecap="round"

@@ -12,7 +12,8 @@ const props = defineProps<MarkdownProps>();
  * inline code, blockquotes, horizontal rules, and paragraphs.
  */
 function parseMarkdown(md: string): string {
-  let html = md;
+  // Normalize line endings (CRLF/CR → LF)
+  let html = md.replace(/\r\n?/g, '\n');
   const codeBlocks: string[] = [];
 
   // Fenced code blocks (``` ... ```) — replace with placeholders
@@ -143,12 +144,14 @@ function applyInline(text: string): string {
   });
 
   // Images (before links to avoid conflict)
-  result = result.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_m, alt: string, src: string) =>
-    `<img src="${sanitizeUrl(src)}" alt="${alt}">`,
+  result = result.replace(
+    /!\[([^\]]*)\]\(([^)]+)\)/g,
+    (_m, alt: string, src: string) => `<img src="${sanitizeUrl(src)}" alt="${alt}">`,
   );
   // Links
-  result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, label: string, href: string) =>
-    `<a href="${sanitizeUrl(href)}">${label}</a>`,
+  result = result.replace(
+    /\[([^\]]+)\]\(([^)]+)\)/g,
+    (_m, label: string, href: string) => `<a href="${sanitizeUrl(href)}">${label}</a>`,
   );
   // Bold
   result = result.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
@@ -180,8 +183,5 @@ const containerClasses = computed(() => cn('prose', props.className));
 
 <template>
   <!-- eslint-disable-next-line vue/no-v-html -->
-  <div
-    :class="containerClasses"
-    v-html="renderedHtml"
-  />
+  <div :class="containerClasses" v-html="renderedHtml" />
 </template>

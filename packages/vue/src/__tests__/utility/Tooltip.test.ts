@@ -56,7 +56,16 @@ describe('Tooltip', () => {
   });
 
   it('applies all color variants', () => {
-    const colors = ['primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info', 'neutral'] as const;
+    const colors = [
+      'primary',
+      'secondary',
+      'accent',
+      'success',
+      'warning',
+      'error',
+      'info',
+      'neutral',
+    ] as const;
     colors.forEach((color) => {
       const { container, unmount } = render(Tooltip, {
         props: { text: 'Tip', color },
