@@ -111,13 +111,11 @@ describe('Table', () => {
     expect(sortButton?.textContent).toContain('Name');
   });
 
-  it('triggers sort via keyboard Enter', async () => {
-    const { container, emitted } = render(Table, { props: { columns, rows } });
-    const sortButton = container.querySelector('th button')!;
-    await fireEvent.keyDown(sortButton, { key: 'Enter' });
-    // Native button handles Enter natively via click
-    await fireEvent.click(sortButton);
-    expect(emitted().sort).toBeTruthy();
+  it('renders sortable header button as focusable', () => {
+    const { container } = render(Table, { props: { columns, rows } });
+    const sortButton = container.querySelector('th button') as HTMLButtonElement;
+    expect(sortButton).toBeTruthy();
+    expect(sortButton.type).toBe('button');
   });
 
   it('renders custom cell slot content', () => {

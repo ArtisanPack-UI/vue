@@ -75,7 +75,12 @@ function getCellValue(row: Record<string, unknown>, key: string): unknown {
             <button
               v-if="column.sortable"
               type="button"
-              class="w-full text-left cursor-pointer select-none hover:bg-base-200 px-0 py-0 bg-transparent border-none font-inherit"
+              :class="
+                cn(
+                  'w-full cursor-pointer select-none hover:bg-base-200 px-0 py-0 bg-transparent border-none font-inherit',
+                  alignMap[column.align || 'left'],
+                )
+              "
               @click="handleSort(column)"
             >
               {{ column.label }}{{ getSortIndicator(column) }}

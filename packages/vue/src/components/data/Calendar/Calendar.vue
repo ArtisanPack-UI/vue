@@ -164,9 +164,18 @@ const colorDotMap: Record<string, string> = {
     aria-label="Calendar"
   >
     <div class="flex items-center justify-between mb-4">
-      <button class="btn btn-ghost btn-sm" aria-label="Previous month" @click="prevMonth">‹</button>
+      <button
+        type="button"
+        class="btn btn-ghost btn-sm"
+        aria-label="Previous month"
+        @click="prevMonth"
+      >
+        ‹
+      </button>
       <span class="font-semibold" aria-live="polite">{{ monthLabel }}</span>
-      <button class="btn btn-ghost btn-sm" aria-label="Next month" @click="nextMonth">›</button>
+      <button type="button" class="btn btn-ghost btn-sm" aria-label="Next month" @click="nextMonth">
+        ›
+      </button>
     </div>
     <div class="grid grid-cols-7 gap-1 text-center text-sm">
       <div
@@ -180,6 +189,7 @@ const colorDotMap: Record<string, string> = {
       <button
         v-for="cell in calendarDays"
         :key="cell.date"
+        type="button"
         :class="
           cn(
             'p-1 rounded-lg text-sm relative transition-colors',
