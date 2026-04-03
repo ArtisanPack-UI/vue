@@ -47,6 +47,8 @@ const buttonClasses = computed(() =>
 
 async function handleCopy() {
   if (!navigator.clipboard?.writeText) {
+    if (copyTimeout) clearTimeout(copyTimeout);
+    copied.value = false;
     emit('error', new Error('Clipboard API not available'));
     return;
   }
@@ -59,6 +61,8 @@ async function handleCopy() {
       copied.value = false;
     }, props.successDuration);
   } catch (error) {
+    if (copyTimeout) clearTimeout(copyTimeout);
+    copied.value = false;
     emit('error', error);
   }
 }

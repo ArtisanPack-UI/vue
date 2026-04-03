@@ -25,8 +25,8 @@ const progressClasses = computed(() =>
 );
 
 const percentage = computed(() => {
-  if (props.value === undefined || props.max === 0) return 0;
-  return Math.round((props.value / props.max) * 100);
+  if (props.value === undefined || props.max <= 0) return 0;
+  return Math.min(100, Math.max(0, Math.round((props.value / props.max) * 100)));
 });
 </script>
 

@@ -9,8 +9,8 @@ describe('ColorPicker', () => {
   });
 
   it('renders a color input', () => {
-    render(ColorPicker);
-    const input = document.querySelector('input[type="color"]');
+    const { container } = render(ColorPicker);
+    const input = container.querySelector('input[type="color"]');
     expect(input).toBeTruthy();
   });
 
@@ -61,8 +61,8 @@ describe('ColorPicker', () => {
   });
 
   it('sets aria-invalid on error', () => {
-    render(ColorPicker, { props: { error: 'Error' } });
-    const input = document.querySelector('input[type="color"]');
+    const { container } = render(ColorPicker, { props: { error: 'Error' } });
+    const input = container.querySelector('input[type="color"]');
     expect(input?.getAttribute('aria-invalid')).toBe('true');
   });
 });

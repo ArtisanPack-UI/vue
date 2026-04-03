@@ -61,9 +61,11 @@ describe('Sparkline', () => {
     expect(svg?.getAttribute('height')).toBe('60');
   });
 
-  it('has correct ARIA role', () => {
+  it('has correct ARIA role and accessible name', () => {
     const { container } = render(Sparkline, { props: { data } });
-    expect(container.querySelector('[role="img"]')).toBeTruthy();
+    const el = container.querySelector('[role="img"]');
+    expect(el).toBeTruthy();
+    expect(el?.getAttribute('aria-label')).toBe('Sparkline chart');
   });
 
   it('applies custom className', () => {

@@ -15,9 +15,9 @@ const emit = defineEmits<{
   'month-change': [payload: { month: number; year: number }];
 }>();
 
-const now = new Date();
-const currentMonth = ref(props.month ?? now.getMonth() + 1);
-const currentYear = ref(props.year ?? now.getFullYear());
+const initialNow = new Date();
+const currentMonth = ref(props.month ?? initialNow.getMonth() + 1);
+const currentYear = ref(props.year ?? initialNow.getFullYear());
 
 watch(
   () => [props.month, props.year],

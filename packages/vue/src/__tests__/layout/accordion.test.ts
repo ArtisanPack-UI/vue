@@ -17,6 +17,7 @@ describe('Accordion', () => {
     });
     const el = container.firstElementChild!;
     expect(el.classList.contains('join')).toBe(false);
+    expect(el.classList.contains('join-vertical')).toBe(false);
   });
 
   it('renders slot content', () => {

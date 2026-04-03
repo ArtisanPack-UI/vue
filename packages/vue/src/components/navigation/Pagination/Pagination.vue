@@ -103,9 +103,9 @@ const btnClasses = computed(() => cn('join-item btn', props.size && sizeMap[prop
         >
           {{ page }}
         </button>
-        <button v-else :class="cn(btnClasses, 'btn-disabled')" disabled type="button">
+        <span v-else :class="cn(btnClasses, 'btn-disabled')" aria-hidden="true">
           {{ page }}
-        </button>
+        </span>
       </template>
       <button
         :class="btnClasses"

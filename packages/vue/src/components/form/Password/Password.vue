@@ -56,7 +56,6 @@ const describedBy = computed(
         :disabled="disabled"
         @click="
           () => {
-            if (disabled) return;
             model = '';
             emit('clear');
           }
@@ -72,7 +71,6 @@ const describedBy = computed(
         :disabled="disabled"
         @click="
           () => {
-            if (disabled) return;
             visible = !visible;
           }
         "

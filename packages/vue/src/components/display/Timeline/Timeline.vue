@@ -42,14 +42,7 @@ const timelineClasses = computed(() =>
       </div>
       <div class="timeline-middle">
         <slot name="marker" :item="item" :index="index">
-          <div
-            :class="
-              cn(
-                'w-3 h-3 rounded-full',
-                colorMap[item.color] ?? 'bg-base-content',
-              )
-            "
-          />
+          <div :class="cn('w-3 h-3 rounded-full', colorMap[item.color] ?? 'bg-base-content')" />
         </slot>
       </div>
       <div class="timeline-end timeline-box">

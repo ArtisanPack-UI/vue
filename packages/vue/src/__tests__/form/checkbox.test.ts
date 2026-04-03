@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/vue';
+import { render, screen, fireEvent } from '@testing-library/vue';
 import { Checkbox } from '../../components/form';
 
 describe('Checkbox', () => {
@@ -47,9 +47,11 @@ describe('Checkbox', () => {
   });
 
   it('supports v-model', async () => {
-    render(Checkbox, { props: { label: 'Toggle', modelValue: true } });
+    const { emitted } = render(Checkbox, { props: { label: 'Toggle', modelValue: true } });
     const checkbox = screen.getByRole('checkbox') as HTMLInputElement;
     expect(checkbox.checked).toBe(true);
+    await fireEvent.click(checkbox);
+    expect(emitted()['update:modelValue']).toBeTruthy();
   });
 
   it('sets aria-invalid on error', () => {

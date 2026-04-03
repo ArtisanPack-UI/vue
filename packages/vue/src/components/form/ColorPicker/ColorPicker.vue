@@ -15,7 +15,10 @@ const emit = defineEmits<{
   randomColor: [color: string];
 }>();
 
-const model = defineModel<string>({ default: '#000000' });
+const model = defineModel<string>();
+if (model.value === undefined) {
+  model.value = props.defaultValue;
+}
 
 const autoId = useId();
 const inputId = computed(() => props.id ?? autoId);

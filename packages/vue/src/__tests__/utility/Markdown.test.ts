@@ -154,6 +154,14 @@ describe('Markdown', () => {
     expect(link?.getAttribute('href')).toBe('#');
   });
 
+  it('sanitizes mixed-case javascript: URLs in links', () => {
+    const { container } = render(Markdown, {
+      props: { content: '[Click](JaVaScRiPt:alert(1))' },
+    });
+    const link = container.querySelector('a');
+    expect(link?.getAttribute('href')).toBe('#');
+  });
+
   it('allows safe URLs', () => {
     const { container } = render(Markdown, {
       props: { content: '[Safe](https://example.com)' },

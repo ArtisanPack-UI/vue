@@ -34,7 +34,8 @@ describe('Breadcrumbs', () => {
     const { container } = render(Breadcrumbs, { props: { items: testItems } });
     const listItems = container.querySelectorAll('li');
     const lastItem = listItems[listItems.length - 1];
-    expect(lastItem.getAttribute('aria-current')).toBe('page');
+    const span = lastItem.querySelector('span');
+    expect(span?.getAttribute('aria-current')).toBe('page');
   });
 
   it('does not set aria-current on non-last items', () => {

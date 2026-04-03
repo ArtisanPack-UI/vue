@@ -49,15 +49,15 @@ describe('Radio', () => {
   });
 
   it('renders card layout', () => {
-    render(Radio, { props: { options, card: true } });
-    const labels = document.querySelectorAll('label');
+    const { container } = render(Radio, { props: { options, card: true } });
+    const labels = container.querySelectorAll('label');
     expect(labels[0].classList.contains('p-4')).toBe(true);
   });
 
   it('renders inline layout', () => {
-    render(Radio, { props: { options, inline: true } });
-    const container = document.querySelector('.flex.gap-3');
-    expect(container?.classList.contains('flex-col')).toBe(false);
+    const { container } = render(Radio, { props: { options, inline: true } });
+    const optionContainer = container.querySelector('.flex.gap-3');
+    expect(optionContainer?.classList.contains('flex-col')).toBe(false);
   });
 
   it('disables individual options', () => {

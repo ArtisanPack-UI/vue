@@ -100,7 +100,7 @@ function handleDetailsToggle(item: { name: string }, e: Event) {
                 :class="getLinkClasses(child)"
                 :aria-disabled="child.disabled || undefined"
                 :aria-current="child.active ? 'page' : undefined"
-                :tabindex="child.disabled ? -1 : 0"
+                :tabindex="child.disabled ? -1 : undefined"
                 @click="handleClick(child, $event)"
               >
                 <slot name="item" :item="child">{{ child.label }}</slot>
@@ -128,7 +128,7 @@ function handleDetailsToggle(item: { name: string }, e: Event) {
           :class="getLinkClasses(item)"
           :aria-disabled="item.disabled || undefined"
           :aria-current="item.active ? 'page' : undefined"
-          :tabindex="item.disabled ? -1 : 0"
+          :tabindex="item.disabled ? -1 : undefined"
           @click="handleClick(item, $event)"
         >
           <slot name="item" :item="item">{{ item.label }}</slot>

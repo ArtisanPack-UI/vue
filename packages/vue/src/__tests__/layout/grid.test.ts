@@ -45,6 +45,26 @@ describe('Grid', () => {
     expect(el.classList.contains('gap-4')).toBe(false);
   });
 
+  it('uses gapX only when gapY is not set', () => {
+    const { container } = render(Grid, {
+      props: { gapX: 6 },
+      slots: { default: '<div>Item</div>' },
+    });
+    const el = container.firstElementChild!;
+    expect(el.classList.contains('gap-x-6')).toBe(true);
+    expect(el.classList.contains('gap-4')).toBe(false);
+  });
+
+  it('uses gapY only when gapX is not set', () => {
+    const { container } = render(Grid, {
+      props: { gapY: 10 },
+      slots: { default: '<div>Item</div>' },
+    });
+    const el = container.firstElementChild!;
+    expect(el.classList.contains('gap-y-10')).toBe(true);
+    expect(el.classList.contains('gap-4')).toBe(false);
+  });
+
   it('renders slot content', () => {
     const { container } = render(Grid, { slots: { default: '<span>Child</span>' } });
     expect(container.querySelector('span')?.textContent).toBe('Child');

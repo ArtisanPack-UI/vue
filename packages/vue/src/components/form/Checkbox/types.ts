@@ -4,6 +4,9 @@ import type { DaisyColor } from '@artisanpack-ui/tokens';
  * Props for the Checkbox component.
  *
  * Supports both standard and card layout variants.
+ *
+ * Note: `modelValue?: boolean` is provided by `defineModel<boolean>()` in the component
+ * and should not be duplicated here to avoid Vue SFC compiler conflicts.
  */
 export interface CheckboxProps {
   /** Text label displayed next to the checkbox. */
