@@ -20,9 +20,7 @@ const toastColorMap: Record<ToastColor, string> = {
   error: 'alert-error',
 };
 
-const isUrgent = computed(
-  () => props.toast.color === 'error' || props.toast.color === 'warning',
-);
+const isUrgent = computed(() => props.toast.color === 'error' || props.toast.color === 'warning');
 
 const toastClasses = computed(() =>
   cn('alert', props.toast.color && toastColorMap[props.toast.color]),
@@ -30,7 +28,11 @@ const toastClasses = computed(() =>
 </script>
 
 <template>
-  <div :role="isUrgent ? 'alert' : 'status'" :aria-live="isUrgent ? 'assertive' : 'polite'" :class="toastClasses">
+  <div
+    :role="isUrgent ? 'alert' : 'status'"
+    :aria-live="isUrgent ? 'assertive' : 'polite'"
+    :class="toastClasses"
+  >
     <span>{{ toast.message }}</span>
     <button
       type="button"

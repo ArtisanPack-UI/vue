@@ -92,11 +92,6 @@ onUnmounted(() => {
     aria-label="Notifications"
     role="log"
   >
-    <ToastMessage
-      v-for="toast in toasts"
-      :key="toast.id"
-      :toast="toast"
-      @dismiss="dismiss"
-    />
+    <ToastMessage v-for="toast in toasts" :key="toast.id" :toast="toast" @dismiss="dismiss" />
   </div>
 </template>

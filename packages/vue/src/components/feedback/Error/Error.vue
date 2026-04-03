@@ -27,12 +27,7 @@ const containerClasses = computed(() =>
     <h3 class="text-lg font-semibold text-error">{{ title }}</h3>
     <p v-if="message" class="text-base-content/60 max-w-sm">{{ message }}</p>
     <slot />
-    <button
-      v-if="retryable"
-      type="button"
-      class="btn btn-error btn-sm mt-2"
-      @click="emit('retry')"
-    >
+    <button v-if="retryable" type="button" class="btn btn-error btn-sm mt-2" @click="emit('retry')">
       {{ retryLabel }}
     </button>
   </div>

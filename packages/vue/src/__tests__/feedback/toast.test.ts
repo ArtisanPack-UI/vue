@@ -74,9 +74,9 @@ describe('Toast', () => {
     );
 
     await fireEvent.click(screen.getByText('Error'));
-    expect(
-      screen.getByText('Failed!').closest('.alert')?.classList.contains('alert-error'),
-    ).toBe(true);
+    expect(screen.getByText('Failed!').closest('.alert')?.classList.contains('alert-error')).toBe(
+      true,
+    );
 
     await fireEvent.click(screen.getByText('Warning'));
     expect(
@@ -84,9 +84,7 @@ describe('Toast', () => {
     ).toBe(true);
 
     await fireEvent.click(screen.getByText('Info'));
-    expect(screen.getByText('FYI!').closest('.alert')?.classList.contains('alert-info')).toBe(
-      true,
-    );
+    expect(screen.getByText('FYI!').closest('.alert')?.classList.contains('alert-info')).toBe(true);
   });
 
   it('uses role="alert" for warning/error and role="status" for info/success', async () => {
