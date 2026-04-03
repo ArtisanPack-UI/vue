@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
 // Mock @inertiajs/vue3
 const mockFormInstance = {
   processing: false,
@@ -99,11 +100,9 @@ describe('useInertiaForm', () => {
     const { submit } = useInertiaForm({ name: '' }, { resetOnSuccess: true });
     submit('post', '/users');
 
-    // Get the options passed to form.submit
     const submitOptions = mockFormInstance.submit.mock.calls[0][2] as Record<string, unknown>;
     expect(submitOptions.onSuccess).toBeDefined();
 
-    // Simulate success
     (submitOptions.onSuccess as () => void)();
     expect(mockFormInstance.reset).toHaveBeenCalled();
   });
@@ -114,5 +113,21 @@ describe('useInertiaForm', () => {
 
     const submitOptions = mockFormInstance.submit.mock.calls[0][2] as Record<string, unknown>;
     expect(submitOptions.onSuccess).toBeUndefined();
+  });
+
+  it('resetOnSuccess preserves existing onSuccess and calls it before reset', () => {
+    const callOrder: string[] = [];
+    const existingOnSuccess = vi.fn(() => callOrder.push('userCallback'));
+    mockFormInstance.reset.mockImplementation(() => callOrder.push('reset'));
+
+    const { submit } = useInertiaForm({ name: '' }, { resetOnSuccess: true });
+    submit('post', '/users', { onSuccess: existingOnSuccess });
+
+    const submitOptions = mockFormInstance.submit.mock.calls[0][2] as Record<string, unknown>;
+    (submitOptions.onSuccess as () => void)();
+
+    expect(existingOnSuccess).toHaveBeenCalled();
+    expect(mockFormInstance.reset).toHaveBeenCalled();
+    expect(callOrder).toEqual(['userCallback', 'reset']);
   });
 });

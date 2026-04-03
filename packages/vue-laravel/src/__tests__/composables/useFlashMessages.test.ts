@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { reactive } from 'vue';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { reactive, effectScope } from 'vue';
+import type { EffectScope } from 'vue';
 
 const mockToast = {
   show: vi.fn(() => 'toast-1'),
@@ -30,16 +31,22 @@ vi.mock('@artisanpack-ui/vue', () => ({
 import { useFlashMessages } from '../../composables/useFlashMessages';
 
 describe('useFlashMessages', () => {
+  let scope: EffectScope;
+
   beforeEach(() => {
     vi.clearAllMocks();
     mockPageProps.flash = {};
+    scope = effectScope();
   });
 
-  it('shows a success toast for flash success message', async () => {
-    mockPageProps.flash = { success: 'Item created' };
-    useFlashMessages();
+  afterEach(() => {
+    scope.stop();
+  });
 
-    // The watcher fires immediately
+  it('shows a success toast for flash success message', () => {
+    mockPageProps.flash = { success: 'Item created' };
+    scope.run(() => useFlashMessages());
+
     expect(mockToast.show).toHaveBeenCalledWith({
       message: 'Item created',
       color: 'success',
@@ -49,7 +56,7 @@ describe('useFlashMessages', () => {
 
   it('shows an error toast for flash error message', () => {
     mockPageProps.flash = { error: 'Something went wrong' };
-    useFlashMessages();
+    scope.run(() => useFlashMessages());
     expect(mockToast.show).toHaveBeenCalledWith({
       message: 'Something went wrong',
       color: 'error',
@@ -59,19 +66,19 @@ describe('useFlashMessages', () => {
 
   it('shows multiple toasts for multiple flash messages', () => {
     mockPageProps.flash = { success: 'Saved', warning: 'Low disk space' };
-    useFlashMessages();
+    scope.run(() => useFlashMessages());
     expect(mockToast.show).toHaveBeenCalledTimes(2);
   });
 
   it('skips empty flash values', () => {
     mockPageProps.flash = { success: '', error: undefined };
-    useFlashMessages();
+    scope.run(() => useFlashMessages());
     expect(mockToast.show).not.toHaveBeenCalled();
   });
 
   it('uses custom duration', () => {
     mockPageProps.flash = { info: 'Note' };
-    useFlashMessages({ duration: 3000 });
+    scope.run(() => useFlashMessages({ duration: 3000 }));
     expect(mockToast.show).toHaveBeenCalledWith({
       message: 'Note',
       color: 'info',
@@ -81,7 +88,7 @@ describe('useFlashMessages', () => {
 
   it('uses custom color map', () => {
     mockPageProps.flash = { notice: 'Hey there' };
-    useFlashMessages({ colorMap: { notice: 'warning' } });
+    scope.run(() => useFlashMessages({ colorMap: { notice: 'warning' } }));
     expect(mockToast.show).toHaveBeenCalledWith({
       message: 'Hey there',
       color: 'warning',
@@ -91,7 +98,7 @@ describe('useFlashMessages', () => {
 
   it('defaults to info for unknown flash keys', () => {
     mockPageProps.flash = { custom: 'Something custom' };
-    useFlashMessages();
+    scope.run(() => useFlashMessages());
     expect(mockToast.show).toHaveBeenCalledWith({
       message: 'Something custom',
       color: 'info',
@@ -101,12 +108,15 @@ describe('useFlashMessages', () => {
 
   it('does nothing when flash is undefined', () => {
     (mockPageProps as Record<string, unknown>).flash = undefined;
-    useFlashMessages();
+    scope.run(() => useFlashMessages());
     expect(mockToast.show).not.toHaveBeenCalled();
   });
 
   it('returns the toast API', () => {
-    const { toast } = useFlashMessages();
-    expect(toast).toBe(mockToast);
+    let result: ReturnType<typeof useFlashMessages> | undefined;
+    scope.run(() => {
+      result = useFlashMessages();
+    });
+    expect(result!.toast).toBe(mockToast);
   });
 });

@@ -49,13 +49,17 @@ const totalPages = computed(() => props.paginator.last_page);
 
 function handlePageChange(page: number) {
   const url = new URL(props.paginator.path, window.location.origin);
-  url.searchParams.set('page', String(page));
 
   if (props.queryParams) {
     for (const [key, value] of Object.entries(props.queryParams)) {
-      url.searchParams.set(key, String(value));
+      if (key !== 'page') {
+        url.searchParams.set(key, String(value));
+      }
     }
   }
+
+  // Set page last so queryParams cannot override the clicked page
+  url.searchParams.set('page', String(page));
 
   router.visit(url.pathname + url.search, {
     preserveScroll: props.preserveScroll,

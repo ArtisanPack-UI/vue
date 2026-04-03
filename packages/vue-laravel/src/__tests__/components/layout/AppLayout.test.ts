@@ -20,7 +20,7 @@ describe('AppLayout', () => {
       },
     });
 
-    expect(screen.getByText('Page content')).toBeDefined();
+    expect(screen.getByText('Page content')).toBeTruthy();
   });
 
   it('renders header slot', () => {
@@ -31,7 +31,7 @@ describe('AppLayout', () => {
       },
     });
 
-    expect(screen.getByText('Header Nav')).toBeDefined();
+    expect(screen.getByText('Header Nav')).toBeTruthy();
   });
 
   it('renders footer slot', () => {
@@ -42,7 +42,7 @@ describe('AppLayout', () => {
       },
     });
 
-    expect(screen.getByText('Footer')).toBeDefined();
+    expect(screen.getByText('Footer')).toBeTruthy();
   });
 
   it('applies custom className', () => {
@@ -60,6 +60,6 @@ describe('AppLayout', () => {
       slots: { default: '<p>Content</p>' },
     });
 
-    expect(screen.getByTestId('inertia-head')).toBeDefined();
+    expect(screen.getByTestId('inertia-head')).toBeTruthy();
   });
 });

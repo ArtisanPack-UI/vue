@@ -24,7 +24,7 @@ const formContext = inject(INERTIA_FORM_KEY, null);
 const page = usePage<SharedPageProps>();
 
 const resolvedError = computed(() => {
-  if (props.error) return props.error;
+  if (props.error !== undefined) return props.error;
   if (formContext) return formContext.getError(props.name);
   return page.props.errors?.[props.name];
 });

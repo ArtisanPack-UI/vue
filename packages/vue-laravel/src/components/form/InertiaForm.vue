@@ -12,7 +12,11 @@ import { INERTIA_FORM_KEY } from './keys';
 import type { InertiaFormOptions } from '../../types';
 
 interface InertiaFormProps {
-  /** The initial form data. */
+  /**
+   * Initial form data. Treated as initial values only — changes to this prop
+   * after mount will not reinitialize the form. Use a `:key` on the component
+   * to force remount if the initial data needs to change.
+   */
   data: Record<string, unknown>;
   /** HTTP method for the form submission. */
   method?: 'get' | 'post' | 'put' | 'patch' | 'delete';

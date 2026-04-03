@@ -5,6 +5,8 @@
     "declaration": true,
     "declarationDir": "./dist",
     "emitDeclarationOnly": true,
+    /* Override root paths to resolve @artisanpack-ui/* from node_modules (built dist)
+       instead of source directories, which would violate rootDir. */
     "paths": {}
   },
   "include": ["src", "env.d.ts"],

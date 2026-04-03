@@ -95,4 +95,20 @@ describe('InertiaPagination', () => {
     expect(visitUrl).toContain('search=test');
     expect(visitUrl).toContain('sort=name');
   });
+
+  it('clicked page takes precedence over queryParams.page', async () => {
+    render(InertiaPagination, {
+      props: {
+        paginator: basePaginator,
+        queryParams: { search: 'test', page: '1' },
+      },
+    });
+
+    const page3 = screen.getByLabelText('Page 3');
+    await fireEvent.click(page3);
+
+    const visitUrl = (router.visit as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+    expect(visitUrl).toContain('page=3');
+    expect(visitUrl).not.toContain('page=1');
+  });
 });
