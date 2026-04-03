@@ -119,6 +119,12 @@ function isDisabled(date: string): boolean {
   return false;
 }
 
+function getDateAriaLabel(date: string): string {
+  const events = getEventsForDate(date);
+  if (events.length === 0) return date;
+  return `${date}, ${events.length} ${events.length === 1 ? 'event' : 'events'}`;
+}
+
 function selectDate(date: string) {
   if (isDisabled(date)) return;
   emit('update:modelValue', date);
@@ -202,7 +208,7 @@ const colorDotMap: Record<string, string> = {
         "
         :disabled="isDisabled(cell.date)"
         :aria-selected="modelValue === cell.date"
-        :aria-label="`${cell.date}${getEventsForDate(cell.date).length ? `, ${getEventsForDate(cell.date).length} ${getEventsForDate(cell.date).length === 1 ? 'event' : 'events'}` : ''}`"
+        :aria-label="getDateAriaLabel(cell.date)"
         role="gridcell"
         @click="selectDate(cell.date)"
       >

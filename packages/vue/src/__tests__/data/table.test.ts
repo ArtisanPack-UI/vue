@@ -111,7 +111,7 @@ describe('Table', () => {
     expect(sortButton?.textContent).toContain('Name');
   });
 
-  it('renders sortable header button as focusable', () => {
+  it('renders sortable header as a button element', () => {
     const { container } = render(Table, { props: { columns, rows } });
     const sortButton = container.querySelector('th button') as HTMLButtonElement;
     expect(sortButton).toBeTruthy();

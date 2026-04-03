@@ -31,10 +31,6 @@ const timelineClasses = computed(() =>
     props.className,
   ),
 );
-
-function dotClasses() {
-  return 'timeline-middle';
-}
 </script>
 
 <template>
@@ -44,7 +40,7 @@ function dotClasses() {
       <div v-if="item.time" class="timeline-start">
         {{ item.time }}
       </div>
-      <div :class="dotClasses()">
+      <div class="timeline-middle">
         <slot name="marker" :item="item" :index="index">
           <div
             :class="

@@ -47,8 +47,8 @@ const isSingleSeries = computed(() =>
 );
 
 const chartSeries = computed(() => {
-  if (isSingleSeries.value && props.data) {
-    return props.data.map((d) => d.value);
+  if (isSingleSeries.value) {
+    return props.data ? props.data.map((d) => d.value) : [];
   }
   if (props.series) {
     return props.series.map((s) => ({
@@ -62,7 +62,8 @@ const chartSeries = computed(() => {
 const defaultColor = computed(() => resolveColor(props.color));
 
 const chartColors = computed(() => {
-  if (isSingleSeries.value && props.data) {
+  if (isSingleSeries.value) {
+    if (!props.data) return [];
     return props.data.map(
       (d, i) =>
         resolveColor(d.color) || defaultColor.value || defaultPalette[i % defaultPalette.length],
