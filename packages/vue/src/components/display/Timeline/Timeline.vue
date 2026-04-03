@@ -36,7 +36,7 @@ const timelineClasses = computed(() =>
 <template>
   <ul :class="timelineClasses" role="list" aria-label="Timeline">
     <li v-for="(item, index) in items" :key="item.id">
-      <hr v-if="index > 0" />
+      <hr v-if="index > 0 && !item.start" />
       <div v-if="item.time" class="timeline-start">
         {{ item.time }}
       </div>
@@ -62,6 +62,7 @@ const timelineClasses = computed(() =>
           </p>
         </slot>
       </div>
+      <hr v-if="index < items.length - 1 && !item.end" />
     </li>
   </ul>
 </template>
