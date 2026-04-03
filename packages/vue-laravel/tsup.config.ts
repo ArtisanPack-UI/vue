@@ -9,5 +9,6 @@ export default defineConfig({
   sourcemap: true,
   external: ['vue', '@inertiajs/vue3', '@artisanpack-ui/vue', '@artisanpack-ui/tokens'],
   outExtension: () => ({ js: '.mjs' }),
-  esbuildPlugins: [vue()],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  esbuildPlugins: [vue() as any],
 });

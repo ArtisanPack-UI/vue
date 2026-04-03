@@ -133,10 +133,10 @@ describe('useInertiaForm', () => {
   });
 
   it('each call creates an isolated form instance', () => {
-    const { form: form1 } = useInertiaForm({ name: 'Alice' });
+    useInertiaForm({ name: 'Alice' });
     const firstMock = latestMockForm;
 
-    const { form: form2 } = useInertiaForm({ name: 'Bob' });
+    useInertiaForm({ name: 'Bob' });
     const secondMock = latestMockForm;
 
     expect(firstMock).not.toBe(secondMock);

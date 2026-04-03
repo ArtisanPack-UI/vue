@@ -85,9 +85,9 @@ export function useInertiaForm<T extends Record<string, unknown>>(
     };
 
     if (resetOnSuccess) {
-      const existingOnSuccess = mergedOptions.onSuccess as ((...args: unknown[]) => void) | undefined;
+      const existingOnSuccess = mergedOptions.onSuccess;
       mergedOptions.onSuccess = (...args: unknown[]) => {
-        if (existingOnSuccess) {
+        if (typeof existingOnSuccess === 'function') {
           existingOnSuccess(...args);
         }
         form.reset();

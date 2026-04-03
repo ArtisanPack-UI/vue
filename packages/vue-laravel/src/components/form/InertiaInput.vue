@@ -32,11 +32,7 @@ const resolvedError = computed(() => {
 </script>
 
 <template>
-  <Input
-    v-bind="{ ...$attrs, name, error: resolvedError }"
-    v-model="model"
-    @clear="emit('clear')"
-  >
+  <Input v-bind="{ ...$attrs, name, error: resolvedError }" v-model="model" @clear="emit('clear')">
     <template v-if="$slots.icon" #icon><slot name="icon" /></template>
     <template v-if="$slots.iconRight" #iconRight><slot name="iconRight" /></template>
     <template v-if="$slots.prefix" #prefix><slot name="prefix" /></template>

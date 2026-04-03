@@ -31,7 +31,7 @@ interface FlashAlertsProps {
   className?: string;
 }
 
-const props = withDefaults(defineProps<FlashAlertsProps>(), {
+withDefaults(defineProps<FlashAlertsProps>(), {
   dismissible: true,
 });
 
@@ -61,12 +61,7 @@ const alerts = computed(() => {
 
 <template>
   <div v-if="alerts.length > 0" :class="className">
-    <Alert
-      v-for="alert in alerts"
-      :key="alert.key"
-      :color="alert.color"
-      :dismissible="dismissible"
-    >
+    <Alert v-for="alert in alerts" :key="alert.key" :color="alert.color" :dismissible="dismissible">
       {{ alert.message }}
     </Alert>
   </div>

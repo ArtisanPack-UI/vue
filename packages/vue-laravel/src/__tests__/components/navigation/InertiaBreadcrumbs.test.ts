@@ -45,12 +45,9 @@ describe('InertiaBreadcrumbs', () => {
   });
 
   it('renders the last item as text, not a link', () => {
-    const { container } = render(InertiaBreadcrumbs, {
+    render(InertiaBreadcrumbs, {
       props: {
-        items: [
-          { label: 'Home', href: '/' },
-          { label: 'Current Page' },
-        ],
+        items: [{ label: 'Home', href: '/' }, { label: 'Current Page' }],
       },
     });
 
