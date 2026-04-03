@@ -26,4 +26,6 @@ export interface RangeProps {
   required?: boolean;
   /** Whether the field is disabled. */
   disabled?: boolean;
+  /** Current value of the range slider (for v-model). */
+  modelValue?: number;
 }

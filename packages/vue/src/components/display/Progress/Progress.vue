@@ -37,7 +37,7 @@ const percentage = computed(() => {
       :value="value"
       :max="max"
       role="progressbar"
-      :aria-valuenow="value ?? 0"
+      :aria-valuenow="value"
       :aria-valuemin="0"
       :aria-valuemax="max"
     />

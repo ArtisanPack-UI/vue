@@ -24,4 +24,6 @@ export interface DatePickerProps {
   max?: string;
   /** Whether the field is disabled. */
   disabled?: boolean;
+  /** Current value of the date picker (for v-model). */
+  modelValue?: string;
 }

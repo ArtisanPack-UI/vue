@@ -11,7 +11,7 @@ export interface TextareaProps {
   hint?: string;
   /** Error message displayed below the textarea. Replaces `hint` when present. */
   error?: string;
-  /** When true, renders the label as an inline fieldset label below the textarea. @defaultValue `false` */
+  /** When true, moves the label below the textarea as a smaller fieldset label instead of displaying it as a legend above. @defaultValue `false` */
   inline?: boolean;
   /** Custom id for the textarea element. */
   id?: string;

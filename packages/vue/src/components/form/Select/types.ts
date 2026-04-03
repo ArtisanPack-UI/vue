@@ -38,4 +38,6 @@ export interface SelectProps {
   required?: boolean;
   /** Whether the field is disabled. */
   disabled?: boolean;
+  /** Current value of the select (for v-model). */
+  modelValue?: string | number;
 }

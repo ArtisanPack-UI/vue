@@ -29,7 +29,7 @@ const lines = computed(() => (props.code ?? '').split('\n'));
 
 async function copyToClipboard() {
   try {
-    await navigator.clipboard.writeText(props.code);
+    await navigator.clipboard.writeText(props.code ?? '');
     copied.value = true;
     if (copyTimeout) clearTimeout(copyTimeout);
     copyTimeout = setTimeout(() => {
