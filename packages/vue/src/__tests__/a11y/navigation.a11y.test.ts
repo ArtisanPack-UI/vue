@@ -71,10 +71,9 @@ describe('Navigation components accessibility', () => {
 
     // Open the submenu by setting the details element to open
     const details = container.querySelector('details');
-    if (details) {
-      details.setAttribute('open', '');
-      details.dispatchEvent(new Event('toggle'));
-    }
+    expect(details).toBeTruthy();
+    details!.setAttribute('open', '');
+    details!.dispatchEvent(new Event('toggle'));
 
     const results = await axe(container);
     expect(results).toHaveNoViolations();
