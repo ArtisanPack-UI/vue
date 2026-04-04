@@ -1,6 +1,6 @@
 # Composables
 
-ArtisanPack UI for Vue provides two composables for theme management and responsive design.
+ArtisanPack UI for Vue provides three composables for theme management and responsive design: `provideTheme`, `useTheme`, and `useBreakpoint`.
 
 ## useTheme
 

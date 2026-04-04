@@ -46,9 +46,11 @@ createInertiaApp({
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `prefix` | `string` | `'Ap'` | Prefix for globally registered adapter component names |
-| `flashColorMap` | `Record<string, string>` | See below | Map of flash message keys to toast colors |
+| `flashColorMap` | `Record<string, string>` | See below | Declared in the options type but **not yet wired at runtime**. To customize flash-to-color mapping, pass `colorMap` directly to `useFlashMessages()` instead. |
 
-#### Default flash color map
+#### Default flash color map (useFlashMessages)
+
+The default mapping used by `useFlashMessages()`:
 
 ```ts
 {
