@@ -29,14 +29,14 @@ test.describe('Data / Calendar', () => {
 
 test.describe('Data / Chart', () => {
   test('bar chart', async ({ page }) => {
-    await testVariant(page, STORY.chart, 0, 'chart-bar');
+    await testVariant(page, STORY.chart, 1, 'chart-bar');
   });
 
   test('line chart', async ({ page }) => {
-    await testVariant(page, STORY.chart, 1, 'chart-line');
+    await testVariant(page, STORY.chart, 2, 'chart-line');
   });
 
   test('donut chart', async ({ page }) => {
-    await testVariant(page, STORY.chart, 2, 'chart-donut');
+    await testVariant(page, STORY.chart, 4, 'chart-donut');
   });
 });

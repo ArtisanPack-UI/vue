@@ -21,6 +21,7 @@ Sizes measured from the `dist/` output after `npm run build` (tsup with esbuild)
 ## Recommendations
 
 - **Import by category** instead of from the main entry point to minimize bundle size:
+
   ```ts
   // Preferred — only loads form components (~14 KB gzipped)
   import { Button, Input, Select } from '@artisanpack-ui/vue/form';

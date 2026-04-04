@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { render } from '@testing-library/vue';
 import { axe } from 'vitest-axe';
-import { defineComponent, h } from 'vue';
+import { type Component, defineComponent, h } from 'vue';
 import { Clipboard, Icon, ThemeToggle, Tooltip } from '../../components/utility';
 import { provideTheme } from '../../composables/use-theme';
 
@@ -21,13 +21,16 @@ beforeAll(() => {
   });
 });
 
-function withThemeProvider(component: any, options: any = {}) {
+function withThemeProvider(
+  component: Component,
+  options: { props?: Record<string, unknown>; slots?: Record<string, string> } = {},
+) {
   const wrapper = defineComponent({
     setup() {
       provideTheme();
     },
     render() {
-      return h(component, options.props || {}, options.slots || {});
+      return h(component, options.props ?? {}, options.slots ?? {});
     },
   });
   return render(wrapper);
