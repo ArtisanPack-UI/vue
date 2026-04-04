@@ -30,6 +30,7 @@ jobs:
 
       - name: Build Histoire
         run: npm run story:build
+        working-directory: packages/vue
 
       - name: Run visual regression tests
         run: npx playwright test
@@ -41,12 +42,4 @@ jobs:
         with:
           name: visual-regression-report
           path: packages/vue/visual-tests/test-results/
-          retention-days: 30
-
-      - name: Upload snapshot diffs
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: visual-regression-diffs
-          path: packages/vue/visual-tests/__snapshots__/
           retention-days: 30
