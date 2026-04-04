@@ -47,8 +47,30 @@ describe('Form components accessibility', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('Input with inline label has no a11y violations', async () => {
+    const { container } = render(Input, {
+      props: { label: 'Search', inline: true },
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('Input with placeholder only has no a11y violations', async () => {
+    const { container } = render(Input, {
+      props: { placeholder: 'Enter text...' },
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
   it('Password has no a11y violations', async () => {
     const { container } = render(Password, { props: { label: 'Password' } });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('Password with inline label has no a11y violations', async () => {
+    const { container } = render(Password, { props: { label: 'Password', inline: true } });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -98,6 +120,12 @@ describe('Form components accessibility', () => {
 
   it('Textarea has no a11y violations', async () => {
     const { container } = render(Textarea, { props: { label: 'Comments' } });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('Textarea with inline label has no a11y violations', async () => {
+    const { container } = render(Textarea, { props: { label: 'Notes', inline: true } });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

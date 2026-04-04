@@ -31,8 +31,34 @@ describe('Navigation components accessibility', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('Menu with active item and submenu has no a11y violations', async () => {
+    const { container } = render(Menu, {
+      props: {
+        items: [
+          { name: 'home', label: 'Home', href: '/', active: true },
+          {
+            name: 'settings',
+            label: 'Settings',
+            children: [
+              { name: 'profile', label: 'Profile', href: '/settings/profile' },
+              { name: 'account', label: 'Account', href: '/settings/account' },
+            ],
+          },
+          { name: 'disabled', label: 'Disabled', disabled: true },
+        ],
+      },
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
   it('Navbar has no a11y violations', async () => {
-    const { container } = render(Navbar);
+    const { container } = render(Navbar, {
+      slots: {
+        default: '<span>My App</span>',
+        actions: '<button>Login</button>',
+      },
+    });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
