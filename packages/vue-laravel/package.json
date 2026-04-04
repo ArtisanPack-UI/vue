@@ -39,5 +39,8 @@
     "@inertiajs/vue3": "^2.0.0",
     "vue": "^3.5.0"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT"
 }
