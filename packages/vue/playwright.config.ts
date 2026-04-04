@@ -30,6 +30,8 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
 
+  // Chromium-only for now — keeps CI fast and baselines simple.
+  // Can expand to Firefox/WebKit once cross-browser visual parity is a priority.
   projects: [
     {
       name: 'chromium',
