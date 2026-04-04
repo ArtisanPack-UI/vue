@@ -48,11 +48,7 @@ describe('Navigation components accessibility', () => {
   it('Steps has no a11y violations', async () => {
     const { container } = render(Steps, {
       props: {
-        steps: [
-          { label: 'Step 1' },
-          { label: 'Step 2' },
-          { label: 'Step 3' },
-        ],
+        steps: [{ label: 'Step 1' }, { label: 'Step 2' }, { label: 'Step 3' }],
         currentStep: 0,
       },
     });

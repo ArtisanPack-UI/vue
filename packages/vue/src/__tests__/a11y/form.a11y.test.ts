@@ -1,7 +1,18 @@
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/vue';
 import { axe } from 'vitest-axe';
-import { Button, Checkbox, Input, Password, Pin, Radio, Range, Select, Textarea, Toggle } from '../../components/form';
+import {
+  Button,
+  Checkbox,
+  Input,
+  Password,
+  Pin,
+  Radio,
+  Range,
+  Select,
+  Textarea,
+  Toggle,
+} from '../../components/form';
 
 describe('Form components accessibility', () => {
   it('Button has no a11y violations', async () => {
