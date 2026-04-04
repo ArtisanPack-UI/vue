@@ -11,8 +11,12 @@ const playgroundShowLegend = ref(true);
 const playgroundTitle = ref('');
 const playgroundColor = ref<DaisyColor | ''>('');
 
-const isSeriesBased = computed(() => ['bar', 'line', 'area', 'radar'].includes(playgroundType.value));
-const resolvedColor = computed(() => (playgroundColor.value || undefined) as DaisyColor | undefined);
+const isSeriesBased = computed(() =>
+  ['bar', 'line', 'area', 'radar'].includes(playgroundType.value),
+);
+const resolvedColor = computed(
+  () => (playgroundColor.value || undefined) as DaisyColor | undefined,
+);
 </script>
 
 <template>
@@ -240,18 +244,18 @@ A chart component powered by ApexCharts supporting 8 chart types with DaisyUI co
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `type` | `ChartType` | `'bar'` | Chart type: bar, line, area, donut, pie, radialBar, radar, polarArea |
-| `series` | `ChartSeries[]` | — | Multi-series data for bar, line, area, and radar charts |
-| `data` | `ChartDataPoint[]` | — | Simple data points for pie, donut, radialBar, and polarArea charts |
-| `labels` | `string[]` | — | Labels for x-axis categories or slice labels |
-| `height` | `number \| string` | `350` | Chart height in pixels or CSS value |
-| `width` | `number \| string` | — | Chart width in pixels or CSS value |
-| `color` | `DaisyColor` | — | Default DaisyUI color applied to all series |
-| `showLegend` | `boolean` | `true` | Whether to display the chart legend |
-| `animated` | `boolean` | `true` | Whether to enable chart animations |
-| `title` | `string` | — | Chart title displayed above the chart |
-| `options` | `object` | — | ApexCharts options for advanced customization (deep-merged) |
-| `className` | `string` | — | Additional CSS classes |
+| Prop         | Type               | Default | Description                                                          |
+| ------------ | ------------------ | ------- | -------------------------------------------------------------------- |
+| `type`       | `ChartType`        | `'bar'` | Chart type: bar, line, area, donut, pie, radialBar, radar, polarArea |
+| `series`     | `ChartSeries[]`    | —       | Multi-series data for bar, line, area, and radar charts              |
+| `data`       | `ChartDataPoint[]` | —       | Simple data points for pie, donut, radialBar, and polarArea charts   |
+| `labels`     | `string[]`         | —       | Labels for x-axis categories or slice labels                         |
+| `height`     | `number \| string` | `350`   | Chart height in pixels or CSS value                                  |
+| `width`      | `number \| string` | —       | Chart width in pixels or CSS value                                   |
+| `color`      | `DaisyColor`       | —       | Default DaisyUI color applied to all series                          |
+| `showLegend` | `boolean`          | `true`  | Whether to display the chart legend                                  |
+| `animated`   | `boolean`          | `true`  | Whether to enable chart animations                                   |
+| `title`      | `string`           | —       | Chart title displayed above the chart                                |
+| `options`    | `object`           | —       | ApexCharts options for advanced customization (deep-merged)          |
+| `className`  | `string`           | —       | Additional CSS classes                                               |
 </docs>

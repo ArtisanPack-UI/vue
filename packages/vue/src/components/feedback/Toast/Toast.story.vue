@@ -119,11 +119,11 @@ A toast notification system with info, success, warning, and error types. Uses a
 
 ## ToastProvider Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `defaultDuration` | `number` | `5000` | Auto-dismiss duration in milliseconds |
-| `max` | `number` | `5` | Maximum simultaneously visible toasts |
-| `position` | `ToastPosition[]` | `['toast-end', 'toast-bottom']` | DaisyUI position classes for the container |
+| Prop              | Type              | Default                         | Description                                |
+| ----------------- | ----------------- | ------------------------------- | ------------------------------------------ |
+| `defaultDuration` | `number`          | `5000`                          | Auto-dismiss duration in milliseconds      |
+| `max`             | `number`          | `5`                             | Maximum simultaneously visible toasts      |
+| `position`        | `ToastPosition[]` | `['toast-end', 'toast-bottom']` | DaisyUI position classes for the container |
 
 ## Toast API
 

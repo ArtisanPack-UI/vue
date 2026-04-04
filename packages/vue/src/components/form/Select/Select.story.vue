@@ -138,19 +138,19 @@ A dropdown select component with label, hint, error, and inline layout support.
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `modelValue` | `string \| number` | — | Current value (for v-model) |
-| `label` | `string` | — | Text label above the select |
-| `hint` | `string` | — | Helper text below the select |
-| `error` | `string` | — | Error message (replaces hint) |
-| `placeholder` | `string` | — | Text for disabled placeholder option |
-| `placeholderValue` | `string` | `''` | Value for the placeholder option |
-| `inline` | `boolean` | `false` | Inline fieldset label layout |
-| `optionValue` | `string` | `'id'` | Key on option objects for the value |
-| `optionLabel` | `string` | `'name'` | Key on option objects for display text |
-| `options` | `SelectOption[]` | — | Array of option objects |
-| `id` | `string` | — | Custom id for the select element |
-| `required` | `boolean` | — | Whether the field is required |
-| `disabled` | `boolean` | — | Whether the field is disabled |
+| Prop               | Type               | Default  | Description                            |
+| ------------------ | ------------------ | -------- | -------------------------------------- |
+| `modelValue`       | `string \| number` | —        | Current value (for v-model)            |
+| `label`            | `string`           | —        | Text label above the select            |
+| `hint`             | `string`           | —        | Helper text below the select           |
+| `error`            | `string`           | —        | Error message (replaces hint)          |
+| `placeholder`      | `string`           | —        | Text for disabled placeholder option   |
+| `placeholderValue` | `string`           | `''`     | Value for the placeholder option       |
+| `inline`           | `boolean`          | `false`  | Inline fieldset label layout           |
+| `optionValue`      | `string`           | `'id'`   | Key on option objects for the value    |
+| `optionLabel`      | `string`           | `'name'` | Key on option objects for display text |
+| `options`          | `SelectOption[]`   | —        | Array of option objects                |
+| `id`               | `string`           | —        | Custom id for the select element       |
+| `required`         | `boolean`          | —        | Whether the field is required          |
+| `disabled`         | `boolean`          | —        | Whether the field is disabled          |
 </docs>

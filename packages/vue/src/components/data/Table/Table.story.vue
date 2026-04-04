@@ -105,24 +105,24 @@ A data table with sorting, striping, hover effects, pinning, and loading/empty s
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `columns` | `TableColumn[]` | — | Column definitions |
-| `rows` | `Record<string, unknown>[]` | — | Array of row data objects |
-| `striped` | `boolean` | `false` | Adds zebra striping |
-| `compact` | `boolean` | `false` | Compact row height |
-| `hoverable` | `boolean` | `false` | Hover highlighting on rows |
-| `pinRows` | `boolean` | `false` | Pins the header row |
-| `pinCols` | `boolean` | `false` | Pins the first column |
-| `sort` | `SortState` | — | Current sort state |
-| `loading` | `boolean` | `false` | Shows loading spinner |
-| `emptyMessage` | `string` | `'No data available'` | Message when no rows |
-| `className` | `string` | — | Additional CSS classes |
+| Prop           | Type                        | Default               | Description                |
+| -------------- | --------------------------- | --------------------- | -------------------------- |
+| `columns`      | `TableColumn[]`             | —                     | Column definitions         |
+| `rows`         | `Record<string, unknown>[]` | —                     | Array of row data objects  |
+| `striped`      | `boolean`                   | `false`               | Adds zebra striping        |
+| `compact`      | `boolean`                   | `false`               | Compact row height         |
+| `hoverable`    | `boolean`                   | `false`               | Hover highlighting on rows |
+| `pinRows`      | `boolean`                   | `false`               | Pins the header row        |
+| `pinCols`      | `boolean`                   | `false`               | Pins the first column      |
+| `sort`         | `SortState`                 | —                     | Current sort state         |
+| `loading`      | `boolean`                   | `false`               | Shows loading spinner      |
+| `emptyMessage` | `string`                    | `'No data available'` | Message when no rows       |
+| `className`    | `string`                    | —                     | Additional CSS classes     |
 
 ## Events
 
-| Event | Payload | Description |
-|-------|---------|-------------|
+| Event  | Payload     | Description                                      |
+| ------ | ----------- | ------------------------------------------------ |
 | `sort` | `SortState` | Emitted when a sortable column header is clicked |
 
 ## Custom Cell Rendering

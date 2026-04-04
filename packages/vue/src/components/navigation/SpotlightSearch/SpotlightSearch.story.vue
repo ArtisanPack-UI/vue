@@ -66,30 +66,26 @@ A command palette / spotlight search overlay triggered by Cmd+K (Mac) or Ctrl+K 
 ## Usage
 
 ```vue
-<SpotlightSearch
-  v-model:open="showSpotlight"
-  :items="commands"
-  placeholder="Search commands..."
-/>
+<SpotlightSearch v-model:open="showSpotlight" :items="commands" placeholder="Search commands..." />
 ```
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `open` | `boolean` | — | Controls visibility via `v-model:open` |
-| `items` | `SpotlightItem[]` | — | Array of searchable items |
-| `placeholder` | `string` | `'Search…'` | Placeholder text for the search input |
-| `ariaLabel` | `string` | `'Search'` | Label for screen readers |
-| `className` | `string` | — | Additional CSS classes for the modal container |
+| Prop          | Type              | Default     | Description                                    |
+| ------------- | ----------------- | ----------- | ---------------------------------------------- |
+| `open`        | `boolean`         | —           | Controls visibility via `v-model:open`         |
+| `items`       | `SpotlightItem[]` | —           | Array of searchable items                      |
+| `placeholder` | `string`          | `'Search…'` | Placeholder text for the search input          |
+| `ariaLabel`   | `string`          | `'Search'`  | Label for screen readers                       |
+| `className`   | `string`          | —           | Additional CSS classes for the modal container |
 
 ## SpotlightItem
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `id` | `string` | Unique identifier |
-| `label` | `string` | Display label |
-| `description` | `string?` | Optional description below the label |
-| `group` | `string?` | Optional group name for categorization |
-| `disabled` | `boolean?` | Whether the item is disabled |
+| Property      | Type       | Description                            |
+| ------------- | ---------- | -------------------------------------- |
+| `id`          | `string`   | Unique identifier                      |
+| `label`       | `string`   | Display label                          |
+| `description` | `string?`  | Optional description below the label   |
+| `group`       | `string?`  | Optional group name for categorization |
+| `disabled`    | `boolean?` | Whether the item is disabled           |
 </docs>

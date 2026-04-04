@@ -60,15 +60,15 @@ A navigation breadcrumb trail with semantic markup and ARIA navigation role.
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `items` | `BreadcrumbItem[]` | — | Array of breadcrumb items (root to current) |
-| `className` | `string` | — | Additional CSS classes |
+| Prop        | Type               | Default | Description                                 |
+| ----------- | ------------------ | ------- | ------------------------------------------- |
+| `items`     | `BreadcrumbItem[]` | —       | Array of breadcrumb items (root to current) |
+| `className` | `string`           | —       | Additional CSS classes                      |
 
 ## BreadcrumbItem
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `label` | `string` | Display label for the breadcrumb |
-| `href` | `string?` | Optional URL; the last item typically has no href |
+| Property | Type      | Description                                       |
+| -------- | --------- | ------------------------------------------------- |
+| `label`  | `string`  | Display label for the breadcrumb                  |
+| `href`   | `string?` | Optional URL; the last item typically has no href |
 </docs>

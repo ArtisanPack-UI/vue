@@ -30,9 +30,7 @@ const openAria = ref(false);
         <template #side>
           <h3 style="font-size: 1.125rem; font-weight: bold; margin-bottom: 12px">Right Drawer</h3>
           <p>This drawer slides in from the right.</p>
-          <Button color="secondary" style="margin-top: 16px" @click="openEnd = false"
-            >Close</Button
-          >
+          <Button color="secondary" style="margin-top: 16px" @click="openEnd = false">Close</Button>
         </template>
       </Drawer>
     </Variant>
@@ -94,11 +92,11 @@ A side panel overlay with focus trapping and keyboard dismissal.
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `open` | `boolean` | — | Controls visibility via `v-model:open` |
-| `end` | `boolean` | `false` | Renders the drawer on the right side |
-| `persistent` | `boolean` | `false` | Prevents closing via Escape or overlay click |
-| `ariaLabel` | `string` | — | Accessible label for the drawer dialog |
-| `ariaLabelledby` | `string` | — | ID of an element that labels the drawer (takes precedence over ariaLabel) |
+| Prop             | Type      | Default | Description                                                               |
+| ---------------- | --------- | ------- | ------------------------------------------------------------------------- |
+| `open`           | `boolean` | —       | Controls visibility via `v-model:open`                                    |
+| `end`            | `boolean` | `false` | Renders the drawer on the right side                                      |
+| `persistent`     | `boolean` | `false` | Prevents closing via Escape or overlay click                              |
+| `ariaLabel`      | `string`  | —       | Accessible label for the drawer dialog                                    |
+| `ariaLabelledby` | `string`  | —       | ID of an element that labels the drawer (takes precedence over ariaLabel) |
 </docs>

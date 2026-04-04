@@ -103,13 +103,13 @@ A dialog modal with focus trapping, keyboard dismissal, and accessibility suppor
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `open` | `boolean` | — | Controls visibility via `v-model:open` |
-| `title` | `string` | — | Header title rendered as `<h3>` |
-| `subtitle` | `string` | — | Text displayed below the title |
+| Prop         | Type      | Default | Description                                   |
+| ------------ | --------- | ------- | --------------------------------------------- |
+| `open`       | `boolean` | —       | Controls visibility via `v-model:open`        |
+| `title`      | `string`  | —       | Header title rendered as `<h3>`               |
+| `subtitle`   | `string`  | —       | Text displayed below the title                |
 | `persistent` | `boolean` | `false` | Prevents closing via Escape or backdrop click |
-| `glass` | `boolean` | `false` | Applies glass morphism styling |
-| `bottom` | `boolean` | `false` | Renders as bottom sheet on mobile |
-| `ariaLabel` | `string` | — | Accessible label when no title is provided |
+| `glass`      | `boolean` | `false` | Applies glass morphism styling                |
+| `bottom`     | `boolean` | `false` | Renders as bottom sheet on mobile             |
+| `ariaLabel`  | `string`  | —       | Accessible label when no title is provided    |
 </docs>
