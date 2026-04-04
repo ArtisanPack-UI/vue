@@ -33,7 +33,7 @@ function handleClear() {
 
 <template>
   <fieldset class="fieldset">
-    <legend v-if="label && !inline" class="fieldset-legend">
+    <legend v-if="label && !inline" :id="`${inputId}-legend`" class="fieldset-legend">
       {{ label }}
       <span v-if="required" class="text-error ml-1">*</span>
     </legend>
@@ -61,6 +61,7 @@ function handleClear() {
         :placeholder="placeholder"
         :disabled="disabled"
         :readonly="readonly"
+        :aria-labelledby="label && !inline ? `${inputId}-legend` : undefined"
         :aria-invalid="error ? true : undefined"
         :aria-describedby="describedBy"
         :aria-required="required || undefined"

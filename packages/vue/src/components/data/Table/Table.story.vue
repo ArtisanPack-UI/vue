@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import Table from './Table.vue';
+import type { SortState } from './types';
 
 const columns = [
   { key: 'name', label: 'Name', sortable: true },
@@ -8,13 +10,19 @@ const columns = [
   { key: 'status', label: 'Status' },
 ];
 
-const data = [
+const rows = [
   { name: 'John Doe', email: 'john@example.com', role: 'Admin', status: 'Active' },
   { name: 'Jane Smith', email: 'jane@example.com', role: 'Editor', status: 'Active' },
   { name: 'Bob Johnson', email: 'bob@example.com', role: 'Viewer', status: 'Inactive' },
   { name: 'Alice Brown', email: 'alice@example.com', role: 'Editor', status: 'Active' },
   { name: 'Charlie Wilson', email: 'charlie@example.com', role: 'Admin', status: 'Active' },
 ];
+
+const sort = ref<SortState | undefined>(undefined);
+
+function handleSort(state: SortState) {
+  sort.value = state;
+}
 </script>
 
 <template>
@@ -31,7 +39,7 @@ const data = [
       <template #default="{ state }">
         <Table
           :columns="columns"
-          :data="data"
+          :rows="rows"
           :striped="state.striped"
           :compact="state.compact"
           :hoverable="state.hoverable"
@@ -42,15 +50,37 @@ const data = [
     </Variant>
 
     <Variant title="Striped & Hoverable">
-      <Table :columns="columns" :data="data" :striped="true" :hoverable="true" />
+      <Table :columns="columns" :rows="rows" :striped="true" :hoverable="true" />
+    </Variant>
+
+    <Variant title="With Sorting">
+      <Table :columns="columns" :rows="rows" :sort="sort" @sort="handleSort" />
+      <p v-if="sort" style="margin-top: 8px; font-size: 0.875rem; color: gray">
+        Sorting by <strong>{{ sort.key }}</strong> ({{ sort.direction }})
+      </p>
+    </Variant>
+
+    <Variant title="Column Alignment and Width">
+      <Table
+        :columns="[
+          { key: 'id', label: 'ID', width: '60px', align: 'center' },
+          { key: 'name', label: 'Name' },
+          { key: 'amount', label: 'Amount', align: 'right' },
+        ]"
+        :rows="[
+          { id: 1, name: 'Order A', amount: '$120.00' },
+          { id: 2, name: 'Order B', amount: '$85.50' },
+          { id: 3, name: 'Order C', amount: '$210.00' },
+        ]"
+      />
     </Variant>
 
     <Variant title="Loading">
-      <Table :columns="columns" :data="[]" :loading="true" />
+      <Table :columns="columns" :rows="[]" :loading="true" />
     </Variant>
 
     <Variant title="Empty">
-      <Table :columns="columns" :data="[]" empty-message="No users found" />
+      <Table :columns="columns" :rows="[]" empty-message="No users found" />
     </Variant>
   </Story>
 </template>
@@ -58,5 +88,52 @@ const data = [
 <docs lang="md">
 # Table
 
-A data table with sorting, striping, hover effects, and loading/empty states.
+A data table with sorting, striping, hover effects, pinning, and loading/empty states.
+
+## Usage
+
+```vue
+<Table
+  :columns="columns"
+  :rows="users"
+  :striped="true"
+  :hoverable="true"
+  :sort="currentSort"
+  @sort="handleSort"
+/>
+```
+
+## Props
+
+| Prop           | Type                        | Default               | Description                |
+| -------------- | --------------------------- | --------------------- | -------------------------- |
+| `columns`      | `TableColumn[]`             | —                     | Column definitions         |
+| `rows`         | `Record<string, unknown>[]` | —                     | Array of row data objects  |
+| `striped`      | `boolean`                   | `false`               | Adds zebra striping        |
+| `compact`      | `boolean`                   | `false`               | Compact row height         |
+| `hoverable`    | `boolean`                   | `false`               | Hover highlighting on rows |
+| `pinRows`      | `boolean`                   | `false`               | Pins the header row        |
+| `pinCols`      | `boolean`                   | `false`               | Pins the first column      |
+| `sort`         | `SortState`                 | —                     | Current sort state         |
+| `loading`      | `boolean`                   | `false`               | Shows loading spinner      |
+| `emptyMessage` | `string`                    | `'No data available'` | Message when no rows       |
+| `className`    | `string`                    | —                     | Additional CSS classes     |
+
+## Events
+
+| Event  | Payload     | Description                                      |
+| ------ | ----------- | ------------------------------------------------ |
+| `sort` | `SortState` | Emitted when a sortable column header is clicked |
+
+## Custom Cell Rendering
+
+Use scoped slots named `cell-{columnKey}` to customize cell rendering:
+
+```vue
+<Table :columns="columns" :rows="rows">
+  <template #cell-name="{ row, value }">
+    <strong>{{ value }}</strong>
+  </template>
+</Table>
+```
 </docs>
