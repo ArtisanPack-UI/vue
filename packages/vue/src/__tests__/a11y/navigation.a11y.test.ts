@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { nextTick } from 'vue';
 import { render } from '@testing-library/vue';
 import { axe } from 'vitest-axe';
 import { Breadcrumbs, Menu, Navbar, Pagination, Steps } from '../../components/navigation';
@@ -74,6 +75,11 @@ describe('Navigation components accessibility', () => {
     expect(details).toBeTruthy();
     details!.setAttribute('open', '');
     details!.dispatchEvent(new Event('toggle'));
+
+    // Wait for Vue to update aria-expanded from the reactive detailsOpen map
+    await nextTick();
+    const summary = details!.querySelector('summary');
+    expect(summary?.getAttribute('aria-expanded')).toBe('true');
 
     const results = await axe(container);
     expect(results).toHaveNoViolations();
