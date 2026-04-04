@@ -1,0 +1,45 @@
+name: Visual Regression Tests
+
+on:
+  push:
+    branches: [main, "release/**"]
+  pull_request:
+    branches: [main, "release/**"]
+
+jobs:
+  visual-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    name: Visual Regression
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+        working-directory: packages/vue
+
+      - name: Build Histoire
+        run: npm run story:build
+        working-directory: packages/vue
+
+      - name: Run visual regression tests
+        run: npx playwright test
+        working-directory: packages/vue
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: visual-regression-report
+          path: packages/vue/visual-tests/test-results/
+          retention-days: 30
