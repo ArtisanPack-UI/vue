@@ -44,7 +44,27 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ArtisanPack-UI/vue.git",
+    "directory": "packages/vue"
+  },
+  "homepage": "https://github.com/ArtisanPack-UI/vue#readme",
+  "bugs": {
+    "url": "https://github.com/ArtisanPack-UI/vue/issues"
+  },
+  "author": "Jacob Martella",
+  "keywords": [
+    "vue",
+    "vue3",
+    "ui-components",
+    "daisyui",
+    "tailwindcss",
+    "component-library",
+    "artisanpack"
   ],
   "scripts": {
     "build": "tsup && vue-tsc --project tsconfig.build.json",

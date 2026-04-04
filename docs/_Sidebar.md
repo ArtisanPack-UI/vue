@@ -9,6 +9,7 @@
 - [[Laravel Inertia Integration]]
 - [[Migration from Livewire]]
 - [[Bundle Sizes]]
+- [[Releasing]]
 
 ## Components
 
