@@ -1,6 +1,8 @@
 node_modules/
 dist/
 *.tsbuildinfo
+*.d.ts
+*.d.ts.map
 .DS_Store
 coverage/
 storybook-static/
