@@ -52,6 +52,34 @@ describe('Navigation components accessibility', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('Menu with expanded submenu has no a11y violations', async () => {
+    const { container } = render(Menu, {
+      props: {
+        items: [
+          { name: 'home', label: 'Home', href: '/' },
+          {
+            name: 'settings',
+            label: 'Settings',
+            children: [
+              { name: 'profile', label: 'Profile', href: '/settings/profile' },
+              { name: 'account', label: 'Account', href: '/settings/account' },
+            ],
+          },
+        ],
+      },
+    });
+
+    // Open the submenu by setting the details element to open
+    const details = container.querySelector('details');
+    if (details) {
+      details.setAttribute('open', '');
+      details.dispatchEvent(new Event('toggle'));
+    }
+
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
   it('Navbar has no a11y violations', async () => {
     const { container } = render(Navbar, {
       slots: {

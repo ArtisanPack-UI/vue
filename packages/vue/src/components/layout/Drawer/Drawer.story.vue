@@ -99,4 +99,11 @@ A side panel overlay with focus trapping and keyboard dismissal.
 | `persistent`     | `boolean` | `false` | Prevents closing via Escape or overlay click                              |
 | `ariaLabel`      | `string`  | —       | Accessible label for the drawer dialog                                    |
 | `ariaLabelledby` | `string`  | —       | ID of an element that labels the drawer (takes precedence over ariaLabel) |
+
+## Slots
+
+| Slot      | Description                                            |
+| --------- | ------------------------------------------------------ |
+| `default` | Main page content rendered outside the drawer          |
+| `side`    | Content rendered inside the slide-in drawer side panel |
 </docs>

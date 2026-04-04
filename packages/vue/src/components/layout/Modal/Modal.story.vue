@@ -87,7 +87,7 @@ const openAriaLabel = ref(false);
 <docs lang="md">
 # Modal
 
-A dialog modal with focus trapping, keyboard dismissal, and accessibility support.
+A dialog modal with focus trapping and accessibility support. Closes on Escape key press unless the `persistent` prop is set.
 
 ## Usage
 

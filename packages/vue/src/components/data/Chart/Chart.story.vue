@@ -11,9 +11,8 @@ const playgroundShowLegend = ref(true);
 const playgroundTitle = ref('');
 const playgroundColor = ref<DaisyColor | ''>('');
 
-const isSeriesBased = computed(() =>
-  ['bar', 'line', 'area', 'radar'].includes(playgroundType.value),
-);
+const singleSeriesTypes: ChartType[] = ['pie', 'donut', 'radialBar', 'polarArea'];
+const isSeriesBased = computed(() => !singleSeriesTypes.includes(playgroundType.value));
 const resolvedColor = computed(
   () => (playgroundColor.value || undefined) as DaisyColor | undefined,
 );

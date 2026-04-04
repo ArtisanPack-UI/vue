@@ -7,6 +7,14 @@ const items = [
   { label: 'Category', href: '/products/category' },
   { label: 'Current Page' },
 ];
+
+const deepNestingItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Admin', href: '/admin' },
+  { label: 'Settings', href: '/admin/settings' },
+  { label: 'Security', href: '/admin/settings/security' },
+  { label: 'Two-Factor Auth' },
+];
 </script>
 
 <template>
@@ -24,15 +32,7 @@ const items = [
     </Variant>
 
     <Variant title="Deep Nesting">
-      <Breadcrumbs
-        :items="[
-          { label: 'Home', href: '/' },
-          { label: 'Admin', href: '/admin' },
-          { label: 'Settings', href: '/admin/settings' },
-          { label: 'Security', href: '/admin/settings/security' },
-          { label: 'Two-Factor Auth' },
-        ]"
-      />
+      <Breadcrumbs :items="deepNestingItems" />
     </Variant>
 
     <Variant title="With Custom Class">
