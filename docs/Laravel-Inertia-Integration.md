@@ -48,6 +48,18 @@ createInertiaApp({
 | `prefix` | `string` | `'Ap'` | Prefix for globally registered adapter component names |
 | `flashColorMap` | `Record<string, string>` | See below | Map of flash message keys to toast colors |
 
+#### Default flash color map
+
+```ts
+{
+  success: 'success',
+  error: 'error',
+  warning: 'warning',
+  info: 'info',
+  message: 'info',
+}
+```
+
 ## Layout Components
 
 Three layout wrappers are provided for common Laravel page structures:
@@ -188,12 +200,15 @@ import { InertiaMenu } from '@artisanpack-ui/vue-laravel';
 
 ### useInertiaForm
 
-Wraps Inertia's `useForm()` with helpers for ArtisanPack UI error display:
+Wraps Inertia's `useForm()` with helpers for ArtisanPack UI error display. Accepts a generic type parameter `<T>` matching the form data shape:
 
 ```ts
 import { useInertiaForm } from '@artisanpack-ui/vue-laravel';
 
-const { form, errors, processing, recentlySuccessful, isDirty, getError, post, put, patch, destroy, reset, clearErrors } = useInertiaForm({
+const { form, errors, processing, recentlySuccessful, isDirty, getError, post, put, patch, destroy, reset, clearErrors } = useInertiaForm<{
+  name: string;
+  email: string;
+}>({
   name: '',
   email: '',
 });
@@ -201,7 +216,7 @@ const { form, errors, processing, recentlySuccessful, isDirty, getError, post, p
 
 | Return Value | Type | Description |
 |-------------|------|-------------|
-| `form` | `InertiaFormInstance` | The raw Inertia form object |
+| `form` | Inertia form object | The raw Inertia `useForm()` return value |
 | `errors` | `ComputedRef<Record<string, string>>` | Reactive error map |
 | `processing` | `ComputedRef<boolean>` | Whether the form is submitting |
 | `recentlySuccessful` | `ComputedRef<boolean>` | True briefly after successful submission |
@@ -320,6 +335,9 @@ import type {
   AuthProps,
   SharedPageProps,
 } from '@artisanpack-ui/vue-laravel';
+
+// ToastColor is exported from the core package
+import type { ToastColor } from '@artisanpack-ui/vue';
 ```
 
 ### Extending SharedPageProps

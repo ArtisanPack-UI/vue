@@ -37,7 +37,7 @@ Placeholder shown when a list, table, or section has no content.
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `heading` | `string` | -- | Heading text |
-| `headingAs` | `'h1'-'h6'` | `'h3'` | Heading element |
+| `headingAs` | `'h1' \| 'h2' \| 'h3' \| 'h4' \| 'h5' \| 'h6'` | `'h3'` | Heading element |
 | `description` | `string` | -- | Description text |
 | `className` | `string` | -- | Additional CSS classes |
 

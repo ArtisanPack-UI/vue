@@ -33,7 +33,7 @@ Many components share these common prop patterns:
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `color` | [`DaisyColor`](Design-Tokens) `\| 'ghost' \| 'outline'` | DaisyUI semantic color |
+| `color` | `DaisyColor \| 'ghost' \| 'outline'` | DaisyUI semantic color (see [[Design Tokens]]) |
 | `size` | `'xs' \| 'sm' \| 'md' \| 'lg'` | Component size |
 | `className` | `string` | Additional CSS classes |
 | `label` | `string` | Field label (form components) |

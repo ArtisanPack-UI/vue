@@ -80,7 +80,7 @@ Toggle control for switching between light, dark, and system color schemes. Inte
 
 ## Tooltip
 
-Positioned tooltip on hover and focus with ARIA `describedby` accessibility.
+Positioned tooltip on hover and focus with ARIA `aria-describedby` accessibility.
 
 ```vue
 <script setup lang="ts">

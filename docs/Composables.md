@@ -54,10 +54,16 @@ Sets up the theme context for the component tree. Call this in a root-level comp
 import { provideTheme } from '@artisanpack-ui/vue';
 
 // Uses plugin default or 'system'
-const theme = provideTheme();
+const themeDefault = provideTheme();
+</script>
+```
+
+```vue
+<script setup lang="ts">
+import { provideTheme } from '@artisanpack-ui/vue';
 
 // Explicit override
-const theme = provideTheme('dark');
+const themeDark = provideTheme('dark');
 </script>
 ```
 

@@ -142,11 +142,14 @@ The Table component uses Vue scoped slots instead of Blade's `@scope` directive:
 ```vue
 <!-- Vue with Inertia -->
 <script setup>
+import { InertiaInput } from '@artisanpack-ui/vue-laravel';
 import { useInertiaForm } from '@artisanpack-ui/vue-laravel';
 const { form, getError, post } = useInertiaForm({ email: '' });
 </script>
 
-<InertiaInput v-model="form.email" label="Email" :error="getError('email')" />
+<template>
+  <InertiaInput name="email" v-model="form.email" label="Email" :error="getError('email')" />
+</template>
 ```
 
 ### Loading states

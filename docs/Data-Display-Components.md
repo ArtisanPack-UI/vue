@@ -64,7 +64,7 @@ npm install apexcharts vue3-apexcharts
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `type` | `ChartType` | `'bar'` | Chart type (`bar`, `line`, `area`, `donut`, `pie`, `radialBar`, `radar`, `polarArea`) |
+| `type` | `ChartType` | `'bar'` | Chart type: `'bar' \| 'line' \| 'area' \| 'donut' \| 'pie' \| 'radialBar' \| 'radar' \| 'polarArea'` |
 | `labels` | `string[]` | -- | X-axis / slice labels |
 | `series` | `ChartSeries[]` | -- | Multi-series data (bar, line, area) |
 | `data` | `ChartDataPoint[]` | -- | Simple data points (pie, donut) |

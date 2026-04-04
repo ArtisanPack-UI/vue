@@ -100,16 +100,18 @@ To use a specific DaisyUI theme name instead of `light`/`dark`, set the `data-th
 
 ### Custom themes
 
-Define custom themes following the [DaisyUI theme documentation](https://daisyui.com/docs/themes/):
+Define custom themes using the `@plugin "daisyui/theme"` block following the [DaisyUI theme documentation](https://daisyui.com/docs/themes/):
 
 ```css
 @plugin "daisyui" {
-  themes: light, dark --default,
-    --custom-brand {
-      primary: oklch(0.72 0.11 178);
-      secondary: oklch(0.65 0.15 280);
-      accent: oklch(0.76 0.18 55);
-    };
+  themes: light, dark --default;
+}
+
+@plugin "daisyui/theme" {
+  name: "custom-brand";
+  --color-primary: oklch(0.72 0.11 178);
+  --color-secondary: oklch(0.65 0.15 280);
+  --color-accent: oklch(0.76 0.18 55);
 }
 ```
 
