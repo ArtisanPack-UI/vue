@@ -53,13 +53,16 @@
     "test:watch": "vitest",
     "story:dev": "histoire dev",
     "story:build": "histoire build",
-    "story:preview": "histoire preview"
+    "story:preview": "histoire preview",
+    "test:visual": "histoire build && playwright test",
+    "test:visual:update": "histoire build && playwright test --update-snapshots"
   },
   "dependencies": {
     "@artisanpack-ui/tokens": "*"
   },
   "devDependencies": {
     "@histoire/plugin-vue": "^0.17.17",
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/vite": "^4.2.2",
     "@testing-library/vue": "^8.1.0",
     "@vitejs/plugin-vue": "^5.2.0",
