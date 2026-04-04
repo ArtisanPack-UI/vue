@@ -7,6 +7,7 @@ import type { ProgressProps } from './types';
 const props = withDefaults(defineProps<ProgressProps>(), {
   max: 100,
   showValue: false,
+  ariaLabel: 'Progress',
 });
 
 const colorMap: Record<string, string> = {
@@ -40,6 +41,7 @@ const percentage = computed(() => {
       :aria-valuenow="value"
       :aria-valuemin="0"
       :aria-valuemax="max"
+      :aria-label="ariaLabel"
     />
     <span v-if="showValue && value !== undefined" class="text-sm text-base-content/70"
       >{{ percentage }}%</span

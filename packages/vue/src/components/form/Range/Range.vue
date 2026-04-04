@@ -29,7 +29,7 @@ const errorId = computed(() => (props.error ? `${inputId.value}-error` : undefin
 
 <template>
   <fieldset class="fieldset">
-    <legend v-if="label" class="fieldset-legend">
+    <legend v-if="label" :id="`${inputId}-legend`" class="fieldset-legend">
       {{ label }}
       <span v-if="required" class="text-error ml-1">*</span>
     </legend>
@@ -41,6 +41,7 @@ const errorId = computed(() => (props.error ? `${inputId.value}-error` : undefin
       :max="max"
       :step="step"
       :class="cn('range w-full', color && colorMap[color])"
+      :aria-labelledby="label ? `${inputId}-legend` : undefined"
       :aria-invalid="error ? true : undefined"
       :aria-describedby="[hintId, errorId].filter(Boolean).join(' ') || undefined"
       :aria-required="required || undefined"

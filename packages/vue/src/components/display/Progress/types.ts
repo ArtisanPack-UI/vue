@@ -14,6 +14,8 @@ export interface ProgressProps {
   color?: DaisyColor;
   /** When true, shows the percentage text. @defaultValue `false` */
   showValue?: boolean;
+  /** Accessible label for the progress bar. @defaultValue `'Progress'` */
+  ariaLabel?: string;
   /** Additional CSS classes. */
   className?: string;
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** @module Calendar */
-import { computed, ref, watch } from 'vue';
+import { computed, ref, useId, watch } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { CalendarProps, CalendarEvent } from './types';
 
@@ -14,6 +14,9 @@ const emit = defineEmits<{
   'date-click': [date: string];
   'month-change': [payload: { month: number; year: number }];
 }>();
+
+const autoId = useId();
+const monthLabelId = `calendar-month-${autoId}`;
 
 const initialNow = new Date();
 const currentMonth = ref(props.month ?? initialNow.getMonth() + 1);
@@ -161,14 +164,19 @@ const colorDotMap: Record<string, string> = {
   info: 'bg-info',
   neutral: 'bg-neutral',
 };
+
+const calendarWeeks = computed(() => {
+  const days = calendarDays.value;
+  const weeks: Array<typeof days> = [];
+  for (let i = 0; i < days.length; i += 7) {
+    weeks.push(days.slice(i, i + 7));
+  }
+  return weeks;
+});
 </script>
 
 <template>
-  <div
-    :class="cn('card bg-base-100 shadow-sm p-4', props.className)"
-    role="grid"
-    aria-label="Calendar"
-  >
+  <div :class="cn('card bg-base-100 shadow-sm p-4', props.className)">
     <div class="flex items-center justify-between mb-4">
       <button
         type="button"
@@ -178,54 +186,63 @@ const colorDotMap: Record<string, string> = {
       >
         ‹
       </button>
-      <span class="font-semibold" aria-live="polite">{{ monthLabel }}</span>
+      <span :id="monthLabelId" class="font-semibold" aria-live="polite">{{ monthLabel }}</span>
       <button type="button" class="btn btn-ghost btn-sm" aria-label="Next month" @click="nextMonth">
         ›
       </button>
     </div>
-    <div class="grid grid-cols-7 gap-1 text-center text-sm">
-      <div
-        v-for="day in dayLabels"
-        :key="day"
-        class="font-semibold text-base-content/60 py-1"
-        role="columnheader"
-      >
-        {{ day }}
-      </div>
-      <button
-        v-for="cell in calendarDays"
-        :key="cell.date"
-        type="button"
-        :class="
-          cn(
-            'p-1 rounded-lg text-sm relative transition-colors',
-            !cell.isCurrentMonth && 'opacity-30',
-            cell.isToday && 'font-bold ring-1 ring-primary',
-            modelValue === cell.date && 'bg-primary text-primary-content',
-            isDisabled(cell.date) && 'opacity-20 cursor-not-allowed',
-            !isDisabled(cell.date) && 'hover:bg-base-200 cursor-pointer',
-          )
-        "
-        :disabled="isDisabled(cell.date)"
-        :aria-selected="modelValue === cell.date"
-        :aria-label="getDateAriaLabel(cell.date)"
-        role="gridcell"
-        @click="selectDate(cell.date)"
-      >
-        {{ cell.day }}
+    <div class="text-center text-sm" role="grid" :aria-labelledby="monthLabelId">
+      <div class="grid grid-cols-7 gap-1" role="row">
         <div
-          v-if="getEventsForDate(cell.date).length > 0"
-          class="flex justify-center gap-0.5 mt-0.5"
+          v-for="day in dayLabels"
+          :key="day"
+          class="font-semibold text-base-content/60 py-1"
+          role="columnheader"
         >
-          <span
-            v-for="event in getEventsForDate(cell.date).slice(0, 3)"
-            :key="event.id"
-            :class="
-              cn('w-1 h-1 rounded-full', event.color ? colorDotMap[event.color] : 'bg-primary')
-            "
-          />
+          {{ day }}
         </div>
-      </button>
+      </div>
+      <div
+        v-for="(week, weekIndex) in calendarWeeks"
+        :key="weekIndex"
+        class="grid grid-cols-7 gap-1"
+        role="row"
+      >
+        <button
+          v-for="cell in week"
+          :key="cell.date"
+          type="button"
+          :class="
+            cn(
+              'p-1 rounded-lg text-sm relative transition-colors',
+              !cell.isCurrentMonth && 'opacity-30',
+              cell.isToday && 'font-bold ring-1 ring-primary',
+              modelValue === cell.date && 'bg-primary text-primary-content',
+              isDisabled(cell.date) && 'opacity-20 cursor-not-allowed',
+              !isDisabled(cell.date) && 'hover:bg-base-200 cursor-pointer',
+            )
+          "
+          :disabled="isDisabled(cell.date)"
+          :aria-selected="modelValue === cell.date"
+          :aria-label="getDateAriaLabel(cell.date)"
+          role="gridcell"
+          @click="selectDate(cell.date)"
+        >
+          {{ cell.day }}
+          <div
+            v-if="getEventsForDate(cell.date).length > 0"
+            class="flex justify-center gap-0.5 mt-0.5"
+          >
+            <span
+              v-for="event in getEventsForDate(cell.date).slice(0, 3)"
+              :key="event.id"
+              :class="
+                cn('w-1 h-1 rounded-full', event.color ? colorDotMap[event.color] : 'bg-primary')
+              "
+            />
+          </div>
+        </button>
+      </div>
     </div>
   </div>
 </template>
