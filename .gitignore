@@ -1,6 +1,13 @@
 node_modules/
 dist/
 *.tsbuildinfo
+*.d.ts
+*.d.ts.map
 .DS_Store
 coverage/
 storybook-static/
+.histoire/
+*.local
+
+# Playwright
+packages/vue/visual-tests/test-results/

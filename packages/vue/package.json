@@ -30,29 +30,91 @@
       "import": "./dist/data.mjs",
       "types": "./dist/data.d.ts"
     },
+    "./feedback": {
+      "import": "./dist/feedback.mjs",
+      "types": "./dist/feedback.d.ts"
+    },
     "./utility": {
       "import": "./dist/utility.mjs",
       "types": "./dist/utility.d.ts"
+    },
+    "./composables": {
+      "import": "./dist/composables.mjs",
+      "types": "./dist/composables.d.ts"
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ArtisanPack-UI/vue.git",
+    "directory": "packages/vue"
+  },
+  "homepage": "https://github.com/ArtisanPack-UI/vue#readme",
+  "bugs": {
+    "url": "https://github.com/ArtisanPack-UI/vue/issues"
+  },
+  "author": "Jacob Martella",
+  "keywords": [
+    "vue",
+    "vue3",
+    "ui-components",
+    "daisyui",
+    "tailwindcss",
+    "component-library",
+    "artisanpack"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && vue-tsc --project tsconfig.build.json",
+    "type-check": "vue-tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "story:dev": "histoire dev",
+    "story:build": "histoire build",
+    "story:preview": "histoire preview",
+    "test:visual": "histoire build && playwright test",
+    "test:visual:update": "histoire build && playwright test --update-snapshots"
+  },
+  "dependencies": {
+    "@artisanpack-ui/tokens": "*"
   },
   "devDependencies": {
+    "@histoire/plugin-vue": "^0.17.17",
+    "@playwright/test": "^1.59.1",
+    "@tailwindcss/vite": "^4.2.2",
     "@testing-library/vue": "^8.1.0",
     "@vitejs/plugin-vue": "^5.2.0",
+    "apexcharts": "^5.10.4",
+    "axe-core": "^4.11.2",
+    "daisyui": "^5.5.19",
+    "histoire": "^0.17.17",
+    "jsdom": "^27.0.1",
+    "tailwindcss": "^4.2.2",
     "tsup": "^8.3.0",
     "typescript": "^5.7.0",
     "vitest": "^2.1.0",
-    "vue": "^3.5.0"
+    "vitest-axe": "^0.1.0",
+    "vue": "^3.5.0",
+    "vue-tsc": "^3.2.6",
+    "vue3-apexcharts": "^1.11.1"
   },
   "peerDependencies": {
-    "vue": "^3.4.0"
+    "apexcharts": "^5.10.0",
+    "vue": "^3.5.0",
+    "vue3-apexcharts": "^1.7.0"
+  },
+  "peerDependenciesMeta": {
+    "apexcharts": {
+      "optional": true
+    },
+    "vue3-apexcharts": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "license": "MIT"
 }

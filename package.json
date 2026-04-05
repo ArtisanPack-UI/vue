@@ -1,22 +1,38 @@
 {
   "name": "@artisanpack-ui/vue-monorepo",
   "private": true,
+  "type": "module",
   "workspaces": [
     "packages/vue",
     "packages/vue-laravel"
   ],
   "scripts": {
     "build": "npm run build --workspaces",
-    "test": "npm run test --workspaces",
-    "lint": "eslint packages/*/src --ext .ts,.vue",
-    "format": "prettier --write \"packages/*/src/**/*.{ts,vue}\""
+    "test": "npm run test --workspaces --if-present",
+    "lint": "eslint packages/*/src",
+    "format": "prettier --write \"packages/*/src/**/*.{ts,vue}\"",
+    "format:check": "prettier --check \"packages/*/src/**/*.{ts,vue}\"",
+    "type-check": "tsc --noEmit",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "changeset publish",
+    "story:dev": "npm run story:dev --workspace=packages/vue",
+    "story:build": "npm run story:build --workspace=packages/vue",
+    "story:preview": "npm run story:preview --workspace=packages/vue",
+    "test:visual": "npm run test:visual --workspace=packages/vue",
+    "test:visual:update": "npm run test:visual:update --workspace=packages/vue"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^0.6.0",
     "@changesets/cli": "^2.27.0",
-    "@typescript-eslint/eslint-plugin": "^8.0.0",
-    "@typescript-eslint/parser": "^8.0.0",
+    "@eslint/js": "^9.0.0",
+    "esbuild-plugin-vue3": "^0.5.1",
     "eslint": "^9.0.0",
+    "eslint-plugin-vue": "^9.32.0",
     "prettier": "^3.4.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.0.0",
+    "vue-eslint-parser": "^9.4.0",
+    "vue-tsc": "^3.2.6"
   }
 }
