@@ -1,6 +1,6 @@
 {
   "name": "@artisanpack-ui/vue",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "80+ Vue 3 UI components for the ArtisanPack UI ecosystem, styled with DaisyUI and Tailwind CSS",
   "type": "module",
   "main": "./dist/index.mjs",
@@ -41,6 +41,10 @@
     "./composables": {
       "import": "./dist/composables.mjs",
       "types": "./dist/composables.d.ts"
+    },
+    "./ai": {
+      "import": "./dist/ai.mjs",
+      "types": "./dist/ai.d.ts"
     }
   },
   "files": [
