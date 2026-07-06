@@ -24,7 +24,9 @@ describe('SettingsPage', () => {
     render(SettingsPage, { props: { client, heading: 'AI Settings' } });
 
     expect(await screen.findByRole('heading', { name: 'AI Settings' })).toBeTruthy();
-    expect((screen.getByPlaceholderText('gpt-4o-mini') as HTMLInputElement).value).toBe('gpt-4o-mini');
+    expect((screen.getByPlaceholderText('gpt-4o-mini') as HTMLInputElement).value).toBe(
+      'gpt-4o-mini',
+    );
     expect(screen.getByText(/leave blank to keep the stored key/)).toBeTruthy();
   });
 
@@ -56,13 +58,15 @@ describe('SettingsPage', () => {
   it('renders per-field validation errors returned from a 422', async () => {
     const client = createMockClient({
       getSettings: vi.fn().mockResolvedValue(baseResponse),
-      updateSettings: vi.fn().mockRejectedValue(
-        new AiApiError(
-          422,
-          { message: 'Validation failed.', errors: { api_key: ['An API key is required.'] } },
-          'Validation failed.',
+      updateSettings: vi
+        .fn()
+        .mockRejectedValue(
+          new AiApiError(
+            422,
+            { message: 'Validation failed.', errors: { api_key: ['An API key is required.'] } },
+            'Validation failed.',
+          ),
         ),
-      ),
     });
 
     render(SettingsPage, { props: { client } });

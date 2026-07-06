@@ -78,12 +78,7 @@ onScopeDispose(() => {
 </script>
 
 <template>
-  <div
-    v-if="loading && !usage"
-    class="flex items-center gap-2"
-    role="status"
-    aria-live="polite"
-  >
+  <div v-if="loading && !usage" class="flex items-center gap-2" role="status" aria-live="polite">
     <span class="loading loading-spinner loading-sm" aria-hidden="true" />
     <span>Loading usage…</span>
   </div>
@@ -92,38 +87,43 @@ onScopeDispose(() => {
     <span>{{ error }}</span>
   </div>
 
-  <div
-    v-else-if="usage"
-    class="flex flex-col gap-6"
-    data-testid="ai-usage-dashboard"
-  >
-    <h2 v-if="heading" class="text-lg font-semibold">{{ heading }}</h2>
+  <div v-else-if="usage" class="flex flex-col gap-6" data-testid="ai-usage-dashboard">
+    <h2 v-if="heading" class="text-lg font-semibold">
+      {{ heading }}
+    </h2>
 
     <div class="stats stats-vertical sm:stats-horizontal shadow">
       <div class="stat">
         <div class="stat-title">Requests</div>
-        <div class="stat-value">{{ formatNumber(usage.totals.requests) }}</div>
+        <div class="stat-value">
+          {{ formatNumber(usage.totals.requests) }}
+        </div>
       </div>
       <div class="stat">
         <div class="stat-title">Input tokens</div>
-        <div class="stat-value">{{ formatNumber(usage.totals.input_tokens) }}</div>
+        <div class="stat-value">
+          {{ formatNumber(usage.totals.input_tokens) }}
+        </div>
       </div>
       <div class="stat">
         <div class="stat-title">Output tokens</div>
-        <div class="stat-value">{{ formatNumber(usage.totals.output_tokens) }}</div>
+        <div class="stat-value">
+          {{ formatNumber(usage.totals.output_tokens) }}
+        </div>
       </div>
       <div class="stat">
         <div class="stat-title">Cost</div>
-        <div class="stat-value">{{ formatCost(usage.totals.cost) }}</div>
+        <div class="stat-value">
+          {{ formatCost(usage.totals.cost) }}
+        </div>
       </div>
     </div>
 
     <section aria-labelledby="ai-usage-by-feature">
       <h3 id="ai-usage-by-feature" class="mb-2 font-medium">By feature</h3>
-      <p
-        v-if="usage.by_feature.length === 0"
-        class="text-sm text-base-content/70"
-      >No feature usage in this range.</p>
+      <p v-if="usage.by_feature.length === 0" class="text-sm text-base-content/70">
+        No feature usage in this range.
+      </p>
       <div v-else class="overflow-x-auto">
         <table class="table table-sm">
           <thead>
@@ -138,10 +138,18 @@ onScopeDispose(() => {
           <tbody>
             <tr v-for="row in usage.by_feature" :key="row.feature_key">
               <td>{{ row.feature_key }}</td>
-              <td class="text-right">{{ formatNumber(row.requests) }}</td>
-              <td class="text-right">{{ formatNumber(row.input_tokens) }}</td>
-              <td class="text-right">{{ formatNumber(row.output_tokens) }}</td>
-              <td class="text-right">{{ formatCost(row.cost) }}</td>
+              <td class="text-right">
+                {{ formatNumber(row.requests) }}
+              </td>
+              <td class="text-right">
+                {{ formatNumber(row.input_tokens) }}
+              </td>
+              <td class="text-right">
+                {{ formatNumber(row.output_tokens) }}
+              </td>
+              <td class="text-right">
+                {{ formatCost(row.cost) }}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -150,10 +158,9 @@ onScopeDispose(() => {
 
     <section aria-labelledby="ai-usage-daily">
       <h3 id="ai-usage-daily" class="mb-2 font-medium">Daily</h3>
-      <p
-        v-if="usage.daily.length === 0"
-        class="text-sm text-base-content/70"
-      >No daily usage in this range.</p>
+      <p v-if="usage.daily.length === 0" class="text-sm text-base-content/70">
+        No daily usage in this range.
+      </p>
       <div v-else class="overflow-x-auto">
         <table class="table table-sm">
           <thead>
@@ -167,9 +174,15 @@ onScopeDispose(() => {
           <tbody>
             <tr v-for="row in usage.daily" :key="row.period">
               <td>{{ row.period }}</td>
-              <td class="text-right">{{ formatNumber(row.requests) }}</td>
-              <td class="text-right">{{ formatNumber(row.total_tokens) }}</td>
-              <td class="text-right">{{ formatCost(row.cost) }}</td>
+              <td class="text-right">
+                {{ formatNumber(row.requests) }}
+              </td>
+              <td class="text-right">
+                {{ formatNumber(row.total_tokens) }}
+              </td>
+              <td class="text-right">
+                {{ formatCost(row.cost) }}
+              </td>
             </tr>
           </tbody>
         </table>

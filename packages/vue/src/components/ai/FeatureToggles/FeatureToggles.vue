@@ -56,38 +56,23 @@ async function handleToggle(feature: AiFeature): Promise<void> {
 </script>
 
 <template>
-  <div
-    v-if="error && !features"
-    role="alert"
-    class="alert alert-error"
-  >
+  <div v-if="error && !features" role="alert" class="alert alert-error">
     <span>{{ error }}</span>
   </div>
 
-  <div
-    v-else-if="!features"
-    class="flex items-center gap-2"
-    role="status"
-    aria-live="polite"
-  >
+  <div v-else-if="!features" class="flex items-center gap-2" role="status" aria-live="polite">
     <span class="loading loading-spinner loading-sm" aria-hidden="true" />
     <span>Loading features…</span>
   </div>
 
-  <div
-    v-else-if="features.length === 0"
-    class="text-sm text-base-content/70"
-    role="status"
-  >
+  <div v-else-if="features.length === 0" class="text-sm text-base-content/70" role="status">
     No AI features registered.
   </div>
 
-  <div
-    v-else
-    class="flex flex-col gap-3"
-    data-testid="ai-feature-toggles"
-  >
-    <h2 v-if="heading" class="text-lg font-semibold">{{ heading }}</h2>
+  <div v-else class="flex flex-col gap-3" data-testid="ai-feature-toggles">
+    <h2 v-if="heading" class="text-lg font-semibold">
+      {{ heading }}
+    </h2>
     <div v-if="error" role="alert" class="alert alert-error">
       <span>{{ error }}</span>
     </div>
@@ -99,10 +84,9 @@ async function handleToggle(feature: AiFeature): Promise<void> {
       >
         <div class="flex flex-col">
           <span class="font-medium">{{ feature.label }}</span>
-          <span
-            v-if="feature.description"
-            class="text-sm text-base-content/70"
-          >{{ feature.description }}</span>
+          <span v-if="feature.description" class="text-sm text-base-content/70">{{
+            feature.description
+          }}</span>
           <span class="text-xs uppercase tracking-wide text-base-content/50">
             {{ feature.package }} · {{ feature.key }}
           </span>
@@ -118,7 +102,7 @@ async function handleToggle(feature: AiFeature): Promise<void> {
             :disabled="pending[feature.key] === true"
             :aria-label="`Toggle ${feature.label}`"
             @change="handleToggle(feature)"
-          >
+          />
         </label>
       </li>
     </ul>

@@ -135,12 +135,7 @@ async function handleTest(): Promise<void> {
 </script>
 
 <template>
-  <div
-    v-if="loading"
-    class="flex items-center gap-2"
-    role="status"
-    aria-live="polite"
-  >
+  <div v-if="loading" class="flex items-center gap-2" role="status" aria-live="polite">
     <span class="loading loading-spinner loading-sm" aria-hidden="true" />
     <span>Loading AI settings…</span>
   </div>
@@ -152,7 +147,9 @@ async function handleTest(): Promise<void> {
     novalidate
     @submit.prevent="handleSubmit"
   >
-    <h2 v-if="heading" class="text-lg font-semibold">{{ heading }}</h2>
+    <h2 v-if="heading" class="text-lg font-semibold">
+      {{ heading }}
+    </h2>
 
     <div
       v-if="status"
@@ -173,11 +170,9 @@ async function handleTest(): Promise<void> {
             {{ provider }}
           </option>
         </select>
-        <span
-          v-for="message in errors.provider"
-          :key="message"
-          class="label-text-alt text-error"
-        >{{ message }}</span>
+        <span v-for="message in errors.provider" :key="message" class="label-text-alt text-error">{{
+          message
+        }}</span>
       </label>
 
       <label v-if="!isOllama" class="form-control flex flex-col gap-1">
@@ -190,12 +185,10 @@ async function handleTest(): Promise<void> {
           autocomplete="off"
           class="input input-bordered"
           :placeholder="apiKeyPresent ? '••••••••' : 'sk-…'"
-        >
-        <span
-          v-for="message in errors.api_key"
-          :key="message"
-          class="label-text-alt text-error"
-        >{{ message }}</span>
+        />
+        <span v-for="message in errors.api_key" :key="message" class="label-text-alt text-error">{{
+          message
+        }}</span>
       </label>
 
       <label class="form-control flex flex-col gap-1">
@@ -207,12 +200,10 @@ async function handleTest(): Promise<void> {
           type="url"
           class="input input-bordered"
           :placeholder="isOllama ? 'http://localhost:11434' : 'https://api.example.com/v1'"
-        >
-        <span
-          v-for="message in errors.base_url"
-          :key="message"
-          class="label-text-alt text-error"
-        >{{ message }}</span>
+        />
+        <span v-for="message in errors.base_url" :key="message" class="label-text-alt text-error">{{
+          message
+        }}</span>
       </label>
 
       <label class="form-control flex flex-col gap-1">
@@ -222,12 +213,13 @@ async function handleTest(): Promise<void> {
           type="text"
           class="input input-bordered"
           placeholder="gpt-4o-mini"
-        >
+        />
         <span
           v-for="message in errors.default_model"
           :key="message"
           class="label-text-alt text-error"
-        >{{ message }}</span>
+          >{{ message }}</span
+        >
       </label>
 
       <div class="flex items-center gap-2">
@@ -256,9 +248,7 @@ async function handleTest(): Promise<void> {
         :key="override.feature_key"
         class="rounded-box border border-base-300 p-3"
       >
-        <div class="text-sm font-medium">
-          {{ override.package }} · {{ override.feature_key }}
-        </div>
+        <div class="text-sm font-medium">{{ override.package }} · {{ override.feature_key }}</div>
         <label class="form-control mt-2 flex flex-col gap-1">
           <span class="label-text">Model</span>
           <input
@@ -266,7 +256,7 @@ async function handleTest(): Promise<void> {
             type="text"
             class="input input-bordered input-sm"
             placeholder="inherit default"
-          >
+          />
         </label>
         <label class="form-control mt-2 flex flex-col gap-1">
           <span class="label-text">Instructions</span>
