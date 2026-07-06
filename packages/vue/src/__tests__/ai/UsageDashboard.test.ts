@@ -65,6 +65,21 @@ describe('UsageDashboard', () => {
     vi.useRealTimers();
   });
 
+  it('reloads when from/to props change', async () => {
+    const getUsage = vi.fn().mockResolvedValue(usage);
+    const client = createMockClient({ getUsage });
+
+    const { rerender } = render(UsageDashboard, { props: { client, from: '2026-07-01' } });
+    await screen.findByText('12');
+    expect(getUsage).toHaveBeenCalledWith({ from: '2026-07-01', to: undefined });
+
+    await rerender({ client, from: '2026-07-15', to: '2026-07-30' });
+
+    await vi.waitFor(() =>
+      expect(getUsage).toHaveBeenLastCalledWith({ from: '2026-07-15', to: '2026-07-30' }),
+    );
+  });
+
   it('surfaces a fetch error when the initial load fails', async () => {
     const client = createMockClient({ getUsage: vi.fn().mockRejectedValue(new Error('Nope')) });
 

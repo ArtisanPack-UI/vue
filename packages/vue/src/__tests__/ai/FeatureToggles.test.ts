@@ -66,6 +66,28 @@ describe('FeatureToggles', () => {
     expect((screen.getByLabelText('Toggle Summarize') as HTMLInputElement).checked).toBe(true);
   });
 
+  it('clears a stale error after a subsequent successful toggle', async () => {
+    const toggleFeature = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('Boom'))
+      .mockResolvedValueOnce({ feature: { key: 'chat', package: 'core', enabled: true } });
+    const client = createMockClient({
+      getFeatures: vi.fn().mockResolvedValue({ features }),
+      toggleFeature,
+    });
+
+    render(FeatureToggles, { props: { client } });
+
+    const summarizeToggle = await screen.findByLabelText('Toggle Summarize');
+    await fireEvent.click(summarizeToggle);
+    await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('Boom'));
+
+    const chatToggle = screen.getByLabelText('Toggle Chat');
+    await fireEvent.click(chatToggle);
+
+    await waitFor(() => expect(screen.queryByRole('alert')).toBeNull());
+  });
+
   it('renders empty state when no features are registered', async () => {
     const client = createMockClient({
       getFeatures: vi.fn().mockResolvedValue({ features: [] }),

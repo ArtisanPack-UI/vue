@@ -29,6 +29,7 @@ const usage = ref<AiUsageResponse | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
 let intervalId: ReturnType<typeof setInterval> | null = null;
+let requestSeq = 0;
 
 const formatNumber = (value: number): string => new Intl.NumberFormat().format(value);
 const formatCost = (value: number): string =>
@@ -40,20 +41,37 @@ const formatCost = (value: number): string =>
   }).format(value);
 
 async function load(): Promise<void> {
+  const seq = ++requestSeq;
   try {
     const response = await props.client.getUsage({ from: props.from, to: props.to });
+    // Discard responses that lost the race to a newer request — otherwise
+    // a slow-poll response can clobber a fresher one under high latency.
+    if (seq !== requestSeq) return;
     usage.value = response;
     error.value = null;
   } catch (err) {
+    if (seq !== requestSeq) return;
     error.value = (err as Error).message;
   } finally {
-    loading.value = false;
+    if (seq === requestSeq) {
+      loading.value = false;
+    }
   }
 }
 
 onMounted(() => {
   load();
 });
+
+// Reload when the date range changes so callers driving a date picker see
+// fresh data on every prop update, not just at mount / poll tick.
+watch(
+  () => [props.from, props.to],
+  () => {
+    loading.value = true;
+    load();
+  },
+);
 
 watch(
   () => props.refreshInterval,

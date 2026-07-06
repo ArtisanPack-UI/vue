@@ -47,6 +47,7 @@ const saving = ref(false);
 const testing = ref(false);
 const errors = ref<Record<string, string[]>>({});
 const status = ref<string | null>(null);
+const statusVariant = ref<'success' | 'error'>('success');
 const testResult = ref<AiConnectionTestResult | null>(null);
 
 function toFormState(response: AiSettingsResponse): void {
@@ -82,10 +83,19 @@ onMounted(async () => {
     toFormState(response);
   } catch (err) {
     status.value = (err as Error).message;
+    statusVariant.value = 'error';
   } finally {
     loading.value = false;
   }
 });
+
+function handleProviderChange(provider: string): void {
+  // Reset the typed key + last probe result so we don't silently ship
+  // an OpenAI key to an Ollama base URL (or the other way around).
+  form.provider = provider;
+  form.api_key = '';
+  testResult.value = null;
+}
 
 async function handleSubmit(): Promise<void> {
   saving.value = true;
@@ -96,7 +106,9 @@ async function handleSubmit(): Promise<void> {
     initial.value = response;
     toFormState(response);
     status.value = 'Settings saved.';
+    statusVariant.value = 'success';
   } catch (err) {
+    statusVariant.value = 'error';
     if (err instanceof AiApiError && err.status === 422) {
       const body = err.body as { errors?: Record<string, string[]>; message?: string };
       errors.value = body?.errors ?? {};
@@ -153,9 +165,9 @@ async function handleTest(): Promise<void> {
 
     <div
       v-if="status"
-      role="status"
+      :role="statusVariant === 'error' ? 'alert' : 'status'"
       aria-live="polite"
-      :class="Object.keys(errors).length > 0 ? 'alert alert-error' : 'alert alert-success'"
+      :class="statusVariant === 'error' ? 'alert alert-error' : 'alert alert-success'"
     >
       <span>{{ status }}</span>
     </div>
@@ -165,7 +177,11 @@ async function handleTest(): Promise<void> {
 
       <label class="form-control flex flex-col gap-1">
         <span class="label-text">Provider</span>
-        <select v-model="form.provider" class="select select-bordered">
+        <select
+          :value="form.provider"
+          class="select select-bordered"
+          @change="handleProviderChange(($event.target as HTMLSelectElement).value)"
+        >
           <option v-for="provider in props.providers" :key="provider" :value="provider">
             {{ provider }}
           </option>

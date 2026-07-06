@@ -92,4 +92,51 @@ describe('SettingsPage', () => {
 
     expect(await screen.findByText('Connected')).toBeTruthy();
   });
+
+  it('clears the typed api_key and last probe result when switching providers', async () => {
+    const testConnection = vi
+      .fn()
+      .mockResolvedValue({ result: 'ok', message: 'Connected', provider: 'openai' });
+    const client = createMockClient({
+      getSettings: vi.fn().mockResolvedValue(baseResponse),
+      testConnection,
+    });
+
+    render(SettingsPage, { props: { client } });
+    await screen.findByPlaceholderText('gpt-4o-mini');
+
+    const apiKeyInput = screen.getByPlaceholderText('••••••••') as HTMLInputElement;
+    await fireEvent.update(apiKeyInput, 'sk-secret');
+
+    await fireEvent.click(screen.getByRole('button', { name: /Test connection/ }));
+    await screen.findByText('Connected');
+
+    const providerSelect = screen.getByRole('combobox') as HTMLSelectElement;
+    await fireEvent.update(providerSelect, 'ollama');
+
+    expect(screen.queryByPlaceholderText('••••••••')).toBeNull();
+    expect(screen.queryByText('Connected')).toBeNull();
+
+    await fireEvent.click(screen.getByRole('button', { name: /Test connection/ }));
+    const lastCall = testConnection.mock.calls.at(-1)?.[0];
+    expect(lastCall.provider).toBe('ollama');
+    expect(lastCall.api_key).toBeNull();
+  });
+
+  it('renders a network error inside an error alert, not a success alert', async () => {
+    const client = createMockClient({
+      getSettings: vi.fn().mockResolvedValue(baseResponse),
+      updateSettings: vi.fn().mockRejectedValue(new Error('Network down')),
+    });
+
+    render(SettingsPage, { props: { client } });
+    await screen.findByPlaceholderText('gpt-4o-mini');
+
+    await fireEvent.submit(screen.getByTestId('ai-settings-page'));
+
+    const alert = await screen.findByRole('alert');
+    expect(alert.textContent).toContain('Network down');
+    expect(alert.className).toContain('alert-error');
+    expect(alert.className).not.toContain('alert-success');
+  });
 });

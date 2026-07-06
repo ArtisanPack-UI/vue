@@ -75,10 +75,14 @@ export function useStreamingText(): UseStreamingTextResult {
         error.value = err as Error;
       }
     } finally {
+      // Only flip streaming off if we're still the active stream. Otherwise
+      // a rapid second start() would race: this stream's finally would clear
+      // the flag while the newer stream is still reading, and consumers gating
+      // spinners on `streaming` would render as done mid-stream.
       if (controller === localController) {
         controller = null;
+        streaming.value = false;
       }
-      streaming.value = false;
     }
   }
 
