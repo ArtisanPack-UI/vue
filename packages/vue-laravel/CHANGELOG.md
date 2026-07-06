@@ -1,5 +1,15 @@
 # @artisanpack-ui/vue-laravel
 
+## 1.0.1
+
+### Patch Changes
+
+- Linked version bump alongside `@artisanpack-ui/vue@1.0.1`. No source changes in this adapter package.
+
+### Updated dependencies
+
+- `@artisanpack-ui/vue@1.0.1`
+
 ## 1.0.0
 
 ### Major Changes
