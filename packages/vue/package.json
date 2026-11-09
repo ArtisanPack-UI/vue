@@ -78,7 +78,7 @@
     "test:visual:update": "histoire build && playwright test --update-snapshots"
   },
   "dependencies": {
-    "@artisanpack-ui/tokens": "*"
+    "@artisanpack-ui/tokens": "^1.0.1"
   },
   "devDependencies": {
     "@histoire/plugin-vue": "^0.17.17",

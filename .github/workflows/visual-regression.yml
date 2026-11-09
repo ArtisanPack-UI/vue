@@ -8,7 +8,9 @@ on:
 
 jobs:
   visual-regression:
-    runs-on: ubuntu-latest
+    # Pinned: the snapshot baselines were captured on Ubuntu 24.04, and Playwright
+    # 1.59 can't install Chromium on ubuntu-latest (26.04). Move both together.
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     name: Visual Regression
 
