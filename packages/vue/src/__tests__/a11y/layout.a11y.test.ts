@@ -21,7 +21,8 @@ describe('Layout components accessibility', () => {
 
   it('Card has no a11y violations', async () => {
     const { container } = render(Card, {
-      slots: { default: '<p>Card content</p>' },
+      props: { title: 'Quarterly report', description: 'Updated 2 hours ago', href: '/reports/q3' },
+      slots: { default: '<p>Card content</p>', footer: '3 comments' },
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();

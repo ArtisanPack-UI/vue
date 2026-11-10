@@ -1,108 +1,77 @@
 <script setup lang="ts">
+import '@artisanpack-ui/css';
 import Card from './Card.vue';
 import Button from '../../form/Button/Button.vue';
+
+const media =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3Crect width='16' height='9' fill='%2394a3b8'/%3E%3C/svg%3E";
 </script>
 
 <template>
   <Story title="Layout/Card" group="layout">
-    <Variant title="Playground">
+    <Variant title="Default">
       <template #controls="{ state }">
+        <HstText v-model="state.title" title="Title" />
+        <HstText v-model="state.description" title="Description" />
         <HstSelect
-          v-model="state.figurePosition"
-          title="Figure Position"
-          :options="['', 'top', 'bottom', 'left', 'right']"
+          v-model="state.surface"
+          title="Surface"
+          :options="['', 'default', 'raised', 'sunken', 'glass']"
         />
-        <HstCheckbox v-model="state.noShadow" title="No Shadow" />
-        <HstCheckbox v-model="state.bordered" title="Bordered" />
-        <HstCheckbox v-model="state.compact" title="Compact" />
-        <HstCheckbox v-model="state.glass" title="Glass" />
+        <HstCheckbox v-model="state.interactive" title="Interactive" />
       </template>
 
       <template #default="{ state }">
         <div style="max-width: 400px">
           <Card
-            :figure-position="state.figurePosition || undefined"
-            :no-shadow="state.noShadow"
-            :bordered="state.bordered"
-            :compact="state.compact"
-            :glass="state.glass"
+            :title="state.title || 'Quarterly report'"
+            :description="state.description || 'Updated 2 hours ago'"
+            :surface="state.surface || undefined"
+            :interactive="state.interactive"
           >
-            <template #header>
-              <h3 style="font-size: 1.125rem; font-weight: bold">Card Title</h3>
-            </template>
-            <p>This is the card content. You can put any content here.</p>
-            <template #footer>
-              <Button color="primary" size="sm">Action</Button>
-            </template>
+            Revenue grew 12% this quarter.
+            <template #footer>3 comments</template>
           </Card>
         </div>
       </template>
     </Variant>
 
-    <Variant title="Bordered">
+    <Variant title="Surfaces">
+      <div style="display: grid; gap: 16px; max-width: 400px">
+        <Card title="Raised" surface="raised">A raised surface.</Card>
+        <Card title="Sunken" surface="sunken">A sunken surface.</Card>
+      </div>
+    </Variant>
+
+    <Variant title="With Media">
       <div style="max-width: 400px">
-        <Card :bordered="true">
-          <template #header>
-            <h3 style="font-size: 1.125rem; font-weight: bold">Bordered Card</h3>
+        <Card :media="media" title="Quarterly report" description="Updated 2 hours ago">
+          Revenue grew 12% this quarter.
+          <template #actions>
+            <Button size="sm" variant="ghost">Share</Button>
           </template>
-          <p>A card with a border instead of a shadow.</p>
         </Card>
       </div>
     </Variant>
 
-    <Variant title="Compact">
-      <div style="max-width: 400px">
-        <Card :compact="true">
-          <template #header>
-            <h3 style="font-size: 1rem; font-weight: bold">Compact Card</h3>
-          </template>
-          <p>Reduced padding for dense layouts.</p>
-        </Card>
-      </div>
-    </Variant>
-
-    <Variant title="Glass Effect">
+    <Variant title="Glass">
       <div
         style="
-          max-width: 400px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           padding: 24px;
-          border-radius: 8px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          max-width: 448px;
         "
       >
-        <Card :glass="true">
-          <template #header>
-            <h3 style="font-size: 1.125rem; font-weight: bold; color: white">Glass Card</h3>
-          </template>
-          <p style="color: white">A card with a glass/blur effect.</p>
-        </Card>
+        <Card title="Glass" surface="glass">Content on a glass surface.</Card>
       </div>
     </Variant>
 
     <Variant title="As Link">
       <div style="max-width: 400px">
-        <Card link="https://example.com">
-          <template #header>
-            <h3 style="font-size: 1.125rem; font-weight: bold">Clickable Card</h3>
-          </template>
-          <p>This entire card is a link.</p>
-        </Card>
-      </div>
-    </Variant>
-
-    <Variant title="Composition Example">
-      <div style="max-width: 400px">
-        <Card>
-          <template #header>
-            <h3 style="font-size: 1.125rem; font-weight: bold">User Profile</h3>
-          </template>
-          <p>John Doe — Software Engineer</p>
-          <p style="font-size: 0.875rem; color: gray">Member since 2024</p>
-          <template #footer>
-            <div style="display: flex; gap: 8px">
-              <Button color="primary" size="sm">Edit</Button>
-              <Button color="ghost" size="sm">View</Button>
-            </div>
+        <Card href="https://example.com" title="Read the report" description="PDF, 2 MB">
+          The whole card is the link's hit area; the actions stay separately clickable.
+          <template #actions>
+            <Button size="sm" variant="outline">Share</Button>
           </template>
         </Card>
       </div>
@@ -113,5 +82,16 @@ import Button from '../../form/Button/Button.vue';
 <docs lang="md">
 # Card
 
-A flexible card component with header/footer slots, figure positions, and style variants.
+The default container (`.apui-card`): a surface with an edge, plus optional media, header,
+body and footer parts. Title, description, actions, footer and media take a prop or a slot.
+
+## Usage
+
+```vue
+<Card title="Quarterly report" description="Updated 2 hours ago" href="/reports/q3">
+  Revenue grew 12% this quarter.
+  <template #actions><Button size="sm" variant="ghost">Share</Button></template>
+  <template #footer>3 comments</template>
+</Card>
+```
 </docs>

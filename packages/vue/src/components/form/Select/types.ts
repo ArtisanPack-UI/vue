@@ -1,43 +1,62 @@
-/**
- * Represents a single option in a Select dropdown.
- */
-export interface SelectOption {
-  [key: string]: unknown;
-  /** When true, this option is rendered in a disabled state. */
+/** Control height of a Select. Emitted as `data-size`. */
+export type SelectSize = 'sm' | 'md' | 'lg';
+
+/** An option object. Values are compared as strings. */
+export interface SelectOptionObject {
+  /** The option's value. */
+  value: string | number;
+  /** The option's text. Defaults to the value. */
+  label?: string;
+  /** When true, the option can't be chosen. */
   disabled?: boolean;
 }
 
+/** An option: a string (value and label) or an option object. */
+export type SelectOption = string | SelectOptionObject;
+
+/** The parts of a Select that accept extra classes. */
+export type SelectPart =
+  | 'root'
+  | 'label'
+  | 'required'
+  | 'box'
+  | 'icon'
+  | 'control'
+  | 'indicator'
+  | 'hint'
+  | 'error';
+
 /**
- * Props for the Select component.
+ * Props for the Select component (design-system manifest `Select`, #46).
  *
- * Supports option mapping from data arrays, placeholder option, icons,
- * and inline label display.
+ * A native `<select>`. Bind the value with `v-model`. Option elements in the
+ * default slot render after `options`. `class` goes to the root; every other
+ * attribute (`name`, `id`, `aria-*`, listeners) goes to the `<select>`. The
+ * `icon` slot overrides `leadingIcon`.
  */
 export interface SelectProps {
-  /** Text label displayed above the select. Hidden when `inline` is true. */
-  label?: string;
-  /** Helper text displayed below the select. Hidden when `error` is present. */
-  hint?: string;
-  /** Error message displayed below the select. Replaces `hint` when present. */
-  error?: string;
-  /** Text for a disabled placeholder option rendered as the first option. */
-  placeholder?: string;
-  /** Value attribute for the placeholder option. @defaultValue `''` */
-  placeholderValue?: string;
-  /** When true, renders the label as an inline fieldset label below the select. @defaultValue `false` */
-  inline?: boolean;
-  /** Property key on each option object to use as the option value. @defaultValue `'id'` */
-  optionValue?: string;
-  /** Property key on each option object to use as the displayed option text. @defaultValue `'name'` */
-  optionLabel?: string;
-  /** Array of option objects to render as options. */
+  /** Control height. @defaultValue `'md'` */
+  size?: SelectSize;
+  /** The options: strings, or `{ value, label, disabled }` objects. */
   options?: SelectOption[];
-  /** Custom id for the select element. */
-  id?: string;
-  /** Whether the field is required. */
-  required?: boolean;
-  /** Whether the field is disabled. */
+  /** The visible label, linked to the control. Without it, pass an `aria-label`. */
+  label?: string;
+  /** Help text under the control, linked with `aria-describedby`. */
+  hint?: string;
+  /** Validation message. Marks the field invalid and is linked with `aria-describedby`. */
+  error?: string;
+  /** Marks the field invalid without a message. @defaultValue `false` */
+  invalid?: boolean;
+  /** Disables the control. @defaultValue `false` */
   disabled?: boolean;
-  /** Current value of the select (for v-model). */
+  /** Marks the field required, shows the required mark and makes the placeholder option unselectable. @defaultValue `false` */
+  required?: boolean;
+  /** The empty first option. An empty string renders no placeholder option. @defaultValue `'Select…'` */
+  placeholder?: string;
+  /** The selected value, bound with `v-model`. */
   modelValue?: string | number;
+  /** Icon name before the value, resolved through the icon registry. The `icon` slot overrides it. */
+  leadingIcon?: string;
+  /** Extra classes per part, such as `{ label: '…', control: '…' }`. */
+  classes?: Partial<Record<SelectPart, string>>;
 }

@@ -1,30 +1,59 @@
+/** Control height of an Input. Emitted as `data-size`. */
+export type InputSize = 'sm' | 'md' | 'lg';
+
+/** The parts of an Input that accept extra classes. */
+export type InputPart =
+  | 'root'
+  | 'label'
+  | 'required'
+  | 'box'
+  | 'icon'
+  | 'prefix'
+  | 'control'
+  | 'suffix'
+  | 'iconEnd'
+  | 'hint'
+  | 'error';
+
 /**
- * Props for the Input component.
+ * Props for the Input component (design-system manifest `Input`, #45).
  *
- * Provides a comprehensive text input with label, icons, prefix/suffix adornments,
- * clearable action, and inline label mode.
+ * Bind the value with `v-model`. `class` goes to the root; every other
+ * attribute (`name`, `autocomplete`, `id`, `aria-*`, listeners) goes to the
+ * native `<input>`. The `icon`, `iconEnd`, `prefix` and `suffix` slots
+ * override the same-named props.
  */
 export interface InputProps {
-  /** Text label displayed above the input. Hidden when `inline` is true (shown as floating label instead). */
+  /** Control height. @defaultValue `'md'` */
+  size?: InputSize;
+  /** The native input type, such as `email`, `url`, `search` or `number`. @defaultValue `'text'` */
+  type?: string;
+  /** The visible label, linked to the control. Without it, pass an `aria-label`. */
   label?: string;
-  /** Helper text displayed below the input. Hidden when `error` is present. */
+  /** Help text under the control, linked with `aria-describedby`. */
   hint?: string;
-  /** Error message displayed below the input. Replaces `hint` when present and adds `aria-invalid`. */
+  /** Validation message. Marks the field invalid and is linked with `aria-describedby`. */
   error?: string;
-  /** When true, shows a clear (X) button inside the input. @defaultValue `false` */
-  clearable?: boolean;
-  /** When true, renders the label as a floating/inline label inside the input wrapper. @defaultValue `false` */
-  inline?: boolean;
-  /** Custom id for the input element. Auto-generated if not provided. */
-  id?: string;
-  /** Whether the input is required. */
-  required?: boolean;
-  /** Input type. @defaultValue `'text'` */
-  type?: 'text' | 'email' | 'number' | 'password' | 'search' | 'tel' | 'url' | 'hidden';
-  /** Placeholder text. */
-  placeholder?: string;
-  /** Whether the input is disabled. */
+  /** Marks the field invalid without a message. @defaultValue `false` */
+  invalid?: boolean;
+  /** Disables the control. @defaultValue `false` */
   disabled?: boolean;
-  /** Whether the input is read-only. */
+  /** Makes the control read-only. It stays focusable. @defaultValue `false` */
   readonly?: boolean;
+  /** Marks the field required and shows the required mark. @defaultValue `false` */
+  required?: boolean;
+  /** Placeholder text. Never a replacement for the label. */
+  placeholder?: string;
+  /** The value, bound with `v-model`. */
+  modelValue?: string | number;
+  /** Text inside the box before the value, such as a currency or `https://`. */
+  prefix?: string;
+  /** Text inside the box after the value, such as a unit. */
+  suffix?: string;
+  /** Icon name before the value, resolved through the icon registry. The `icon` slot overrides it. */
+  leadingIcon?: string;
+  /** Icon name after the value, resolved through the icon registry. The `iconEnd` slot overrides it. */
+  trailingIcon?: string;
+  /** Extra classes per part, such as `{ label: '…', control: '…' }`. */
+  classes?: Partial<Record<InputPart, string>>;
 }

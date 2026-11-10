@@ -1,14 +1,15 @@
 <script setup lang="ts">
+import '@artisanpack-ui/css';
 import { ref } from 'vue';
 import Select from './Select.vue';
 
-const value = ref('');
-const options = [
-  { value: 'apple', label: 'Apple' },
-  { value: 'banana', label: 'Banana' },
-  { value: 'cherry', label: 'Cherry' },
-  { value: 'grape', label: 'Grape', disabled: true },
+const countries = [
+  { value: 'us', label: 'United States' },
+  { value: 'ca', label: 'Canada' },
+  { value: 'mx', label: 'Mexico', disabled: true },
 ];
+
+const value = ref('');
 </script>
 
 <template>
@@ -17,11 +18,9 @@ const options = [
       <template #controls="{ state }">
         <HstText v-model="state.label" title="Label" />
         <HstText v-model="state.placeholder" title="Placeholder" />
-        <HstText v-model="state.placeholderValue" title="Placeholder Value" />
         <HstText v-model="state.hint" title="Hint" />
         <HstText v-model="state.error" title="Error" />
-        <HstText v-model="state.id" title="ID" />
-        <HstCheckbox v-model="state.inline" title="Inline" />
+        <HstSelect v-model="state.size" title="Size" :options="['', 'sm', 'md', 'lg']" />
         <HstCheckbox v-model="state.disabled" title="Disabled" />
         <HstCheckbox v-model="state.required" title="Required" />
       </template>
@@ -30,16 +29,12 @@ const options = [
         <div style="max-width: 400px">
           <Select
             v-model="value"
-            :label="state.label || 'Fruit'"
-            :placeholder="state.placeholder || 'Select a fruit'"
-            :placeholder-value="state.placeholderValue || undefined"
+            :label="state.label || 'Country'"
+            :options="countries"
+            :placeholder="state.placeholder || undefined"
             :hint="state.hint || undefined"
             :error="state.error || undefined"
-            :id="state.id || undefined"
-            :options="options"
-            option-value="value"
-            option-label="label"
-            :inline="state.inline"
+            :size="state.size || undefined"
             :disabled="state.disabled"
             :required="state.required"
           />
@@ -49,70 +44,32 @@ const options = [
 
     <Variant title="With Error">
       <div style="max-width: 400px">
-        <Select
-          v-model="value"
-          label="Category"
-          placeholder="Choose one"
-          :options="options"
-          option-value="value"
-          option-label="label"
-          error="Selection is required"
-        />
-      </div>
-    </Variant>
-
-    <Variant title="Inline Layout">
-      <div style="max-width: 400px">
-        <Select
-          v-model="value"
-          label="Fruit"
-          placeholder="Pick one"
-          :options="options"
-          option-value="value"
-          option-label="label"
-          :inline="true"
-        />
-      </div>
-    </Variant>
-
-    <Variant title="With Hint">
-      <div style="max-width: 400px">
-        <Select
-          v-model="value"
-          label="Preference"
-          placeholder="Select a fruit"
-          :options="options"
-          option-value="value"
-          option-label="label"
-          hint="Choose your favorite fruit"
-        />
+        <Select label="Country" :options="countries" :required="true" error="Choose a country." />
       </div>
     </Variant>
 
     <Variant title="Disabled">
       <div style="max-width: 400px">
+        <Select label="Country" :options="countries" model-value="us" :disabled="true" />
+      </div>
+    </Variant>
+
+    <Variant title="With Hint and Icon">
+      <div style="max-width: 400px">
         <Select
-          model-value="apple"
-          label="Fruit"
-          :options="options"
-          option-value="value"
-          option-label="label"
-          :disabled="true"
+          label="Owner"
+          :options="['Ada', 'Grace', 'Linus']"
+          leading-icon="user"
+          hint="Who is responsible for the account."
         />
       </div>
     </Variant>
 
-    <Variant title="Required">
+    <Variant title="Option Children">
       <div style="max-width: 400px">
-        <Select
-          v-model="value"
-          label="Fruit"
-          placeholder="Select a fruit"
-          :options="options"
-          option-value="value"
-          option-label="label"
-          :required="true"
-        />
+        <Select label="Country" :options="countries" model-value="gb">
+          <option value="gb">United Kingdom</option>
+        </Select>
       </div>
     </Variant>
   </Story>
@@ -121,36 +78,14 @@ const options = [
 <docs lang="md">
 # Select
 
-A dropdown select component with label, hint, error, and inline layout support.
+Chooses one value from a short list with the native select element (`.apui-select`). Pass
+`options` as strings or `{ value, label, disabled }` objects; option children in the default
+slot render after them.
 
 ## Usage
 
 ```vue
-<Select
-  v-model="selectedValue"
-  label="Category"
-  placeholder="Choose one"
-  :options="categories"
-  option-value="id"
-  option-label="name"
-/>
+<Select v-model="country" label="Country" :options="countries" :required="true" />
+<Select v-model="size" label="Size" :options="['S', 'M', 'L']" placeholder="" />
 ```
-
-## Props
-
-| Prop               | Type               | Default  | Description                            |
-| ------------------ | ------------------ | -------- | -------------------------------------- |
-| `modelValue`       | `string \| number` | —        | Current value (for v-model)            |
-| `label`            | `string`           | —        | Text label above the select            |
-| `hint`             | `string`           | —        | Helper text below the select           |
-| `error`            | `string`           | —        | Error message (replaces hint)          |
-| `placeholder`      | `string`           | —        | Text for disabled placeholder option   |
-| `placeholderValue` | `string`           | `''`     | Value for the placeholder option       |
-| `inline`           | `boolean`          | `false`  | Inline fieldset label layout           |
-| `optionValue`      | `string`           | `'id'`   | Key on option objects for the value    |
-| `optionLabel`      | `string`           | `'name'` | Key on option objects for display text |
-| `options`          | `SelectOption[]`   | —        | Array of option objects                |
-| `id`               | `string`           | —        | Custom id for the select element       |
-| `required`         | `boolean`          | —        | Whether the field is required          |
-| `disabled`         | `boolean`          | —        | Whether the field is disabled          |
 </docs>

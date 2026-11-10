@@ -20,12 +20,12 @@ test.describe('Layout / Card', () => {
     await testVariant(page, STORY.card, 0, 'card-default');
   });
 
-  test('bordered', async ({ page }) => {
-    await testVariant(page, STORY.card, 1, 'card-bordered');
+  test('surfaces', async ({ page }) => {
+    await testVariant(page, STORY.card, 1, 'card-surfaces');
   });
 
-  test('compact', async ({ page }) => {
-    await testVariant(page, STORY.card, 2, 'card-compact');
+  test('media', async ({ page }) => {
+    await testVariant(page, STORY.card, 2, 'card-media');
   });
 
   test('glass', async ({ page }) => {

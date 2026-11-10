@@ -16,19 +16,22 @@ import {
 
 describe('Form components accessibility', () => {
   it('Button has no a11y violations', async () => {
-    const { container } = render(Button, { props: { label: 'Submit' } });
+    const { container } = render(Button, { slots: { default: 'Submit' } });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
   it('Button with loading state has no a11y violations', async () => {
-    const { container } = render(Button, { props: { label: 'Loading', loading: true } });
+    const { container } = render(Button, {
+      props: { loading: true },
+      slots: { default: 'Loading' },
+    });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
   it('Checkbox has no a11y violations', async () => {
-    const { container } = render(Checkbox, { props: { label: 'Accept terms', modelValue: false } });
+    const { container } = render(Checkbox, { props: { label: 'Accept terms', checked: false } });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -47,17 +50,26 @@ describe('Form components accessibility', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('Input with inline label has no a11y violations', async () => {
+  it('Input with every part has no a11y violations', async () => {
     const { container } = render(Input, {
-      props: { label: 'Search', inline: true },
+      props: {
+        label: 'Email',
+        required: true,
+        hint: 'We never share it.',
+        prefix: 'to:',
+        suffix: '@work',
+        leadingIcon: 'mail',
+        trailingIcon: 'search',
+      },
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
-  it('Input with placeholder only has no a11y violations', async () => {
+  it('Input without a visible label has no a11y violations', async () => {
     const { container } = render(Input, {
       props: { placeholder: 'Enter text...' },
+      attrs: { 'aria-label': 'Search' },
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -109,8 +121,8 @@ describe('Form components accessibility', () => {
       props: {
         label: 'Country',
         options: [
-          { id: '1', name: 'USA' },
-          { id: '2', name: 'Canada' },
+          { value: 'us', label: 'USA' },
+          { value: 'ca', label: 'Canada' },
         ],
       },
     });

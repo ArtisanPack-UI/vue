@@ -18,7 +18,7 @@ export { ACCORDION_KEY } from './Accordion/keys';
 export type { AccordionContext } from './Accordion/keys';
 
 export { default as Card } from './Card/Card.vue';
-export type { CardProps } from './Card/types';
+export type { CardPart, CardProps, CardSurface } from './Card/types';
 
 export { default as Collapse } from './Collapse/Collapse.vue';
 export type { CollapseProps } from './Collapse/types';

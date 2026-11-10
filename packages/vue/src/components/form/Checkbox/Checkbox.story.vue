@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import '@artisanpack-ui/css';
 import { ref } from 'vue';
 import Checkbox from './Checkbox.vue';
 
@@ -10,57 +11,43 @@ const checked = ref(false);
     <Variant title="Playground">
       <template #controls="{ state }">
         <HstText v-model="state.label" title="Label" />
-        <HstText v-model="state.hint" title="Hint" />
+        <HstText v-model="state.description" title="Description" />
         <HstText v-model="state.error" title="Error" />
-        <HstSelect
-          v-model="state.color"
-          title="Color"
-          :options="['', 'primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info']"
-        />
-        <HstCheckbox v-model="state.right" title="Right Aligned" />
-        <HstCheckbox v-model="state.card" title="Card Style" />
+        <HstCheckbox v-model="state.indeterminate" title="Indeterminate" />
         <HstCheckbox v-model="state.disabled" title="Disabled" />
+        <HstCheckbox v-model="state.required" title="Required" />
       </template>
 
       <template #default="{ state }">
         <Checkbox
-          v-model="checked"
-          :label="state.label || 'Accept terms'"
-          :hint="state.hint || undefined"
+          v-model:checked="checked"
+          :label="state.label || 'Email me about new offers'"
+          :description="state.description || undefined"
           :error="state.error || undefined"
-          :color="state.color || undefined"
-          :right="state.right"
-          :card="state.card"
+          :indeterminate="state.indeterminate"
           :disabled="state.disabled"
+          :required="state.required"
         />
       </template>
     </Variant>
 
-    <Variant title="Colors">
-      <div style="display: flex; flex-direction: column; gap: 8px">
-        <Checkbox v-model="checked" label="Primary" color="primary" />
-        <Checkbox v-model="checked" label="Secondary" color="secondary" />
-        <Checkbox v-model="checked" label="Accent" color="accent" />
-        <Checkbox v-model="checked" label="Success" color="success" />
-        <Checkbox v-model="checked" label="Warning" color="warning" />
-        <Checkbox v-model="checked" label="Error" color="error" />
-        <Checkbox v-model="checked" label="Info" color="info" />
+    <Variant title="States">
+      <div style="display: grid; gap: 12px">
+        <Checkbox label="Unchecked" />
+        <Checkbox label="Checked" :checked="true" />
+        <Checkbox label="Indeterminate" :indeterminate="true" />
+        <Checkbox label="Disabled" :disabled="true" />
+        <Checkbox label="Disabled and checked" :checked="true" :disabled="true" />
       </div>
     </Variant>
 
-    <Variant title="Card Style">
-      <div style="display: flex; flex-direction: column; gap: 8px; max-width: 300px">
-        <Checkbox v-model="checked" label="Option A" :card="true" />
-        <Checkbox v-model="checked" label="Option B" :card="true" />
-        <Checkbox v-model="checked" label="Option C" :card="true" />
-      </div>
-    </Variant>
-
-    <Variant title="With Hint and Error">
-      <div style="display: flex; flex-direction: column; gap: 16px">
-        <Checkbox v-model="checked" label="Subscribe" hint="Get weekly updates" />
-        <Checkbox v-model="checked" label="Terms" error="You must accept the terms" />
-      </div>
+    <Variant title="With Description and Error">
+      <Checkbox
+        label="Email me about new offers"
+        description="At most once a day."
+        error="Required to continue."
+        :required="true"
+      />
     </Variant>
   </Story>
 </template>
@@ -68,5 +55,13 @@ const checked = ref(false);
 <docs lang="md">
 # Checkbox
 
-A checkbox input with label, hint, error, card style, and color variants.
+Turns one option on or off, with an indeterminate (mixed) state (`.apui-checkbox`). Bind it
+with `v-model:checked`.
+
+## Usage
+
+```vue
+<Checkbox v-model:checked="subscribed" label="Email me about new offers" />
+<Checkbox :checked="some" :indeterminate="some && !all" label="Select all" />
+```
 </docs>
