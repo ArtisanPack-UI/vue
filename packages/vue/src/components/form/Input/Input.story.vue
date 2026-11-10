@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import '@artisanpack-ui/css';
 import { ref } from 'vue';
 import Input from './Input.vue';
 

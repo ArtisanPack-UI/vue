@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import '@artisanpack-ui/css';
 import Button from './Button.vue';
 
 const variants = ['solid', 'soft', 'outline', 'ghost', 'link'] as const;

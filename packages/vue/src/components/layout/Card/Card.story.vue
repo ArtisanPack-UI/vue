@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import '@artisanpack-ui/css';
 import Card from './Card.vue';
 import Button from '../../form/Button/Button.vue';
 
