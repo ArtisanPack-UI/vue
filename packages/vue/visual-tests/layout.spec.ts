@@ -35,24 +35,6 @@ test.describe('Layout / Card', () => {
   });
 });
 
-test.describe('Layout / Tabs', () => {
-  test('segmented', async ({ page }) => {
-    await testVariant(page, STORY.tabs, 0, 'tabs-default');
-  });
-
-  test('underline', async ({ page }) => {
-    await testVariant(page, STORY.tabs, 1, 'tabs-underline');
-  });
-
-  test('small, from data', async ({ page }) => {
-    await testVariant(page, STORY.tabs, 2, 'tabs-small');
-  });
-
-  test('vertical', async ({ page }) => {
-    await testVariant(page, STORY.tabs, 3, 'tabs-vertical');
-  });
-});
-
 test.describe('Layout / Accordion', () => {
   test('default', async ({ page }) => {
     await testVariant(page, STORY.accordion, 0, 'accordion-default');
@@ -155,5 +137,23 @@ test.describe('Layout / Stack', () => {
 test.describe('Layout / Popover', () => {
   test('default', async ({ page }) => {
     await testVariant(page, STORY.popover, 0, 'popover-default');
+  });
+});
+
+test.describe('Layout / Tabs', () => {
+  test('Segmented', async ({ page }) => {
+    await testVariant(page, STORY.tabs, 0, 'tabs-segmented');
+  });
+
+  test('Underline, manual activation', async ({ page }) => {
+    await testVariant(page, STORY.tabs, 1, 'tabs-underline-manual-activation');
+  });
+
+  test('Small, from data', async ({ page }) => {
+    await testVariant(page, STORY.tabs, 2, 'tabs-small-from-data');
+  });
+
+  test('Vertical', async ({ page }) => {
+    await testVariant(page, STORY.tabs, 3, 'tabs-vertical');
   });
 });
