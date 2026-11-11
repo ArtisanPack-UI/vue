@@ -36,16 +36,20 @@ test.describe('Layout / Card', () => {
 });
 
 test.describe('Layout / Tabs', () => {
-  test('default', async ({ page }) => {
+  test('segmented', async ({ page }) => {
     await testVariant(page, STORY.tabs, 0, 'tabs-default');
   });
 
-  test('bordered', async ({ page }) => {
-    await testVariant(page, STORY.tabs, 1, 'tabs-bordered');
+  test('underline', async ({ page }) => {
+    await testVariant(page, STORY.tabs, 1, 'tabs-underline');
   });
 
-  test('lifted', async ({ page }) => {
-    await testVariant(page, STORY.tabs, 2, 'tabs-lifted');
+  test('small, from data', async ({ page }) => {
+    await testVariant(page, STORY.tabs, 2, 'tabs-small');
+  });
+
+  test('vertical', async ({ page }) => {
+    await testVariant(page, STORY.tabs, 3, 'tabs-vertical');
   });
 });
 

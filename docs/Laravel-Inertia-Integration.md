@@ -142,7 +142,8 @@ const { form, processing, post, getError } = useInertiaForm({
 | `InertiaCheckbox` | `Checkbox` | Checkbox with Inertia error binding |
 | `InertiaToggle` | `Toggle` | Toggle switch with Inertia error binding |
 | `InertiaPassword` | `Password` | Password input with Inertia error binding |
-| `InertiaRadio` | `Radio` | Radio group with Inertia error binding |
+| `InertiaRadioGroup` | `RadioGroup` | Radio group with Inertia error binding (names every radio) |
+| `InertiaRadio` | `Radio` | Deprecated: use `InertiaRadioGroup` |
 
 All Inertia form components accept the same props as their base counterparts plus automatic `error` mapping from Inertia's form state.
 

@@ -31,5 +31,9 @@ const resolvedError = computed(() => {
 </script>
 
 <template>
-  <Toggle v-bind="{ ...$attrs, name, error: resolvedError }" v-model="model" />
+  <!-- prettier-ignore -->
+  <Toggle
+    v-bind="{ ...$attrs, name, error: resolvedError }"
+    v-model:checked="model"
+  />
 </template>

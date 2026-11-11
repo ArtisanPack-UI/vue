@@ -1,56 +1,40 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import File from './File.vue';
+import type { FileItem } from './types';
+
+const photos = ref<FileItem[]>([]);
+const listed = ref<FileItem[]>([
+  { name: 'lakeview-lofts-exterior.jpg', size: 2400000 },
+  { name: 'courtyard-garden.jpg', size: 1250000, progress: 64 },
+  { name: 'floor-plan.heic', size: 830000, error: "HEIC isn't supported. Use JPG or PNG." },
+]);
 </script>
 
 <template>
   <Story title="Form/File" group="form">
-    <Variant title="Playground">
-      <template #controls="{ state }">
-        <HstText v-model="state.label" title="Label" />
-        <HstText v-model="state.hint" title="Hint" />
-        <HstText v-model="state.error" title="Error" />
-        <HstText v-model="state.accept" title="Accept" />
-        <HstCheckbox v-model="state.multiple" title="Multiple" />
-        <HstCheckbox v-model="state.withDragDrop" title="Drag & Drop" />
-        <HstCheckbox v-model="state.disabled" title="Disabled" />
-      </template>
-
-      <template #default="{ state }">
-        <div style="max-width: 400px">
-          <File
-            :label="state.label || 'Upload'"
-            :hint="state.hint || undefined"
-            :error="state.error || undefined"
-            :accept="state.accept || undefined"
-            :multiple="state.multiple"
-            :with-drag-drop="state.withDragDrop"
-            :disabled="state.disabled"
-          />
-        </div>
-      </template>
+    <Variant title="Drop zone">
+      <File
+        v-model="photos"
+        label="Listing photos"
+        title="Drop photos here or browse"
+        hint="JPG or PNG, up to 20 MB each"
+        multiple
+        accept="image/jpeg,image/png"
+      />
     </Variant>
 
-    <Variant title="Drag and Drop">
-      <div style="max-width: 400px">
-        <File
-          label="Documents"
-          :with-drag-drop="true"
-          accept=".pdf,.doc,.docx"
-          hint="PDF or Word documents"
-        />
-      </div>
+    <Variant title="With files">
+      <File v-model="listed" label="Listing photos" multiple />
     </Variant>
 
-    <Variant title="With Progress">
-      <div style="max-width: 400px">
-        <File label="Image" accept="image/*" :progress="65" />
-      </div>
-    </Variant>
-
-    <Variant title="Multiple Files">
-      <div style="max-width: 400px">
-        <File label="Photos" accept="image/*" :multiple="true" hint="Select multiple images" />
-      </div>
+    <Variant title="Compact">
+      <File
+        variant="compact"
+        title="Upload a contract"
+        hint="PDF up to 10 MB"
+        accept="application/pdf"
+      />
     </Variant>
   </Story>
 </template>
@@ -58,5 +42,13 @@ import File from './File.vue';
 <docs lang="md">
 # File
 
-A file upload component with drag-and-drop, progress bar, and multiple file support.
+Uploads files by dropping or browsing (`.apui-file`): the native file input is transparent over
+the drop zone, and the list shows sizes, progress, errors and remove buttons. Bind it with
+`v-model`. Exported as `File`; `FileUpload` is a deprecated alias.
+
+## Usage
+
+```vue
+<File v-model="photos" label="Photos" multiple accept="image/*" />
+```
 </docs>

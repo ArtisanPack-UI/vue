@@ -1,5 +1,5 @@
 {
-  "components": ["Button", "Input", "Select", "Checkbox", "Card", "Dialog", "DropdownMenu", "Toast"],
+  "components": ["Button", "Input", "Select", "Checkbox", "Card", "Dialog", "DropdownMenu", "Toast", "Textarea", "Password", "Pin", "Range", "Toggle", "Fieldset", "Form", "ValidationSummary", "Combobox", "Link", "Breadcrumbs", "Pagination", "Steps", "Tabs", "Menu", "Navbar", "DatePicker", "Spotlight", "RadioGroup", "CheckboxGroup", "Rating", "ColorPicker", "File", "Signature", "RichTextEditor", "CodeEditor"],
   "css": ["../../node_modules/@artisanpack-ui/css/dist/index.css"],
   "stacks": {
     "vue": { "host": "gates/fixture-host.js" }

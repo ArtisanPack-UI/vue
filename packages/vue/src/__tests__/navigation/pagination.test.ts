@@ -1,90 +1,104 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/vue';
-import { Pagination } from '../../components/navigation';
+import { fireEvent, render, screen } from '@testing-library/vue';
+import { Pagination, paginationRange } from '../../components/navigation';
+
+const sequence = (container: Element) =>
+  [...container.querySelector('nav')!.children].map(
+    (el) => `${el.getAttribute('data-part')}:${el.textContent!.trim()}`,
+  );
 
 describe('Pagination', () => {
-  it('renders page buttons', () => {
-    render(Pagination, { props: { currentPage: 1, totalPages: 5 } });
-    expect(screen.getByText('1')).toBeTruthy();
-    expect(screen.getByText('5')).toBeTruthy();
+  it('renders a named nav with previous, the pages and next', () => {
+    const { container } = render(Pagination, { props: { page: 3, total: 318, perPage: 10 } });
+    expect(screen.getByRole('navigation', { name: 'Pagination' }).className).toBe(
+      'apui-pagination',
+    );
+    expect(sequence(container)).toEqual([
+      'previous:',
+      'page:1',
+      'page:2',
+      'page:3',
+      'page:4',
+      'page:5',
+      'ellipsis:…',
+      'page:32',
+      'next:',
+    ]);
   });
 
-  it('marks current page as active', () => {
-    render(Pagination, { props: { currentPage: 3, totalPages: 5 } });
-    const page3 = screen.getByText('3');
-    expect(page3.classList.contains('btn-active')).toBe(true);
+  it('marks the current page and names every control', () => {
+    render(Pagination, { props: { page: 3, total: 318 } });
+    expect(screen.getByRole('button', { name: 'Page 3' }).getAttribute('aria-current')).toBe(
+      'page',
+    );
+    expect(screen.getByRole('button', { name: 'Previous page' }).hasAttribute('data-mirror')).toBe(
+      true,
+    );
+    expect(screen.getByRole('button', { name: 'Next page' })).toBeTruthy();
   });
 
-  it('sets aria-current on active page', () => {
-    render(Pagination, { props: { currentPage: 2, totalPages: 5 } });
-    const page2 = screen.getByText('2');
-    expect(page2.getAttribute('aria-current')).toBe('page');
+  it('emits page-change and update:page from pages, previous and next', async () => {
+    const { emitted } = render(Pagination, { props: { page: 3, pageCount: 10 } });
+    await fireEvent.click(screen.getByRole('button', { name: 'Page 4' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Previous page' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Next page' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Page 3' }));
+    expect(emitted()['page-change']).toEqual([[4], [2], [4]]);
+    expect(emitted()['update:page']).toEqual([[4], [2], [4]]);
   });
 
-  it('disables previous button on first page', () => {
-    render(Pagination, { props: { currentPage: 1, totalPages: 5 } });
-    const prev = screen.getByLabelText('Previous page');
-    expect((prev as HTMLButtonElement).disabled).toBe(true);
+  it('keeps previous and next focusable but inert at the ends', async () => {
+    const { emitted } = render(Pagination, { props: { page: 1, pageCount: 1 } });
+    const previous = screen.getByRole('button', { name: 'Previous page' });
+    expect(previous.getAttribute('aria-disabled')).toBe('true');
+    expect(screen.getByRole('button', { name: 'Next page' }).getAttribute('aria-disabled')).toBe(
+      'true',
+    );
+    await fireEvent.click(previous);
+    expect(emitted()['page-change']).toBeUndefined();
   });
 
-  it('disables next button on last page', () => {
-    render(Pagination, { props: { currentPage: 5, totalPages: 5 } });
-    const next = screen.getByLabelText('Next page');
-    expect((next as HTMLButtonElement).disabled).toBe(true);
+  it('prefers pageCount and clamps the page', () => {
+    render(Pagination, { props: { page: 9, pageCount: 3, total: 1000 } });
+    expect(screen.getAllByRole('button', { name: /^Page / })).toHaveLength(3);
+    expect(screen.getByRole('button', { name: 'Page 3' }).getAttribute('aria-current')).toBe(
+      'page',
+    );
   });
 
-  it('emits update:currentPage on page click', async () => {
-    const { emitted } = render(Pagination, { props: { currentPage: 1, totalPages: 5 } });
-    const page2 = screen.getByText('2');
-    await fireEvent.click(page2);
-    expect(emitted()['update:currentPage']).toBeTruthy();
-    expect(emitted()['update:currentPage'][0]).toEqual([2]);
+  it('keeps one width as the page moves', () => {
+    expect(paginationRange(1, 20, 1)).toEqual([1, 2, 3, 4, 5, null, 20]);
+    expect(paginationRange(10, 20, 1)).toEqual([1, null, 9, 10, 11, null, 20]);
+    expect(paginationRange(20, 20, 1)).toEqual([1, null, 16, 17, 18, 19, 20]);
   });
 
-  it('emits update:currentPage on next click', async () => {
-    const { emitted } = render(Pagination, { props: { currentPage: 2, totalPages: 5 } });
-    const next = screen.getByLabelText('Next page');
-    await fireEvent.click(next);
-    expect(emitted()['update:currentPage'][0]).toEqual([3]);
+  it('shows a translatable summary', () => {
+    const summary = (props: Record<string, unknown>) =>
+      render(Pagination, { props }).container.querySelector('[data-part="summary"]')!.textContent;
+    expect(summary({ page: 32, total: 318, summary: true })).toBe('Showing 311–318 of 318');
+    expect(summary({ page: 2, pageCount: 32, summary: true })).toBe('Page 2 of 32');
+    expect(
+      summary({
+        page: 2,
+        pageCount: 32,
+        summary: true,
+        summaryLabel: 'Seite {page} von {pageCount}',
+      }),
+    ).toBe('Seite 2 von 32');
   });
 
-  it('emits update:currentPage on previous click', async () => {
-    const { emitted } = render(Pagination, { props: { currentPage: 3, totalPages: 5 } });
-    const prev = screen.getByLabelText('Previous page');
-    await fireEvent.click(prev);
-    expect(emitted()['update:currentPage'][0]).toEqual([2]);
-  });
-
-  it('does not emit when clicking current page', async () => {
-    const { emitted } = render(Pagination, { props: { currentPage: 1, totalPages: 5 } });
-    const page1 = screen.getByText('1');
-    await fireEvent.click(page1);
-    expect(emitted()['update:currentPage']).toBeFalsy();
-  });
-
-  it('shows ellipsis for many pages', () => {
-    render(Pagination, { props: { currentPage: 5, totalPages: 10 } });
-    const ellipses = screen.getAllByText('…');
-    expect(ellipses.length).toBeGreaterThanOrEqual(1);
-  });
-
-  it('has navigation role and aria-label', () => {
-    const { container } = render(Pagination, { props: { currentPage: 1, totalPages: 5 } });
-    const nav = container.querySelector('[role="navigation"]');
-    expect(nav).toBeTruthy();
-    expect(nav?.getAttribute('aria-label')).toBe('Pagination');
-  });
-
-  it('does not render page buttons for single page', () => {
-    const { container } = render(Pagination, { props: { currentPage: 1, totalPages: 1 } });
-    const pageButtons = container.querySelectorAll('[aria-label^="Page "]');
-    expect(pageButtons.length).toBe(0);
-  });
-
-  it('applies size class to buttons', () => {
-    const { container } = render(Pagination, {
-      props: { currentPage: 1, totalPages: 5, size: 'sm' },
+  it('takes translated labels', () => {
+    render(Pagination, {
+      props: {
+        pageCount: 2,
+        label: 'Seiten',
+        previousLabel: 'Zurück',
+        nextLabel: 'Weiter',
+        pageLabel: 'Seite {page}',
+      },
     });
-    expect(container.querySelector('.btn-sm')).toBeTruthy();
+    expect(screen.getByRole('navigation', { name: 'Seiten' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Zurück' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Seite 2' })).toBeTruthy();
   });
 });

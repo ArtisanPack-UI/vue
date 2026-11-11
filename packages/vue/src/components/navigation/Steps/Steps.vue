@@ -1,60 +1,47 @@
 <script setup lang="ts">
-/** @module Steps */
-import { computed } from 'vue';
-import { cn } from '@artisanpack-ui/tokens';
-import type { DaisyColor } from '@artisanpack-ui/tokens';
-import type { StepsProps } from './types';
+/**
+ * @module Steps
+ *
+ * Shows progress through a sequence. Renders the design-system Steps markup
+ * contract (`.apui-steps`, #56): an ordered list of Step children, or the
+ * same children from `steps`.
+ */
+import { computed, provide } from 'vue';
+import { STEPS_KEY } from './keys';
+import StepsChildren from './StepsChildren';
+import type { StepsPart, StepsProps } from './types';
 
 const props = withDefaults(defineProps<StepsProps>(), {
-  currentStep: 0,
-  vertical: false,
-  color: 'primary',
+  steps: undefined,
+  modelValue: undefined,
+  orientation: 'horizontal',
+  clickable: false,
+  label: undefined,
+  completeLabel: 'Completed',
+  errorLabel: 'Error',
+  classes: undefined,
 });
 
-const colorMap: Record<DaisyColor, string> = {
-  primary: 'step-primary',
-  secondary: 'step-secondary',
-  accent: 'step-accent',
-  success: 'step-success',
-  warning: 'step-warning',
-  error: 'step-error',
-  info: 'step-info',
-  neutral: 'step-neutral',
-};
+const emit = defineEmits<{
+  'update:modelValue': [value: number];
+}>();
 
-const stepsClasses = computed(() =>
-  cn('steps', props.vertical && 'steps-vertical', props.className),
-);
-
-function getStepClasses(index: number, step: { color?: DaisyColor }) {
-  const isComplete = index <= props.currentStep;
-  const stepColor = step.color ?? props.color;
-  return cn('step', isComplete && colorMap[stepColor]);
-}
+provide(STEPS_KEY, {
+  value: computed(() => props.modelValue),
+  clickable: computed(() => props.clickable),
+  completeLabel: computed(() => props.completeLabel),
+  errorLabel: computed(() => props.errorLabel),
+  classOf: (name: StepsPart) => props.classes?.[name],
+  select: (step: number) => emit('update:modelValue', step),
+});
 </script>
 
 <template>
-  <ul
-    :class="stepsClasses"
-    role="list"
-    :aria-label="($attrs['aria-label'] as string) || 'Progress steps'"
+  <ol
+    :class="['apui-steps', classes?.root]"
+    :data-orientation="orientation === 'vertical' ? 'vertical' : 'horizontal'"
+    :aria-label="label"
   >
-    <li
-      v-for="(step, index) in steps"
-      :key="index"
-      :class="getStepClasses(index, step)"
-      role="listitem"
-      :aria-current="index === currentStep ? 'step' : undefined"
-    >
-      <slot
-        name="step"
-        :step="step"
-        :index="index"
-        :is-active="index === currentStep"
-        :is-complete="index <= currentStep"
-      >
-        {{ step.label }}
-      </slot>
-    </li>
-  </ul>
+    <StepsChildren :steps="steps"><slot /></StepsChildren>
+  </ol>
 </template>

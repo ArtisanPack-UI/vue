@@ -73,12 +73,13 @@ describe('Layout components accessibility', () => {
   it('Tabs has no a11y violations', async () => {
     const { container } = render(Tabs, {
       props: {
+        label: 'Sections',
         tabs: [
-          { name: 'tab1', label: 'Tab 1' },
-          { name: 'tab2', label: 'Tab 2' },
+          { value: 'tab1', label: 'Tab 1', icon: 'list', content: 'First panel' },
+          { value: 'tab2', label: 'Tab 2', count: 4, content: 'Second panel' },
+          { value: 'tab3', label: 'Tab 3', disabled: true, content: 'Third panel' },
         ],
       },
-      slots: { default: '<p>Tab content</p>' },
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();

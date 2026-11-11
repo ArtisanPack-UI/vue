@@ -12,16 +12,12 @@ const STORY = {
 };
 
 test.describe('Navigation / Menu', () => {
-  test('default', async ({ page }) => {
+  test('composition', async ({ page }) => {
     await testVariant(page, STORY.menu, 0, 'menu-default');
   });
 
-  test('horizontal', async ({ page }) => {
-    await testVariant(page, STORY.menu, 1, 'menu-horizontal');
-  });
-
-  test('with nested items', async ({ page }) => {
-    await testVariant(page, STORY.menu, 2, 'menu-nested');
+  test('from data, not collapsible', async ({ page }) => {
+    await testVariant(page, STORY.menu, 1, 'menu-static');
   });
 });
 
@@ -64,8 +60,8 @@ test.describe('Navigation / Navbar', () => {
     await testVariant(page, STORY.navbar, 0, 'navbar-default');
   });
 
-  test('with color', async ({ page }) => {
-    await testVariant(page, STORY.navbar, 1, 'navbar-color');
+  test('island on glass', async ({ page }) => {
+    await testVariant(page, STORY.navbar, 1, 'navbar-island-glass');
   });
 });
 

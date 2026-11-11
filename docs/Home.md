@@ -25,7 +25,7 @@ Both packages depend on `@artisanpack-ui/tokens` for shared design tokens (color
 - [[Component API Reference]] — Overview and common props
 - [[Form Components]] — Button, Input, Select, Checkbox, Toggle, DatePicker, ColorPicker, RichTextEditor, and more
 - [[Layout Components]] — Card, Dialog, DropdownMenu, Tabs, Accordion, Drawer, Grid, Stack, Popover (plus the deprecated Modal and Dropdown)
-- [[Navigation Components]] — Menu, Breadcrumbs, Pagination, Steps, Navbar, Sidebar, SpotlightSearch
+- [[Navigation Components]] — Menu, Breadcrumbs, Link, Pagination, Steps, Navbar, Sidebar, Spotlight (SpotlightSearch is deprecated)
 - [[Data Display Components]] — Table, Chart, Calendar, Avatar, Badge, Progress, Stat, Timeline, Carousel, Code, Diff, Sparkline
 - [[Feedback Components]] — Alert, Toast and Toaster, Loading, Skeleton, EmptyState, ErrorDisplay
 - [[Utility Components]] — Icon, ThemeToggle, Tooltip, Clipboard, Markdown

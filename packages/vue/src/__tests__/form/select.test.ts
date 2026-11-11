@@ -228,4 +228,21 @@ describe('Select', () => {
     });
     expect(partOf(container, 'control')!.getAttribute('aria-invalid')).toBe('grammar');
   });
+  it('renders { label, options } entries as native optgroups (#53, replaces select-group)', async () => {
+    const { container, emitted } = render(Select, {
+      props: {
+        label: 'Type',
+        options: [
+          { label: 'Apartments', options: [{ value: 1, label: 'Studio' }, 'Loft'] },
+          { value: 'other', label: 'Other' },
+        ],
+      },
+    });
+    const group = container.querySelector('optgroup')!;
+    expect(group.getAttribute('label')).toBe('Apartments');
+    expect(group.querySelectorAll('option')).toHaveLength(2);
+    expect(container.querySelector('select > option[value="other"]')).not.toBeNull();
+    await fireEvent.update(screen.getByLabelText('Type'), '1');
+    expect(emitted()['update:modelValue']).toEqual([[1]]);
+  });
 });

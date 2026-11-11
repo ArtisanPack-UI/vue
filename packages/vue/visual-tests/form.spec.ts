@@ -97,13 +97,13 @@ test.describe('Form / Textarea', () => {
   });
 
   test('with error', async ({ page }) => {
-    await testVariant(page, STORY.textarea, 1, 'textarea-error');
+    await testVariant(page, STORY.textarea, 2, 'textarea-error');
   });
 });
 
 test.describe('Form / Toggle', () => {
-  test('colors', async ({ page }) => {
-    await testVariant(page, STORY.toggle, 1, 'toggle-colors');
+  test('sizes and colors', async ({ page }) => {
+    await testVariant(page, STORY.toggle, 2, 'toggle-colors');
   });
 });
 
@@ -119,7 +119,7 @@ test.describe('Form / Radio', () => {
 
 test.describe('Form / Range', () => {
   test('colors', async ({ page }) => {
-    await testVariant(page, STORY.range, 1, 'range-colors');
+    await testVariant(page, STORY.range, 2, 'range-colors');
   });
 });
 
@@ -128,13 +128,13 @@ test.describe('Form / Password', () => {
     await testVariant(page, STORY.password, 0, 'password-default');
   });
 
-  test('with error', async ({ page }) => {
+  test('strength and requirements', async ({ page }) => {
     await testVariant(page, STORY.password, 1, 'password-error');
   });
 });
 
 test.describe('Form / Pin', () => {
-  test('4-digit numeric', async ({ page }) => {
+  test('masked and alphanumeric', async ({ page }) => {
     await testVariant(page, STORY.pin, 1, 'pin-numeric');
   });
 });

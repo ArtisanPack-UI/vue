@@ -4,6 +4,8 @@ import { axe } from 'vitest-axe';
 import {
   Button,
   Checkbox,
+  Fieldset,
+  Form,
   Input,
   Password,
   Pin,
@@ -12,6 +14,7 @@ import {
   Select,
   Textarea,
   Toggle,
+  ValidationSummary,
 } from '../../components/form';
 
 describe('Form components accessibility', () => {
@@ -81,14 +84,27 @@ describe('Form components accessibility', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('Password with inline label has no a11y violations', async () => {
-    const { container } = render(Password, { props: { label: 'Password', inline: true } });
+  it('Password with every part has no a11y violations', async () => {
+    const { container } = render(Password, {
+      props: {
+        label: 'Password',
+        required: true,
+        leadingIcon: 'lock',
+        hint: 'Use a password you do not use elsewhere.',
+        error: 'Passwords do not match.',
+        strengthMeter: true,
+        modelValue: 'summit-trail',
+        requirements: [{ label: 'At least 12 characters', pattern: '.{12,}' }],
+      },
+    });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
   it('Pin has no a11y violations', async () => {
-    const { container } = render(Pin, { props: { length: 4 } });
+    const { container } = render(Pin, {
+      props: { label: 'Verification code', length: 6, groupSize: 3, modelValue: '482' },
+    });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -101,6 +117,25 @@ describe('Form components accessibility', () => {
         options: [
           { id: 'red', name: 'Red' },
           { id: 'blue', name: 'Blue' },
+        ],
+      },
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('Range with two thumbs and marks has no a11y violations', async () => {
+    const { container } = render(Range, {
+      props: {
+        label: 'Price',
+        dual: true,
+        modelValue: [200, 450],
+        min: 100,
+        max: 700,
+        format: '${value}k',
+        marks: [
+          { value: 100, label: '$100k' },
+          { value: 700, label: '$700k' },
         ],
       },
     });
@@ -136,14 +171,47 @@ describe('Form components accessibility', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('Textarea with inline label has no a11y violations', async () => {
-    const { container } = render(Textarea, { props: { label: 'Notes', inline: true } });
+  it('Textarea with a counter has no a11y violations', async () => {
+    const { container } = render(Textarea, {
+      props: { label: 'Notes', maxLength: 20, modelValue: 'Nearly at the limit' },
+    });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
   it('Toggle has no a11y violations', async () => {
-    const { container } = render(Toggle, { props: { label: 'Notifications', modelValue: false } });
+    const { container } = render(Toggle, {
+      props: { label: 'Notifications', description: 'Every Monday.', checked: true },
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('Fieldset has no a11y violations', async () => {
+    const { container } = render(Fieldset, {
+      props: { title: 'Contact', description: 'Who to reach.' },
+      slots: { default: '<label for="n">Name</label><input id="n" />' },
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('Form has no a11y violations', async () => {
+    const { container } = render(Form, {
+      attrs: { 'aria-label': 'Invite' },
+      slots: {
+        default: '<label for="e">Email</label><input id="e" />',
+        actions: '<button>Send</button>',
+      },
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('ValidationSummary has no a11y violations', async () => {
+    const { container } = render(ValidationSummary, {
+      props: { errors: [{ field: 'email', message: 'Enter a valid email.' }] },
+    });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
