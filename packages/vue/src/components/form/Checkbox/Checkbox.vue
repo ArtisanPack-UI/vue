@@ -71,13 +71,15 @@ onUpdated(() => {
 let resetForm: HTMLFormElement | null = null;
 
 function onFormReset(): void {
+  // The reset event fires before the form resets its controls (a reset button
+  // does it after microtasks), so read the state after a task, not a tick.
   setTimeout(() => {
     isChecked.value = props.checked;
     if (control.value) {
       control.value.checked = props.checked;
       control.value.indeterminate = props.indeterminate;
     }
-  });
+  }, 0);
 }
 
 onMounted(() => {

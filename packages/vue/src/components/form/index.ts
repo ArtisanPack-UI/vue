@@ -37,7 +37,7 @@ export { default as FileUpload } from './File/File.vue';
 export type { FileProps } from './File/types';
 
 export { default as Input } from './Input/Input.vue';
-export type { InputPart, InputProps, InputSize } from './Input/types';
+export type { InputEmits, InputPart, InputProps, InputSize } from './Input/types';
 
 export { default as Password } from './Password/Password.vue';
 export type { PasswordProps } from './Password/types';

@@ -7,7 +7,7 @@
  */
 import { mergeProps, useAttrs, useId } from 'vue';
 import { DsIcon, flag, part } from '../../_shared/design-system';
-import type { InputProps } from './types';
+import type { InputEmits, InputProps } from './types';
 
 defineOptions({ inheritAttrs: false });
 
@@ -30,9 +30,8 @@ const props = withDefaults(defineProps<InputProps>(), {
   classes: undefined,
 });
 
-const emit = defineEmits<{
-  'update:modelValue': [value: string];
-}>();
+/** Emits the native string value; see `InputEmits`. */
+const emit = defineEmits<InputEmits>();
 
 const attrs = useAttrs();
 const autoId = useId();

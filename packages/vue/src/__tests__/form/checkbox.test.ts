@@ -185,4 +185,21 @@ describe('Checkbox', () => {
     });
     expect(partOf(second.container, 'control')!.getAttribute('aria-invalid')).toBe('true');
   });
+
+  it('resyncs after a native reset button click', async () => {
+    const { container } = render(
+      defineComponent({
+        setup: () => () =>
+          h('form', [h(Checkbox, { label: 'Terms' }), h('button', { type: 'reset' }, 'Reset')]),
+      }),
+    );
+    const control = partOf(container, 'control') as HTMLInputElement;
+    await fireEvent.click(control);
+    expect(rootOf(container).getAttribute('data-state')).toBe('checked');
+    await fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await nextTick();
+    expect(control.checked).toBe(false);
+    expect(rootOf(container).getAttribute('data-state')).toBe('unchecked');
+  });
 });

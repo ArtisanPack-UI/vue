@@ -1,7 +1,7 @@
 import { afterEach, describe, it, expect } from 'vitest';
 import { render } from '@testing-library/vue';
 import { resetIcons } from '@artisanpack-ui/behavior/icons';
-import { Button, registerIcons, UnsafeIconError } from '../index';
+import { Button, isSafeIconBody, registerIcons, UnsafeIconError } from '../index';
 
 afterEach(() => resetIcons());
 
@@ -24,5 +24,10 @@ describe('icon registry re-exports', () => {
     '<foreignObject><div /></foreignObject>',
   ])('rejects the unsafe body %j with UnsafeIconError', (body) => {
     expect(() => registerIcons({ bad: body })).toThrow(UnsafeIconError);
+  });
+
+  it('re-exports isSafeIconBody', () => {
+    expect(isSafeIconBody('<path d="M0 0h1" />')).toBe(true);
+    expect(isSafeIconBody('<script>alert(1)</script>')).toBe(false);
   });
 });

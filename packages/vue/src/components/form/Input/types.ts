@@ -44,7 +44,12 @@ export interface InputProps {
   required?: boolean;
   /** Placeholder text. Never a replacement for the label. */
   placeholder?: string;
-  /** The value, bound with `v-model`. */
+  /**
+   * The value, bound with `v-model`. A number is accepted for display, but
+   * `update:modelValue` always emits the input's string value (even for
+   * `type="number"`), like the manifest's `value-change` and React. Convert
+   * it yourself, such as `@update:model-value="(v) => (count = Number(v))"`.
+   */
   modelValue?: string | number;
   /** Text inside the box before the value, such as a currency or `https://`. */
   prefix?: string;
@@ -56,4 +61,14 @@ export interface InputProps {
   trailingIcon?: string;
   /** Extra classes per part, such as `{ label: '…', control: '…' }`. */
   classes?: Partial<Record<InputPart, string>>;
+}
+
+/**
+ * The events of the Input component. `update:modelValue` carries the native
+ * input's string value, so a `v-model` bound to a number ref is a type error
+ * rather than silently turning the number into a string.
+ */
+export interface InputEmits {
+  /** The value changed. Always a string, also for `type="number"`. */
+  'update:modelValue': [value: string];
 }

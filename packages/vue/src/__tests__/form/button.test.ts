@@ -246,15 +246,32 @@ describe('Button', () => {
     '\u0001javascript:alert(1)',
     'vbscript:msgbox(1)',
     'data:text/html,<script>alert(1)</script>',
-  ])('ignores the unsafe href %j and renders a button', (href) => {
+    'ftp://example.com/file',
+    'file:///etc/passwd',
+    'intent://scan',
+  ])('ignores the href %j outside the allowlist and renders a button', (href) => {
     const { container } = render(Button, { props: { href }, slots: { default: 'Go' } });
     expect(container.querySelector('a')).toBeNull();
     expect(screen.getByRole('button').getAttribute('type')).toBe('button');
   });
 
-  it('keeps safe hrefs', () => {
-    render(Button, { props: { href: 'mailto:hi@example.com' }, slots: { default: 'Mail' } });
-    expect(screen.getByRole('link').getAttribute('href')).toBe('mailto:hi@example.com');
+  it.each([
+    '/dashboard',
+    './next',
+    '../up',
+    'page',
+    '?tab=2',
+    '#section',
+    '//cdn.example.com/a',
+    'http://example.com',
+    'HTTPS://example.com',
+    'mailto:hi@example.com',
+    'tel:+15555550100',
+    'sms:+15555550100',
+    '/path:with:colons',
+  ])('keeps the allowlisted href %j', (href) => {
+    render(Button, { props: { href }, slots: { default: 'Go' } });
+    expect(screen.getByRole('link').getAttribute('href')).toBe(href);
   });
 
   it('resolves the new directional icons and mirrors them', () => {

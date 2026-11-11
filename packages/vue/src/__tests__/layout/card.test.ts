@@ -162,8 +162,8 @@ describe('Card', () => {
     expect(rootOf(container).getAttribute('data-interactive')).toBe('');
   });
 
-  it.each(['javascript:alert(1)', ' VBScript:x', 'data:text/html,x'])(
-    'ignores the unsafe href %j',
+  it.each(['javascript:alert(1)', ' VBScript:x', 'data:text/html,x', 'ftp://example.com'])(
+    'ignores the href %j outside the allowlist',
     (href) => {
       const { container } = render(Card, { props: { href, title: 'Report' } });
       expect(container.querySelector('a')).toBeNull();
@@ -184,6 +184,32 @@ describe('Card', () => {
     const third = render(Card, { props: { media: 'data:image/png;base64,AAAA', title: 'T' } });
     expect(partOf(third.container, 'media')!.getAttribute('src')).toBe(
       'data:image/png;base64,AAAA',
+    );
+  });
+
+  it.each([
+    '/cover.png',
+    'cover.png',
+    'https://cdn.example.com/a.png',
+    'blob:https://x/1',
+    'DATA:image/svg+xml,x',
+  ])('allows the media URL %j', (media) => {
+    const { container } = render(Card, { props: { media, title: 'T' } });
+    expect(partOf(container, 'media')!.getAttribute('src')).toBe(media);
+  });
+
+  it.each(['data:text/html,x', 'ftp://example.com/a.png', 'file:///a.png'])(
+    'rejects the media URL %j',
+    (media) => {
+      const { container } = render(Card, { props: { media, title: 'T' } });
+      expect(partOf(container, 'media')).toBeNull();
+    },
+  );
+
+  it('keeps an allowlisted title link', () => {
+    render(Card, { props: { href: 'tel:+15555550100', title: 'Call us' } });
+    expect(screen.getByRole('link', { name: 'Call us' }).getAttribute('href')).toBe(
+      'tel:+15555550100',
     );
   });
 });

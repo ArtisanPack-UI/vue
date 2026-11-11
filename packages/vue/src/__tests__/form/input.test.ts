@@ -232,4 +232,15 @@ describe('Input', () => {
     });
     expect(partOf(second.container, 'control')!.getAttribute('aria-invalid')).toBe('true');
   });
+
+  it('emits the string value, even for type="number"', async () => {
+    const { container, emitted } = render(Input, {
+      props: { label: 'Quantity', type: 'number', modelValue: 3 },
+    });
+    const control = partOf(container, 'control') as HTMLInputElement;
+    expect(control.value).toBe('3');
+    await fireEvent.update(control, '42');
+    expect(emitted()['update:modelValue']).toEqual([['42']]);
+    expect(typeof (emitted()['update:modelValue']![0] as unknown[])[0]).toBe('string');
+  });
 });

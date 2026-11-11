@@ -82,27 +82,47 @@ function warnUnknownIcon(name: string): void {
   );
 }
 
-/** The URL's scheme, lowercased, with control characters and whitespace removed. */
+/** Control characters and whitespace, which browsers ignore inside a URL's scheme. */
+// eslint-disable-next-line no-control-regex
+const IGNORED_URL_CHARACTERS = /[\u0000-\u0020\u007f-\u009f]/g;
+
+/**
+ * The URL's scheme, lowercased, with control characters and whitespace
+ * removed; `''` for a relative or scheme-less URL (`/`, `./`, `?`, `#`, `//host`).
+ */
 function urlScheme(url: string): string {
-  // eslint-disable-next-line no-control-regex
-  const normalized = url.replace(/[\u0000-\u0020\u007f-\u009f]/g, '').toLowerCase();
-  const match = /^([a-z][a-z0-9+.-]*):/.exec(normalized);
+  const match = /^([a-z][a-z0-9+.-]*):/.exec(url.replace(IGNORED_URL_CHARACTERS, '').toLowerCase());
   return match ? match[1]! : '';
 }
 
+/** Schemes an `href` may use. Relative and scheme-less URLs are always allowed. */
+const HREF_SCHEMES: ReadonlySet<string> = new Set(['http', 'https', 'mailto', 'tel', 'sms']);
+
+/** Schemes a media URL may use, besides `data:image/…`. */
+const MEDIA_SCHEMES: ReadonlySet<string> = new Set(['http', 'https', 'blob']);
+
 /**
- * The href, or `undefined` when it's empty or uses a scheme that can run
- * script (`javascript:`, `vbscript:`, `data:`), so it's treated as absent.
+ * The href, or `undefined` when it's empty or its scheme isn't allowlisted
+ * (relative, http, https, mailto, tel, sms), so it's treated as absent.
  */
 export function safeHref(href: string | undefined | null): string | undefined {
   if (href === undefined || href === null || href === '') return undefined;
-  return ['javascript', 'vbscript', 'data'].includes(urlScheme(href)) ? undefined : href;
+  const scheme = urlScheme(href);
+  return scheme === '' || HREF_SCHEMES.has(scheme) ? href : undefined;
 }
 
-/** A media URL, or `undefined` for `javascript:` / `vbscript:` (data: images stay allowed). */
+/**
+ * A media URL, or `undefined` unless it's relative, http, https, blob or a
+ * `data:image/…` URL.
+ */
 export function safeMediaUrl(src: string | undefined | null): string | undefined {
   if (src === undefined || src === null || src === '') return undefined;
-  return ['javascript', 'vbscript'].includes(urlScheme(src)) ? undefined : src;
+  const scheme = urlScheme(src);
+  if (scheme === '' || MEDIA_SCHEMES.has(scheme)) return src;
+  const isDataImage =
+    scheme === 'data' &&
+    src.replace(IGNORED_URL_CHARACTERS, '').toLowerCase().startsWith('data:image/');
+  return isDataImage ? src : undefined;
 }
 
 /**
