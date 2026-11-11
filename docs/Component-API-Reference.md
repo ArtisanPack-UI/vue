@@ -49,5 +49,6 @@ Components use Vue named slots for flexible content areas. Common slot names:
 - `#prefix` / `#suffix` — Input adornments
 - `#actions` — Modal action buttons, Toast actions
 - `#icon` — Custom icon content
-- `#trigger` — Popover, Dropdown, Dialog trigger element
-- `#label` — DropdownMenu trigger content
+- `#trigger` — Popover, Dropdown: the whole trigger element
+- `#trigger` — Dialog: the content of the trigger button (Dialog renders the button itself)
+- `#label` — DropdownMenu: the content of the trigger button (DropdownMenu renders the button itself)

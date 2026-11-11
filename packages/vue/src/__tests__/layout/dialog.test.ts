@@ -225,6 +225,28 @@ describe('Dialog', () => {
     expect(open.value).toBe(false);
   });
 
+  it('closes a dialog on a pointer-down outside the panel', async () => {
+    const { open } = bound({}, true);
+    await settle();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    await fireEvent.pointerDown(partOf('backdrop')!);
+    await fireEvent.pointerUp(partOf('backdrop')!);
+    await vi.waitFor(() => expect(open.value).toBe(false));
+    expect(panel().hidden).toBe(true);
+  });
+
+  it("doesn't close an alertdialog on a pointer-down outside the panel", async () => {
+    const { open } = bound({ role: 'alertdialog' }, true);
+    await settle();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    await fireEvent.pointerDown(partOf('backdrop')!);
+    await fireEvent.pointerUp(partOf('backdrop')!);
+    await settle();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(open.value).toBe(true);
+    expect(panel().hidden).toBe(false);
+  });
+
   it('starts focus on the close button for an alertdialog', async () => {
     // jsdom has no layout, so the focus trap would think every button hidden.
     const rects = vi
