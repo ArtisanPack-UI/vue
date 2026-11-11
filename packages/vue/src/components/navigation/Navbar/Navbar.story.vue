@@ -26,7 +26,7 @@ import Button from '../../form/Button/Button.vue';
             <span style="margin-left: 16px">Contact</span>
           </template>
           <template #end>
-            <Button color="ghost" size="sm">Login</Button>
+            <Button variant="ghost" color="neutral" size="sm">Login</Button>
           </template>
         </Navbar>
       </template>
@@ -38,7 +38,7 @@ import Button from '../../form/Button/Button.vue';
           <span style="font-size: 1.25rem; font-weight: bold; color: white">Brand</span>
         </template>
         <template #end>
-          <Button color="ghost" size="sm">Sign Up</Button>
+          <Button variant="ghost" color="neutral" size="sm">Sign Up</Button>
         </template>
       </Navbar>
     </Variant>

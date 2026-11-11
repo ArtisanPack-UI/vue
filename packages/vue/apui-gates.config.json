@@ -1,0 +1,9 @@
+{
+  "components": ["Button", "Input", "Select", "Checkbox", "Card"],
+  "css": ["../../node_modules/@artisanpack-ui/css/dist/index.css"],
+  "stacks": {
+    "vue": { "host": "gates/fixture-host.js" }
+  },
+  "baselines": "../../node_modules/@artisanpack-ui/testing/baselines",
+  "out": "build/gates"
+}

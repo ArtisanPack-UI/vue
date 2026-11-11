@@ -66,6 +66,6 @@ describe('InertiaInput', () => {
 
     const input = screen.getByPlaceholderText('you@example.com');
     expect(input.getAttribute('type')).toBe('email');
-    expect(input.getAttribute('aria-required')).toBe('true');
+    expect(input.hasAttribute('required')).toBe(true);
   });
 });

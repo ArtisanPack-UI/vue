@@ -1,32 +1,37 @@
-import type { DaisyColor } from '@artisanpack-ui/tokens';
+/** The parts of a Checkbox that accept extra classes. */
+export type CheckboxPart =
+  | 'root'
+  | 'box'
+  | 'control'
+  | 'indicator'
+  | 'label'
+  | 'description'
+  | 'error';
 
 /**
- * Props for the Checkbox component.
+ * Props for the Checkbox component (design-system manifest `Checkbox`, #47).
  *
- * Supports both standard and card layout variants.
- *
- * Note: `modelValue?: boolean` is provided by `defineModel<boolean>()` in the component
- * and should not be duplicated here to avoid Vue SFC compiler conflicts.
+ * Bind the state with `v-model:checked`. `class` goes to the root; every
+ * other attribute (`name`, `value`, `id`, `aria-*`, listeners) goes to the
+ * native `<input type="checkbox">`.
  */
 export interface CheckboxProps {
-  /** Text label displayed next to the checkbox. */
+  /** Whether it's checked, bound with `v-model:checked`. Emitted as `data-state`. @defaultValue `false` */
+  checked?: boolean;
+  /** Shows the mixed state and sets the native `indeterminate` property. Wins over `checked`. @defaultValue `false` */
+  indeterminate?: boolean;
+  /** The visible label, linked to the control. Without it, pass an `aria-label`. */
   label?: string;
-  /** When true, positions the label to the right of the checkbox (reverses flex order). @defaultValue `false` */
-  right?: boolean;
-  /** Helper text displayed below the checkbox. Hidden when `error` is present. */
-  hint?: string;
-  /** Error message displayed below the checkbox. Replaces `hint` when present. */
+  /** Supporting text under the label, linked with `aria-describedby`. */
+  description?: string;
+  /** Validation message. Marks it invalid and is linked with `aria-describedby`. */
   error?: string;
-  /** DaisyUI color variant for the checkbox indicator. */
-  color?: DaisyColor;
-  /** When true, renders the checkbox inside a bordered card layout. @defaultValue `false` */
-  card?: boolean;
-  /** Additional CSS classes applied to the card container when `card` is true. */
-  cardClass?: string;
-  /** Custom id for the input element. */
-  id?: string;
-  /** Whether the checkbox is required. */
-  required?: boolean;
-  /** Whether the checkbox is disabled. */
+  /** Marks it invalid without a message. @defaultValue `false` */
+  invalid?: boolean;
+  /** Disables the control. @defaultValue `false` */
   disabled?: boolean;
+  /** Sets `required` on the control, such as consent to terms. No visual mark. @defaultValue `false` */
+  required?: boolean;
+  /** Extra classes per part, such as `{ box: '…', label: '…' }`. */
+  classes?: Partial<Record<CheckboxPart, string>>;
 }

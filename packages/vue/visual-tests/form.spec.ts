@@ -20,20 +20,28 @@ const STORY = {
 };
 
 test.describe('Form / Button', () => {
+  test('variants', async ({ page }) => {
+    await testVariant(page, STORY.button, 1, 'button-variants');
+  });
+
   test('colors', async ({ page }) => {
-    await testVariant(page, STORY.button, 1, 'button-colors');
+    await testVariant(page, STORY.button, 2, 'button-colors');
   });
 
   test('sizes', async ({ page }) => {
-    await testVariant(page, STORY.button, 2, 'button-sizes');
+    await testVariant(page, STORY.button, 3, 'button-sizes');
   });
 
   test('loading', async ({ page }) => {
-    await testVariant(page, STORY.button, 3, 'button-loading');
+    await testVariant(page, STORY.button, 4, 'button-loading');
+  });
+
+  test('icons', async ({ page }) => {
+    await testVariant(page, STORY.button, 5, 'button-icons');
   });
 
   test('disabled', async ({ page }) => {
-    await testVariant(page, STORY.button, 6, 'button-disabled');
+    await testVariant(page, STORY.button, 7, 'button-disabled');
   });
 });
 
@@ -46,6 +54,10 @@ test.describe('Form / Input', () => {
     await testVariant(page, STORY.input, 2, 'input-error');
   });
 
+  test('prefix, suffix and icons', async ({ page }) => {
+    await testVariant(page, STORY.input, 3, 'input-affixes');
+  });
+
   test('disabled', async ({ page }) => {
     await testVariant(page, STORY.input, 5, 'input-disabled');
   });
@@ -56,12 +68,12 @@ test.describe('Form / Input', () => {
 });
 
 test.describe('Form / Checkbox', () => {
-  test('colors', async ({ page }) => {
-    await testVariant(page, STORY.checkbox, 1, 'checkbox-colors');
+  test('states', async ({ page }) => {
+    await testVariant(page, STORY.checkbox, 1, 'checkbox-states');
   });
 
-  test('card style', async ({ page }) => {
-    await testVariant(page, STORY.checkbox, 2, 'checkbox-card-style');
+  test('description and error', async ({ page }) => {
+    await testVariant(page, STORY.checkbox, 2, 'checkbox-description-error');
   });
 });
 

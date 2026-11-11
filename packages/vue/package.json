@@ -78,9 +78,13 @@
     "test:visual:update": "histoire build && playwright test --update-snapshots"
   },
   "dependencies": {
+    "@artisanpack-ui/behavior": "file:../../../design-system/packages/behavior",
     "@artisanpack-ui/tokens": "^1.0.1"
   },
   "devDependencies": {
+    "@artisanpack-ui/css": "file:../../../design-system/packages/css",
+    "@artisanpack-ui/manifest": "file:../../../design-system/packages/manifest",
+    "@artisanpack-ui/testing": "file:../../../design-system/packages/testing",
     "@histoire/plugin-vue": "^0.17.17",
     "@playwright/test": "^1.59.1",
     "@tailwindcss/vite": "^4.2.2",

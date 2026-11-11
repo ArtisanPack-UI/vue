@@ -1,26 +1,43 @@
+/** The surface of a Card. Emitted as `data-surface`. */
+export type CardSurface = 'default' | 'raised' | 'sunken' | 'glass';
+
+/** The parts of a Card that accept extra classes. */
+export type CardPart =
+  | 'root'
+  | 'media'
+  | 'header'
+  | 'title'
+  | 'description'
+  | 'actions'
+  | 'body'
+  | 'footer';
+
 /**
- * Props for the Card component.
+ * Props for the Card component (design-system manifest `Card`, #48).
  *
- * A content container with optional header, footer, figure, and menu slots.
- * Renders as an `<a>` element when the `link` prop is provided.
+ * The default slot is the body. The `media`, `title`, `description`,
+ * `actions` and `footer` slots override the same-named props. `class` and
+ * every other attribute go to the root.
  */
 export interface CardProps {
-  /** Card title rendered as an `<h2>` in the card body. */
+  /** The surface. Glass falls back to raised under reduced transparency and in high contrast. @defaultValue `'default'` */
+  surface?: CardSurface;
+  /** Adds the hover edge. Set by `href`. @defaultValue `false` */
+  interactive?: boolean;
+  /** Makes the title a link whose hit area covers the whole card. */
+  href?: string;
+  /** The heading in the header (an `<h3>`). */
   title?: string;
-  /** Subtitle text rendered below the title. */
-  subtitle?: string;
-  /** Position of the figure element relative to the card body. @defaultValue `'top'` */
-  figurePosition?: 'top' | 'bottom' | 'left' | 'right';
-  /** When true, removes the card shadow. @defaultValue `false` */
-  noShadow?: boolean;
-  /** When true, adds a border to the card. @defaultValue `false` */
-  bordered?: boolean;
-  /** When true, reduces padding in the card body. @defaultValue `false` */
-  compact?: boolean;
-  /** When true, applies glass morphism styling. @defaultValue `false` */
-  glass?: boolean;
-  /** When provided, renders the card as an `<a>` element with this URL. */
-  link?: string;
-  /** When true and `link` is set, opens the link in a new tab. @defaultValue `false` */
-  external?: boolean;
+  /** Supporting text under the title. */
+  description?: string;
+  /** Controls at the end of the header. Usually the `actions` slot. */
+  actions?: string;
+  /** The footer row, separated by an edge. */
+  footer?: string;
+  /** An image URL shown edge to edge above the header. The `media` slot overrides it. */
+  media?: string;
+  /** Alternative text for `media`. Empty marks it decorative. @defaultValue `''` */
+  mediaAlt?: string;
+  /** Extra classes per part, such as `{ header: '…', body: '…' }`. */
+  classes?: Partial<Record<CardPart, string>>;
 }

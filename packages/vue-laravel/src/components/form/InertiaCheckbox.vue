@@ -31,5 +31,9 @@ const resolvedError = computed(() => {
 </script>
 
 <template>
-  <Checkbox v-bind="{ ...$attrs, name, error: resolvedError }" v-model="model" />
+  <!-- prettier-ignore -->
+  <Checkbox
+    v-bind="{ ...$attrs, name, error: resolvedError }"
+    v-model:checked="model"
+  />
 </template>
