@@ -5,9 +5,11 @@ const STORY = {
   accordion: 'src-components-layout-accordion-accordion-story-vue',
   card: 'src-components-layout-card-card-story-vue',
   collapse: 'src-components-layout-collapse-collapse-story-vue',
+  dialog: 'src-components-layout-dialog-dialog-story-vue',
   divider: 'src-components-layout-divider-divider-story-vue',
   drawer: 'src-components-layout-drawer-drawer-story-vue',
   dropdown: 'src-components-layout-dropdown-dropdown-story-vue',
+  dropdownMenu: 'src-components-layout-dropdownmenu-dropdownmenu-story-vue',
   grid: 'src-components-layout-grid-grid-story-vue',
   modal: 'src-components-layout-modal-modal-story-vue',
   popover: 'src-components-layout-popover-popover-story-vue',
@@ -91,6 +93,26 @@ test.describe('Layout / Modal', () => {
 
   test('bottom sheet', async ({ page }) => {
     await testVariant(page, STORY.modal, 2, 'modal-bottom-sheet');
+  });
+});
+
+test.describe('Layout / Dialog', () => {
+  test('default', async ({ page }) => {
+    await testVariant(page, STORY.dialog, 0, 'dialog-default');
+  });
+
+  test('confirm', async ({ page }) => {
+    await testVariant(page, STORY.dialog, 1, 'dialog-confirm');
+  });
+});
+
+test.describe('Layout / DropdownMenu', () => {
+  test('default', async ({ page }) => {
+    await testVariant(page, STORY.dropdownMenu, 0, 'dropdown-menu-default');
+  });
+
+  test('checkbox and radio items', async ({ page }) => {
+    await testVariant(page, STORY.dropdownMenu, 1, 'dropdown-menu-options');
   });
 });
 

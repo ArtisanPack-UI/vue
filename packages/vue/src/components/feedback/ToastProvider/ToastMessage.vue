@@ -1,5 +1,9 @@
 <script setup lang="ts">
-/** @module ToastMessage */
+/**
+ * @module ToastMessage
+ *
+ * @deprecated Use Toast, the design-system replacement (#51).
+ */
 import { computed } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { ToastColor, ToastItem } from './types';

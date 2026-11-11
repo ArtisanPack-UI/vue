@@ -11,7 +11,8 @@ import {
   type VueParityOptions,
 } from '@artisanpack-ui/testing/vue';
 import { Button, Checkbox, Input, Select } from '../../components/form';
-import { Card } from '../../components/layout';
+import { Card, Dialog, DropdownMenu } from '../../components/layout';
+import { Toast } from '../../components/feedback';
 
 type KitComponent = Parameters<typeof expectParity>[0];
 
@@ -34,4 +35,10 @@ describe('design-system parity', () => {
   // mediaAlt only shows on the media image, which the parity base doesn't
   // render (media is a fixture part); covered in card.test.ts.
   it('Card matches its manifest', () => expectVueParity(Card, 'Card'));
+
+  it('Dialog matches its manifest', () => expectVueParity(Dialog, 'Dialog'));
+
+  it('DropdownMenu matches its manifest', () => expectVueParity(DropdownMenu, 'DropdownMenu'));
+
+  it('Toast matches its manifest', () => expectVueParity(Toast, 'Toast'));
 });

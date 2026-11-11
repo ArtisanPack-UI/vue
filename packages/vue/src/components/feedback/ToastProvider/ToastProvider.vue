@@ -5,6 +5,10 @@
  * Context provider that manages the toast notification queue and renders
  * the toast container. Wrap your application (or a subtree) with this
  * provider to enable the useToast composable.
+ *
+ * @deprecated Use Toaster and `toast.create()`, the design-system
+ * replacement (#51). Kept while `@artisanpack-ui/vue-laravel`'s flash
+ * toasts still use it.
  */
 import { computed, onUnmounted, provide, ref } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';

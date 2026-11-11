@@ -1,7 +1,10 @@
 # Layout Components
 
 ```ts
-import { Accordion, Card, Collapse, Divider, Drawer, Dropdown, DropdownItem, Grid, Modal, Popover, Stack, Tabs } from '@artisanpack-ui/vue/layout';
+import {
+  Accordion, Card, Collapse, Dialog, Divider, Drawer, DropdownMenu, DropdownMenuGroup,
+  DropdownMenuItem, DropdownMenuSeparator, Grid, Popover, Stack, Tabs,
+} from '@artisanpack-ui/vue/layout';
 ```
 
 ---
@@ -74,6 +77,77 @@ Expandable/collapsible content section. Supports controlled (`v-model:open`) and
 
 ---
 
+## Dialog
+
+A modal window for a focused task or a confirmation, built on the design system (`.apui-dialog`, design-system #49). Focus moves into the dialog and is trapped while it's modal, page scroll is locked and the rest of the page is hidden from assistive technology. Escape, the close button and the backdrop close it, and focus returns to the trigger. Replaces Modal.
+
+```vue
+<script setup lang="ts">
+import { Button, Dialog, Input } from '@artisanpack-ui/vue';
+import { ref } from 'vue';
+
+const open = ref(false);
+</script>
+
+<template>
+  <Dialog
+    v-model:open="open"
+    trigger="Invite member"
+    title="Invite member"
+    description="They'll get an email with a link to join the project."
+  >
+    <Input type="email" label="Email" />
+
+    <template #footer>
+      <Button variant="outline" color="neutral" @click="open = false">Cancel</Button>
+      <Button @click="open = false">Send invite</Button>
+    </template>
+  </Dialog>
+</template>
+```
+
+For a confirmation that interrupts, use `role="alertdialog"`: the backdrop doesn't close it, and focus starts on the close button, the safe action.
+
+```vue
+<Button color="error" variant="soft" @click="open = true">Delete listing</Button>
+<Dialog
+  v-model:open="open"
+  role="alertdialog"
+  size="sm"
+  color="error"
+  icon="trash"
+  title="Delete Cedarwood Estates?"
+  description="The listing and its 3 open offers will be removed. This can't be undone."
+>
+  <template #footer>
+    <Button variant="outline" color="neutral" @click="open = false">Cancel</Button>
+    <Button color="error" @click="open = false">Delete listing</Button>
+  </template>
+</Dialog>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `open` | `boolean` | `false` | Whether it's open. Passed (`v-model:open` or `:open`), it's controlled: it shows what the prop says, so ignoring `update:open` keeps it as it is. Not passed, the dialog keeps its own state |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Panel width: 360px, 480px or 640px (`data-size`) |
+| `role` | `'dialog' \| 'alertdialog'` | `'dialog'` | `alertdialog` for confirmations that interrupt |
+| `surface` | `'overlay' \| 'glass'` | `'overlay'` | The panel's surface (`data-surface`) |
+| `color` | semantic color | -- | Tints the header icon (`data-color`) |
+| `icon` | `string` | -- | Icon name from the registry, in a tinted circle before the title |
+| `title` | `string` | -- | The heading (`<h2>`) and the dialog's accessible name |
+| `description` | `string` | -- | Supporting text, linked with `aria-describedby` |
+| `footer` | `string` | -- | The actions row (usually the `#footer` slot) |
+| `trigger` | `string` | -- | Renders a trigger button that opens the dialog |
+| `modal` | `boolean` | `true` | Trap focus, lock scroll and hide the rest of the page |
+| `portal` | `boolean` | `true` | Teleport to the body; `false` renders in place |
+| `hideClose` | `boolean` | `false` | Hide the header's close button (Escape still closes) |
+| `closeLabel` | `string` | `'Close'` | The close button's accessible name; translate it |
+| `classes` | `Partial<Record<DialogPart, string>>` | -- | Extra classes per part (`header`, `body`, `footer`, …) |
+
+**Slots:** default (body), `#trigger`, `#icon`, `#title`, `#description`, `#footer`. **Events:** `update:open` (`boolean`), when the dialog opens or closes itself. `class` and other attributes go to the panel.
+
+---
+
 ## Divider
 
 Visual separator with optional label and color.
@@ -113,7 +187,9 @@ Side panel overlay with focus trapping and keyboard dismissal.
 
 ---
 
-## Dropdown
+## Dropdown (deprecated)
+
+> Deprecated: use [DropdownMenu](#dropdownmenu). Dropdown and DropdownItem stay exported for now.
 
 Trigger + popover menu with keyboard navigation and ARIA semantics.
 
@@ -131,6 +207,94 @@ Trigger + popover menu with keyboard navigation and ARIA semantics.
 | `top` | `boolean` | `false` | Open above the trigger |
 | `hover` | `boolean` | `false` | Open on hover |
 | `open` | `boolean` | -- | Controlled open state (`v-model:open`) |
+
+---
+
+## DropdownMenu
+
+A list of actions or options anchored to a trigger button, built on the design system (`.apui-dropdown-menu`, design-system #50): action, checkbox and radio items, in groups with labels. Arrow keys move (skipping disabled items), Home and End jump, typeahead finds an item, Enter and Space choose, and Escape closes and returns focus to the trigger. Replaces Dropdown.
+
+```vue
+<script setup lang="ts">
+import {
+  DropdownMenu,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '@artisanpack-ui/vue';
+</script>
+
+<template>
+  <DropdownMenu label="Options" @select="(value) => console.log(value)">
+    <DropdownMenuGroup label="Listing">
+      <DropdownMenuItem value="edit" icon="pencil" shortcut="E">Edit</DropdownMenuItem>
+      <DropdownMenuItem value="duplicate" icon="copy">Duplicate</DropdownMenuItem>
+      <DropdownMenuItem value="archive" disabled>Archive</DropdownMenuItem>
+    </DropdownMenuGroup>
+    <DropdownMenuSeparator />
+    <DropdownMenuItem value="delete" icon="trash" color="error">Delete</DropdownMenuItem>
+  </DropdownMenu>
+</template>
+```
+
+`items` renders the same children from data. Checkbox and radio items report `checked-change`; their checked state stays yours to set:
+
+```vue
+<script setup lang="ts">
+import { DropdownMenu, type DropdownMenuEntry } from '@artisanpack-ui/vue';
+import { computed, ref } from 'vue';
+
+const showGrid = ref(true);
+const sort = ref('newest');
+
+const items = computed<DropdownMenuEntry[]>(() => [
+  { type: 'checkbox', value: 'grid', label: 'Show grid', checked: showGrid.value },
+  { type: 'separator' },
+  {
+    type: 'group',
+    label: 'Sort by',
+    items: [
+      { type: 'radio', value: 'newest', label: 'Newest', checked: sort.value === 'newest' },
+      { type: 'radio', value: 'price', label: 'Price', checked: sort.value === 'price' },
+    ],
+  },
+]);
+
+function onCheckedChange({ value, checked }: { value: string; checked: boolean }) {
+  if (value === 'grid') showGrid.value = checked;
+  else if (checked) sort.value = value;
+}
+</script>
+
+<template>
+  <DropdownMenu label="View" align="end" :items="items" @checked-change="onCheckedChange" />
+</template>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `open` | `boolean` | `false` | Whether it's open. Passed (`v-model:open` or `:open`), it's controlled; not passed, the menu keeps its own state |
+| `label` | `string` | -- | The trigger button's content (or the `#label` slot). For an icon-only trigger, see below |
+| `items` | `DropdownMenuEntry[]` | -- | Items as data: action, `checkbox`, `radio`, `separator` and `group` entries |
+| `align` | `'start' \| 'center' \| 'end'` | `'start'` | Which edge lines up with the trigger; follows the text direction (`data-align`) |
+| `surface` | `'overlay' \| 'glass'` | `'overlay'` | The menu's surface (`data-surface`) |
+| `portal` | `boolean` | `true` | Teleport the menu to the body; `false` renders it in place |
+| `classes` | `Partial<Record<DropdownMenuPart, string>>` | -- | Extra classes per part (`trigger`, `item`, `separator`, …) |
+
+**Events:** `update:open` (`boolean`), `select` (the chosen action item's `value`), `checked-change` (`{ value, checked }`). `class` and other attributes go to the panel.
+
+An icon-only trigger still needs a name: put an icon and visually hidden text in the `#label` slot.
+
+```vue
+<DropdownMenu :items="items">
+  <template #label>
+    <span aria-hidden="true">⋯</span>
+    <span class="apui-sr-only">More actions</span>
+  </template>
+</DropdownMenu>
+```
+
+**DropdownMenuItem** props: `value` (required), `icon`, `shortcut` (shown in a `<kbd>`), `color` (`'error'` for a danger item, put it last after a separator), `disabled`, `type` (`'item' | 'checkbox' | 'radio'`) and `checked`. It emits `select` and `checked-change` itself, and its attributes and listeners go to the item, so a `@click` runs from the keyboard too. **DropdownMenuGroup** takes a `label`; **DropdownMenuSeparator** takes nothing.
 
 ---
 
@@ -159,7 +323,9 @@ CSS grid layout wrapper with responsive column counts and gap controls.
 
 ---
 
-## Modal
+## Modal (deprecated)
+
+> Deprecated: use [Dialog](#dialog). Modal stays exported for now.
 
 Dialog overlay with focus trapping, keyboard dismissal, and Teleport rendering.
 

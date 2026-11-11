@@ -1,7 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/vue';
 import { axe } from 'vitest-axe';
-import { Accordion, Card, Collapse, Divider, Grid, Stack, Tabs } from '../../components/layout';
+import {
+  Accordion,
+  Card,
+  Collapse,
+  Dialog,
+  Divider,
+  DropdownMenu,
+  Grid,
+  Stack,
+  Tabs,
+} from '../../components/layout';
 
 describe('Layout components accessibility', () => {
   it('Accordion has no a11y violations', async () => {
@@ -69,6 +79,65 @@ describe('Layout components accessibility', () => {
         ],
       },
       slots: { default: '<p>Tab content</p>' },
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('Dialog has no a11y violations', async () => {
+    const { container } = render(Dialog, {
+      props: {
+        open: true,
+        portal: false,
+        modal: false,
+        trigger: 'Invite',
+        icon: 'user',
+        title: 'Invite member',
+        description: 'Members can edit every listing.',
+      },
+      slots: { default: '<p>They’ll get an email.</p>', footer: '<button>Send invite</button>' },
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('Dialog has no a11y violations when modal and teleported', async () => {
+    render(Dialog, {
+      props: {
+        open: true,
+        trigger: 'Invite',
+        title: 'Invite member',
+        description: 'Members can edit every listing.',
+      },
+      slots: { default: '<p>They’ll get an email.</p>', footer: '<button>Send invite</button>' },
+    });
+    const panel = document.body.querySelector('.apui-dialog')!;
+    expect(panel.parentElement!.parentElement).toBe(document.body);
+    expect(panel.getAttribute('aria-modal')).toBe('true');
+    const results = await axe(document.body);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('DropdownMenu has no a11y violations', async () => {
+    const { container } = render(DropdownMenu, {
+      props: {
+        open: true,
+        portal: false,
+        label: 'Options',
+        items: [
+          {
+            type: 'group',
+            label: 'Listing',
+            items: [
+              { value: 'edit', label: 'Edit', icon: 'pencil', shortcut: 'E' },
+              { value: 'archive', label: 'Archive', disabled: true },
+            ],
+          },
+          { type: 'separator' },
+          { type: 'checkbox', value: 'grid', label: 'Show grid', checked: true },
+          { value: 'delete', label: 'Delete', icon: 'trash', color: 'error' },
+        ],
+      },
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();

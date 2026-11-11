@@ -1,7 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/vue';
 import { axe } from 'vitest-axe';
-import { Alert, EmptyState, ErrorDisplay, Loading, Skeleton } from '../../components/feedback';
+import {
+  Alert,
+  EmptyState,
+  ErrorDisplay,
+  Loading,
+  Skeleton,
+  Toast,
+} from '../../components/feedback';
 
 describe('Feedback components accessibility', () => {
   it('Alert info has no a11y violations', async () => {
@@ -46,6 +53,21 @@ describe('Feedback components accessibility', () => {
 
   it('Skeleton has no a11y violations', async () => {
     const { container } = render(Skeleton);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('Toast has no a11y violations', async () => {
+    const { container } = render(Toast, {
+      props: { title: 'Listing saved', description: 'Cedarwood Estates is live now.' },
+      slots: { actions: '<button>Undo</button>' },
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('Toast error has no a11y violations', async () => {
+    const { container } = render(Toast, { props: { title: 'Upload failed', color: 'error' } });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
