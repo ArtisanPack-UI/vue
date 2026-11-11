@@ -20,6 +20,8 @@ import type { ToastAPI } from './types';
  *
  * @throws Error if called outside a `ToastProvider`.
  *
+ * @deprecated Use `toast.create()` with a `Toaster` (#51).
+ *
  * @example
  * ```vue
  * <script setup>

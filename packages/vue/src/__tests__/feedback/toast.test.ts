@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/vue';
 import { defineComponent, h } from 'vue';
 import { ToastProvider } from '../../components/feedback';
-import { useToast } from '../../components/feedback/Toast/use-toast';
+import { useToast } from '../../components/feedback/ToastProvider/use-toast';
 
 /**
  * Test helper component that consumes the toast API and exposes buttons

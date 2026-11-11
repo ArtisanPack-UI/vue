@@ -11,6 +11,18 @@ import * as matchers from 'vitest-axe/matchers';
 
 expect.extend(matchers);
 
+/**
+ * jsdom has no ResizeObserver; the overlays' positioning (Floating UI, in
+ * the behavior package) observes the trigger and panel with one.
+ */
+if (typeof globalThis.ResizeObserver === 'undefined') {
+  globalThis.ResizeObserver = class ResizeObserver {
+    observe(): void {}
+    unobserve(): void {}
+    disconnect(): void {}
+  };
+}
+
 afterEach(() => {
   cleanup();
 });

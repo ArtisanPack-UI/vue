@@ -8,6 +8,7 @@ const STORY = {
   loading: 'src-components-feedback-loading-loading-story-vue',
   skeleton: 'src-components-feedback-skeleton-skeleton-story-vue',
   toast: 'src-components-feedback-toast-toast-story-vue',
+  toastProvider: 'src-components-feedback-toastprovider-toastprovider-story-vue',
 };
 
 test.describe('Feedback / Alert', () => {
@@ -69,7 +70,13 @@ test.describe('Feedback / Error', () => {
 });
 
 test.describe('Feedback / Toast', () => {
+  test('colors and variants', async ({ page }) => {
+    await testVariant(page, STORY.toast, 0, 'toast-colors-variants');
+  });
+});
+
+test.describe('Feedback / ToastProvider (legacy)', () => {
   test('default', async ({ page }) => {
-    await testVariant(page, STORY.toast, 0, 'toast-default');
+    await testVariant(page, STORY.toastProvider, 0, 'toast-provider-default');
   });
 });

@@ -1,5 +1,9 @@
 <script setup lang="ts">
-/** @module DropdownItem */
+/**
+ * @module DropdownItem
+ *
+ * @deprecated Use DropdownMenuItem inside a DropdownMenu (#50).
+ */
 import type { DropdownItemProps } from './types';
 
 const props = withDefaults(defineProps<DropdownItemProps>(), {

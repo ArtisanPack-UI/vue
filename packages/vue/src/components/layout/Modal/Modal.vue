@@ -1,5 +1,9 @@
 <script setup lang="ts">
-/** @module Modal */
+/**
+ * @module Modal
+ *
+ * @deprecated Use Dialog, the design-system replacement (#49).
+ */
 import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { ModalProps } from './types';

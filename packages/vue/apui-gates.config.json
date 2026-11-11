@@ -1,5 +1,5 @@
 {
-  "components": ["Button", "Input", "Select", "Checkbox", "Card"],
+  "components": ["Button", "Input", "Select", "Checkbox", "Card", "Dialog", "DropdownMenu", "Toast"],
   "css": ["../../node_modules/@artisanpack-ui/css/dist/index.css"],
   "stacks": {
     "vue": { "host": "gates/fixture-host.js" }

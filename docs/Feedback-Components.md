@@ -1,7 +1,7 @@
 # Feedback Components
 
 ```ts
-import { Alert, EmptyState, ErrorDisplay, Loading, Skeleton, ToastProvider, ToastMessage, useToast } from '@artisanpack-ui/vue/feedback';
+import { Alert, EmptyState, ErrorDisplay, Loading, Skeleton, Toast, Toaster, toast, createToaster } from '@artisanpack-ui/vue/feedback';
 ```
 
 ---
@@ -97,7 +97,80 @@ Placeholder loading animation for content placeholders.
 
 ---
 
-## Toast System
+## Toast
+
+Brief, non-blocking messages, built on the design system (`.apui-toast`, design-system #51). Put one `Toaster` on the page, then show toasts from data with `toast.create()`. They stack at the bottom end of the viewport, time out after 5 seconds (paused while the region is hovered or focused), and a toast with an action stays until it's used or closed. An `error` toast is announced at once (`role="alert"`); never make a toast the only place an error is reported.
+
+```vue
+<script setup lang="ts">
+import { Button, Toaster, toast } from '@artisanpack-ui/vue';
+
+function archive() {
+  toast.create({
+    title: 'Listing archived',
+    description: 'Cedarwood Estates is hidden from search.',
+    action: { label: 'Undo', onClick: () => console.log('restored') },
+  });
+}
+</script>
+
+<template>
+  <Toaster />
+  <Button @click="archive">Archive listing</Button>
+</template>
+```
+
+`toast.create(options)` returns the toast's id; `toast.update(id, options)`, `toast.dismiss(id?)` and `toast.remove(id?)` change or clear toasts. Options: `title`, `description`, `color` (default `neutral`), `variant` (`'default' | 'inverse'`), `surface` (`'overlay' | 'glass'`), `icon`, `duration` (ms, `0` keeps it), `action` (`{ label, onClick }`), `hideClose` and `id`.
+
+### Toaster Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `placement` | `'top-start' \| 'top' \| 'top-end' \| 'bottom-start' \| 'bottom' \| 'bottom-end'` | `'bottom-end'` | Where the region sits |
+| `max` | `number` | `5` | Toasts shown at once; the rest queue |
+| `gap` | `number` | `8` | Space between toasts (px) |
+| `duration` | `number` | `5000` | Default time before a toast dismisses itself (ms) |
+| `offsets` | `string` | `'16px'` | Distance from the viewport edge |
+| `toaster` | `ToasterInstance` | -- | A toaster from `createToaster()` to render instead of the default `toast` |
+| `label` | `string` | `'Notifications'` | The region's accessible name |
+| `closeLabel` | `string` | `'Dismiss notification'` | Each toast's close button name; translate it |
+| `classes` | `Partial<Record<ToastPart \| 'group' \| 'actionTrigger', string>>` | -- | Extra classes per toast part, plus `group` for the region and `actionTrigger` for the action button |
+
+`toast` goes to the newest mounted `Toaster` without a `toaster` prop; if two option-less `Toaster`s are mounted, only the newest renders, so each toast shows once. A `Toaster` with options takes over toasts created before it mounted (up to 5). `toaster` and the options (`placement`, `max`, `gap`, `duration`, `offsets`) are read once, when the `Toaster` is set up; changing them later has no effect. For a separate stack, create one with `createToaster({ … })`, pass it as `toaster` and call its own `create()`.
+
+### Static Toast
+
+Rendered on its own, a `Toast` is static (no timer), for docs or inline status:
+
+```vue
+<Toast color="success" title="Listing saved" description="Cedarwood Estates is live now." />
+<Toast variant="inverse" title="Listing archived">
+  <template #actions>
+    <Button size="sm" variant="outline" color="neutral">Undo</Button>
+  </template>
+</Toast>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `string` | -- | The message |
+| `description` | `string` | -- | Supporting text |
+| `color` | semantic color | `'neutral'` | Tints the icon; `error` sets `role="alert"` |
+| `variant` | `'default' \| 'inverse'` | `'default'` | `inverse` stands out on the inverse surface |
+| `surface` | `'overlay' \| 'glass'` | `'overlay'` | The toast's surface |
+| `icon` | `string` | color's status icon | Icon name from the registry |
+| `actions` | `string` | -- | Action content (usually the `#actions` slot) |
+| `hideClose` | `boolean` | `false` | Hide the close button |
+| `closeLabel` | `string` | `'Dismiss notification'` | The close button's accessible name; translate it |
+| `classes` | `Partial<Record<ToastPart, string>>` | -- | Extra classes per part |
+
+The close button emits `open-change` with `false`; hiding a static toast is up to you.
+
+---
+
+## Toast System (deprecated)
+
+> Deprecated: use [Toast](#toast), `Toaster` and `toast.create()`. `ToastProvider`, `ToastMessage` and `useToast` stay exported while `@artisanpack-ui/vue-laravel`'s flash toasts use them.
 
 A toast notification system with an imperative API.
 

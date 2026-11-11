@@ -7,7 +7,7 @@
  *
  * @example
  * ```vue
- * import { Card, Modal, Tabs, Grid, Stack } from '@artisanpack-ui/vue/layout';
+ * import { Card, Dialog, DropdownMenu, Tabs, Grid, Stack } from '@artisanpack-ui/vue/layout';
  * ```
  */
 
@@ -23,20 +23,53 @@ export type { CardPart, CardProps, CardSurface } from './Card/types';
 export { default as Collapse } from './Collapse/Collapse.vue';
 export type { CollapseProps } from './Collapse/types';
 
+export { default as Dialog } from './Dialog/Dialog.vue';
+export type {
+  DialogColor,
+  DialogEmits,
+  DialogPart,
+  DialogProps,
+  DialogRole,
+  DialogSize,
+  DialogSurface,
+} from './Dialog/types';
+
 export { default as Divider } from './Divider/Divider.vue';
 export type { DividerProps } from './Divider/types';
 
 export { default as Drawer } from './Drawer/Drawer.vue';
 export type { DrawerProps } from './Drawer/types';
 
+// Deprecated: replaced by DropdownMenu (#50).
 export { default as Dropdown } from './Dropdown/Dropdown.vue';
 export type { DropdownProps, DropdownItemProps } from './Dropdown/types';
 
 export { default as DropdownItem } from './Dropdown/DropdownItem.vue';
 
+export { default as DropdownMenu } from './DropdownMenu/DropdownMenu.vue';
+export { default as DropdownMenuGroup } from './DropdownMenu/DropdownMenuGroup.vue';
+export { default as DropdownMenuItem } from './DropdownMenu/DropdownMenuItem.vue';
+export { default as DropdownMenuSeparator } from './DropdownMenu/DropdownMenuSeparator.vue';
+export type {
+  DropdownMenuActionEntry,
+  DropdownMenuAlign,
+  DropdownMenuCheckedChange,
+  DropdownMenuEntry,
+  DropdownMenuGroupEntry,
+  DropdownMenuGroupProps,
+  DropdownMenuItemProps,
+  DropdownMenuItemType,
+  DropdownMenuOptionEntry,
+  DropdownMenuPart,
+  DropdownMenuProps,
+  DropdownMenuSeparatorEntry,
+  DropdownMenuSurface,
+} from './DropdownMenu/types';
+
 export { default as Grid } from './Grid/Grid.vue';
 export type { GridProps, ColCount, GapSize } from './Grid/types';
 
+// Deprecated: replaced by Dialog (#49).
 export { default as Modal } from './Modal/Modal.vue';
 export type { ModalProps } from './Modal/types';
 

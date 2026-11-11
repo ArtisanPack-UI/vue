@@ -5,13 +5,17 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     // The design-system packages are linked from outside this repo, so make
-    // them share this repo's Vue instead of loading a second copy.
-    dedupe: ['vue'],
+    // them share this repo's Vue (and Zag's Vue adapter, which the behavior
+    // package imports) instead of loading second copies, whose reactivity
+    // wouldn't see this repo's refs.
+    dedupe: ['vue', '@zag-js/vue'],
   },
   test: {
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/test-setup.ts'],
     exclude: [...configDefaults.exclude, 'visual-tests/**'],
+    // Run Zag's Vue adapter through Vite, so the dedupe above applies to it.
+    server: { deps: { inline: [/@zag-js\/vue/] } },
   },
 });
