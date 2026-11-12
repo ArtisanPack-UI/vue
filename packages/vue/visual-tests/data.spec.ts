@@ -7,16 +7,6 @@ const STORY = {
   table: 'src-components-data-table-table-story-vue',
 };
 
-test.describe('Data / Table', () => {
-  test('default', async ({ page }) => {
-    await testVariant(page, STORY.table, 0, 'table-default');
-  });
-
-  test('striped and hoverable', async ({ page }) => {
-    await testVariant(page, STORY.table, 1, 'table-striped-hover');
-  });
-});
-
 test.describe('Data / Calendar', () => {
   test('default', async ({ page }) => {
     await testVariant(page, STORY.calendar, 0, 'calendar-default');
@@ -38,5 +28,27 @@ test.describe('Data / Chart', () => {
 
   test('donut chart', async ({ page }) => {
     await testVariant(page, STORY.chart, 4, 'chart-donut');
+  });
+});
+
+test.describe('Data / Table', () => {
+  test('default', async ({ page }) => {
+    await testVariant(page, STORY.table, 0, 'table-default');
+  });
+
+  test('selection, sorting, expansion and pagination', async ({ page }) => {
+    await testVariant(page, STORY.table, 1, 'table-selection-sorting-expansion-and-pagination');
+  });
+
+  test('compact', async ({ page }) => {
+    await testVariant(page, STORY.table, 2, 'table-compact');
+  });
+
+  test('loading', async ({ page }) => {
+    await testVariant(page, STORY.table, 3, 'table-loading');
+  });
+
+  test('empty', async ({ page }) => {
+    await testVariant(page, STORY.table, 4, 'table-empty');
   });
 });

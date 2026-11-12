@@ -6,68 +6,15 @@ const STORY = {
   badge: 'src-components-display-badge-badge-story-vue',
   code: 'src-components-display-code-code-story-vue',
   diff: 'src-components-display-diff-diff-story-vue',
+  imageGallery: 'src-components-display-imagegallery-imagegallery-story-vue',
+  imageSlider: 'src-components-display-imageslider-imageslider-story-vue',
+  kpiCard: 'src-components-display-kpicard-kpicard-story-vue',
   progress: 'src-components-display-progress-progress-story-vue',
   progressRadial: 'src-components-display-progressradial-progressradial-story-vue',
   sparkline: 'src-components-display-sparkline-sparkline-story-vue',
   stat: 'src-components-display-stat-stat-story-vue',
   timeline: 'src-components-display-timeline-timeline-story-vue',
 };
-
-test.describe('Display / Badge', () => {
-  test('colors', async ({ page }) => {
-    await testVariant(page, STORY.badge, 1, 'badge-colors');
-  });
-
-  test('sizes', async ({ page }) => {
-    await testVariant(page, STORY.badge, 2, 'badge-sizes');
-  });
-});
-
-test.describe('Display / Avatar', () => {
-  test('sizes', async ({ page }) => {
-    await testVariant(page, STORY.avatar, 1, 'avatar-sizes');
-  });
-
-  test('shapes', async ({ page }) => {
-    await testVariant(page, STORY.avatar, 2, 'avatar-shapes');
-  });
-});
-
-test.describe('Display / Progress', () => {
-  test('labeled', async ({ page }) => {
-    await testVariant(page, STORY.progress, 0, 'progress-labeled');
-  });
-
-  test('indeterminate and segmented', async ({ page }) => {
-    await testVariant(page, STORY.progress, 1, 'progress-states');
-  });
-});
-
-test.describe('Display / ProgressRadial', () => {
-  test('sizes', async ({ page }) => {
-    await testVariant(page, STORY.progressRadial, 0, 'progress-radial-sizes');
-  });
-
-  test('colors and indeterminate', async ({ page }) => {
-    await testVariant(page, STORY.progressRadial, 1, 'progress-radial-colors');
-  });
-});
-
-test.describe('Display / Stat', () => {
-  test('dashboard stats', async ({ page }) => {
-    await testVariant(page, STORY.stat, 1, 'stat-dashboard');
-  });
-});
-
-test.describe('Display / Timeline', () => {
-  test('default', async ({ page }) => {
-    await testVariant(page, STORY.timeline, 0, 'timeline-default');
-  });
-
-  test('compact', async ({ page }) => {
-    await testVariant(page, STORY.timeline, 1, 'timeline-compact');
-  });
-});
 
 test.describe('Display / Code', () => {
   test('default', async ({ page }) => {
@@ -83,24 +30,122 @@ test.describe('Display / Code', () => {
   });
 });
 
-test.describe('Display / Diff', () => {
-  test('default', async ({ page }) => {
-    await testVariant(page, STORY.diff, 0, 'diff-default');
+// Carousel is excluded — auto-sliding content produces non-deterministic screenshots
+
+test.describe('Display / Avatar', () => {
+  test('sizes', async ({ page }) => {
+    await testVariant(page, STORY.avatar, 0, 'avatar-sizes');
   });
 
-  test('inline mode', async ({ page }) => {
-    await testVariant(page, STORY.diff, 1, 'diff-inline');
+  test('status, shape and fallback', async ({ page }) => {
+    await testVariant(page, STORY.avatar, 1, 'avatar-status-shape-and-fallback');
+  });
+
+  test('group', async ({ page }) => {
+    await testVariant(page, STORY.avatar, 2, 'avatar-group');
   });
 });
 
-// Carousel is excluded — auto-sliding content produces non-deterministic screenshots
-
-test.describe('Display / Sparkline', () => {
-  test('default', async ({ page }) => {
-    await testVariant(page, STORY.sparkline, 0, 'sparkline-default');
+test.describe('Display / Badge', () => {
+  test('variants and colors', async ({ page }) => {
+    await testVariant(page, STORY.badge, 0, 'badge-variants-and-colors');
   });
 
-  test('types', async ({ page }) => {
-    await testVariant(page, STORY.sparkline, 1, 'sparkline-types');
+  test('dot, icon and size', async ({ page }) => {
+    await testVariant(page, STORY.badge, 1, 'badge-dot-icon-and-size');
+  });
+});
+
+test.describe('Display / Progress', () => {
+  test('labeled', async ({ page }) => {
+    await testVariant(page, STORY.progress, 0, 'progress-labeled');
+  });
+
+  test('indeterminate and segmented', async ({ page }) => {
+    await testVariant(page, STORY.progress, 1, 'progress-indeterminate-and-segmented');
+  });
+});
+
+test.describe('Display / ProgressRadial', () => {
+  test('sizes', async ({ page }) => {
+    await testVariant(page, STORY.progressRadial, 0, 'progress-radial-sizes');
+  });
+
+  test('colors and indeterminate', async ({ page }) => {
+    await testVariant(page, STORY.progressRadial, 1, 'progress-radial-colors-and-indeterminate');
+  });
+});
+
+test.describe('Display / Stat', () => {
+  test('default', async ({ page }) => {
+    await testVariant(page, STORY.stat, 0, 'stat-default');
+  });
+
+  test('row, one emphasized', async ({ page }) => {
+    await testVariant(page, STORY.stat, 1, 'stat-row-one-emphasized');
+  });
+
+  test('sizes and bare', async ({ page }) => {
+    await testVariant(page, STORY.stat, 2, 'stat-sizes-and-bare');
+  });
+});
+
+test.describe('Display / KpiCard', () => {
+  test('trend and target', async ({ page }) => {
+    await testVariant(page, STORY.kpiCard, 0, 'kpi-card-trend-and-target');
+  });
+
+  test('with a period control', async ({ page }) => {
+    await testVariant(page, STORY.kpiCard, 1, 'kpi-card-with-a-period-control');
+  });
+});
+
+test.describe('Display / Timeline', () => {
+  test('activity feed', async ({ page }) => {
+    await testVariant(page, STORY.timeline, 0, 'timeline-activity-feed');
+  });
+
+  test('dots, from data', async ({ page }) => {
+    await testVariant(page, STORY.timeline, 1, 'timeline-dots-from-data');
+  });
+});
+
+test.describe('Display / Diff', () => {
+  test('unified', async ({ page }) => {
+    await testVariant(page, STORY.diff, 0, 'diff-unified');
+  });
+
+  test('split', async ({ page }) => {
+    await testVariant(page, STORY.diff, 1, 'diff-split');
+  });
+
+  test('without word marks', async ({ page }) => {
+    await testVariant(page, STORY.diff, 2, 'diff-without-word-marks');
+  });
+});
+
+test.describe('Display / Sparkline', () => {
+  test('line, area, bar and large', async ({ page }) => {
+    await testVariant(page, STORY.sparkline, 0, 'sparkline-line-area-bar-and-large');
+  });
+
+  test('crossing zero', async ({ page }) => {
+    await testVariant(page, STORY.sparkline, 1, 'sparkline-crossing-zero');
+  });
+});
+
+test.describe('Display / ImageGallery', () => {
+  test('grid', async ({ page }) => {
+    await testVariant(page, STORY.imageGallery, 0, 'image-gallery-grid');
+  });
+
+  test('featured, lightbox open', async ({ page }) => {
+    await testVariant(page, STORY.imageGallery, 1, 'image-gallery-featured-lightbox-open');
+  });
+});
+
+test.describe('Display / ImageSlider', () => {
+  test('default', async ({ page }) => {
+    await testVariant(page, STORY.imageSlider, 0, 'image-slider-default');
   });
 });
