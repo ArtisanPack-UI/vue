@@ -1,172 +1,122 @@
 import { describe, it, expect } from 'vitest';
-import { render } from '@testing-library/vue';
+import { fireEvent, render, screen } from '@testing-library/vue';
+import { renderMarkdown } from '@artisanpack-ui/behavior';
+import { nextTick } from 'vue';
 import { Markdown } from '../../components/utility';
 
+const SOURCE = `## Viewing checklist
+
+Bring **photo ID** and proof of income.
+
+- [x] Confirm time with agent
+- [ ] Measure the living room
+
+> Viewings run 30 minutes.
+
+| Unit | Rent |
+|---|---:|
+| 2B | $1,400 |
+`;
+
+/** The HTML as the DOM serializes it, so `<br />` compares with `<br>`. */
+const serialized = (html: string) => {
+  const host = document.createElement('div');
+  host.innerHTML = html;
+  return host.innerHTML;
+};
+
 describe('Markdown', () => {
-  it('renders a prose container', () => {
-    const { container } = render(Markdown, { props: { content: 'Hello' } });
-    expect(container.querySelector('.prose')).toBeTruthy();
-  });
-
-  it('renders paragraphs', () => {
-    const { container } = render(Markdown, { props: { content: 'Hello world' } });
-    expect(container.querySelector('p')?.textContent).toBe('Hello world');
-  });
-
-  it('renders headings h1 through h6', () => {
-    const content = '# H1\n## H2\n### H3\n#### H4\n##### H5\n###### H6';
-    const { container } = render(Markdown, { props: { content } });
-    expect(container.querySelector('h1')?.textContent).toBe('H1');
-    expect(container.querySelector('h2')?.textContent).toBe('H2');
-    expect(container.querySelector('h3')?.textContent).toBe('H3');
-    expect(container.querySelector('h4')?.textContent).toBe('H4');
-    expect(container.querySelector('h5')?.textContent).toBe('H5');
-    expect(container.querySelector('h6')?.textContent).toBe('H6');
-  });
-
-  it('renders bold text', () => {
-    const { container } = render(Markdown, { props: { content: '**bold**' } });
-    expect(container.querySelector('strong')?.textContent).toBe('bold');
-  });
-
-  it('renders italic text', () => {
-    const { container } = render(Markdown, { props: { content: '*italic*' } });
-    expect(container.querySelector('em')?.textContent).toBe('italic');
-  });
-
-  it('renders links', () => {
+  it('renders the shared HTML in the prose root', () => {
     const { container } = render(Markdown, {
-      props: { content: '[Click here](https://example.com)' },
+      props: { source: SOURCE },
+      attrs: { class: 'extra' },
     });
-    const link = container.querySelector('a');
-    expect(link?.textContent).toBe('Click here');
-    expect(link?.getAttribute('href')).toBe('https://example.com');
+    const root = container.firstElementChild as HTMLElement;
+    expect(root.className).toBe('apui-markdown apui-prose extra');
+    expect(root.getAttribute('data-mode')).toBe('preview');
+    expect(root.innerHTML).toBe(serialized(renderMarkdown(SOURCE)));
+    expect(root.querySelector('th[data-align="end"]')!.textContent).toBe('Rent');
   });
 
-  it('renders images', () => {
+  it('still takes the 2.x content prop', () => {
+    const { container } = render(Markdown, { props: { content: '# Hi' } });
+    expect(container.querySelector('.apui-markdown > h1')!.textContent).toBe('Hi');
+  });
+
+  it('renders task items as disabled, labelled checkboxes', () => {
+    render(Markdown, { props: { source: SOURCE } });
+    const done = screen.getByRole('checkbox', {
+      name: 'Confirm time with agent',
+    }) as HTMLInputElement;
+    expect(done.disabled).toBe(true);
+    expect(done.checked).toBe(true);
+    expect(done.closest('li')!.getAttribute('data-part')).toBe('task');
+  });
+
+  it('escapes raw HTML and drops unsafe URLs, and filters it with sanitize off', () => {
+    const source = '<b onclick="x()">b</b> <script>alert(1)</script> [x](javascript:alert(1))';
+    const safe = render(Markdown, { props: { source } }).container;
+    expect(safe.querySelector('b, script, a')).toBeNull();
+    expect(safe.textContent).toContain('<b onclick="x()">b</b>');
+    const raw = render(Markdown, { props: { source, sanitize: false } }).container;
+    expect(raw.querySelector('b')!.attributes).toHaveLength(0);
+    expect(raw.querySelector('script, a')).toBeNull();
+  });
+
+  it('opens split mode on the split tab with one Textarea beside the preview', () => {
+    const { container } = render(Markdown, { props: { source: SOURCE, mode: 'split' } });
+    const root = container.firstElementChild!;
+    expect(root.className).toBe('apui-markdown');
+    expect(root.getAttribute('data-mode')).toBe('split');
+    expect(screen.getByRole('tablist', { name: 'Markdown mode' })).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Split' }).getAttribute('aria-selected')).toBe('true');
+    expect(container.querySelectorAll('textarea')).toHaveLength(1);
+    const split = root.querySelector('[data-scope="markdown"][data-part="split"]')!;
+    expect(
+      (split.querySelector('[data-part="editor"] textarea') as HTMLTextAreaElement).value,
+    ).toBe(SOURCE);
+    const preview = screen.getByRole('region', { name: 'Rendered preview' });
+    expect(preview.className).toBe('apui-prose');
+    expect(screen.getByRole('textbox', { name: 'Markdown source' })).toBeTruthy();
+  });
+
+  it('emits source-change and update:source, and switches tabs', async () => {
+    const { emitted } = render(Markdown, { props: { source: '# One', mode: 'write' } });
+    await fireEvent.update(screen.getByRole('textbox', { name: 'Markdown source' }), '# Two');
+    expect(emitted()['source-change']).toEqual([['# Two']]);
+    expect(emitted()['update:source']).toEqual([['# Two']]);
+    await fireEvent.click(screen.getByRole('tab', { name: 'Preview' }));
+    await nextTick();
+    expect(screen.queryByRole('textbox')).toBeNull();
+    expect(screen.getByRole('region', { name: 'Rendered preview' }).innerHTML).toBe(
+      '<h1>Two</h1>\n',
+    );
+  });
+
+  it('takes translated labels and per-part classes', () => {
     const { container } = render(Markdown, {
-      props: { content: '![Alt text](https://example.com/img.png)' },
+      props: {
+        source: 'x',
+        mode: 'split',
+        tabsLabel: 'Modo',
+        writeLabel: 'Escribir',
+        previewLabel: 'Vista previa',
+        splitLabel: 'Dividir',
+        editorLabel: 'Fuente',
+        outputLabel: 'Vista',
+        classes: { root: 'r', editor: 'e', preview: 'p', split: 's' },
+      },
     });
-    const img = container.querySelector('img');
-    expect(img?.getAttribute('alt')).toBe('Alt text');
-    expect(img?.getAttribute('src')).toBe('https://example.com/img.png');
-  });
-
-  it('renders unordered lists', () => {
-    const content = '- Item 1\n- Item 2\n- Item 3';
-    const { container } = render(Markdown, { props: { content } });
-    const items = container.querySelectorAll('ul > li');
-    expect(items.length).toBe(3);
-    expect(items[0].textContent).toBe('Item 1');
-  });
-
-  it('renders ordered lists', () => {
-    const content = '1. First\n2. Second\n3. Third';
-    const { container } = render(Markdown, { props: { content } });
-    const items = container.querySelectorAll('ol > li');
-    expect(items.length).toBe(3);
-    expect(items[0].textContent).toBe('First');
-  });
-
-  it('renders inline code', () => {
-    const { container } = render(Markdown, {
-      props: { content: 'Use `const` for constants' },
-    });
-    expect(container.querySelector('code')?.textContent).toBe('const');
-  });
-
-  it('renders fenced code blocks', () => {
-    const content = '```js\nconst x = 1;\n```';
-    const { container } = render(Markdown, { props: { content } });
-    expect(container.querySelector('pre code')).toBeTruthy();
-    expect(container.querySelector('pre code')?.textContent).toBe('const x = 1;');
-  });
-
-  it('escapes HTML in code blocks', () => {
-    const content = '```\n<div>test</div>\n```';
-    const { container } = render(Markdown, { props: { content } });
-    const code = container.querySelector('pre code');
-    expect(code?.textContent).toBe('<div>test</div>');
-    // Should be escaped, not rendered as a real div
-    expect(code?.innerHTML).toContain('&lt;div&gt;');
-  });
-
-  it('renders blockquotes', () => {
-    const { container } = render(Markdown, {
-      props: { content: '> This is a quote' },
-    });
-    expect(container.querySelector('blockquote')).toBeTruthy();
-    expect(container.querySelector('blockquote p')?.textContent).toBe('This is a quote');
-  });
-
-  it('renders horizontal rules', () => {
-    const { container } = render(Markdown, {
-      props: { content: 'Above\n\n---\n\nBelow' },
-    });
-    expect(container.querySelector('hr')).toBeTruthy();
-  });
-
-  it('applies custom className', () => {
-    const { container } = render(Markdown, {
-      props: { content: 'Hello', className: 'custom-prose' },
-    });
-    expect(container.querySelector('.custom-prose')).toBeTruthy();
-  });
-
-  it('escapes HTML in inline text to prevent XSS', () => {
-    const { container } = render(Markdown, {
-      props: { content: '<script>alert("xss")</script>' },
-    });
-    // Should not render as a real script element
-    expect(container.querySelector('script')).toBeFalsy();
-    expect(container.querySelector('p')?.textContent).toContain('<script>');
-  });
-
-  it('sanitizes javascript: URLs in links', () => {
-    const { container } = render(Markdown, {
-      props: { content: '[Click](javascript:alert(1))' },
-    });
-    const link = container.querySelector('a');
-    expect(link?.getAttribute('href')).toBe('#');
-  });
-
-  it('sanitizes javascript: URLs in images', () => {
-    const { container } = render(Markdown, {
-      props: { content: '![img](javascript:alert(1))' },
-    });
-    const img = container.querySelector('img');
-    expect(img?.getAttribute('src')).toBe('#');
-  });
-
-  it('sanitizes data: URLs in links', () => {
-    const { container } = render(Markdown, {
-      props: { content: '[Click](data:text/html,<script>alert(1)</script>)' },
-    });
-    const link = container.querySelector('a');
-    expect(link?.getAttribute('href')).toBe('#');
-  });
-
-  it('sanitizes vbscript: URLs in links', () => {
-    const { container } = render(Markdown, {
-      props: { content: '[Click](vbscript:alert(1))' },
-    });
-    const link = container.querySelector('a');
-    expect(link?.getAttribute('href')).toBe('#');
-  });
-
-  it('sanitizes mixed-case javascript: URLs in links', () => {
-    const { container } = render(Markdown, {
-      props: { content: '[Click](JaVaScRiPt:alert(1))' },
-    });
-    const link = container.querySelector('a');
-    expect(link?.getAttribute('href')).toBe('#');
-  });
-
-  it('allows safe URLs', () => {
-    const { container } = render(Markdown, {
-      props: { content: '[Safe](https://example.com)' },
-    });
-    const link = container.querySelector('a');
-    expect(link?.getAttribute('href')).toBe('https://example.com');
+    expect(screen.getByRole('tablist', { name: 'Modo' })).toBeTruthy();
+    expect(screen.getAllByRole('tab').map((tab) => tab.textContent?.trim())).toEqual([
+      'Escribir',
+      'Vista previa',
+      'Dividir',
+    ]);
+    expect(screen.getByRole('textbox', { name: 'Fuente' })).toBeTruthy();
+    expect(screen.getByRole('region', { name: 'Vista' }).className).toBe('apui-prose p');
+    expect(container.firstElementChild!.className).toBe('apui-markdown r');
+    expect(container.querySelector('[data-part="editor"]')!.className).toBe('e');
+    expect(container.querySelector('[data-part="split"]')!.className).toBe('s');
   });
 });

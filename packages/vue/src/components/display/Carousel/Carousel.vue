@@ -1,112 +1,190 @@
 <script setup lang="ts">
-/** @module Carousel */
-import { computed, ref, watch } from 'vue';
-import { cn } from '@artisanpack-ui/tokens';
-import type { CarouselProps } from './types';
+/**
+ * @module Carousel
+ *
+ * Scroll-snapped slides with previous and next buttons, position dots and
+ * optional autoplay with a pause button, rendering the design-system
+ * Carousel markup contract (`.apui-carousel`, #65) on the shared carousel
+ * machine (`useCarousel`, scoped `carousel`, the one ImageSlider runs on,
+ * D-041). `perView` shows several slides at once with the next one peeking.
+ * Each slide is a Card unless the `#slide="{ slide, index }"` slot draws it.
+ */
+import { computed, getCurrentInstance, mergeProps, ref, useAttrs } from 'vue';
+import { carouselPageCount, useCarousel } from '@artisanpack-ui/behavior/vue';
+import Button from '../../form/Button/Button.vue';
+import Card from '../../layout/Card/Card.vue';
+import { DsIcon, part } from '../../_shared/design-system';
+import type { CarouselPart, CarouselProps, CarouselSlide } from './types';
+
+defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(defineProps<CarouselProps>(), {
-  showArrows: true,
-  showIndicators: true,
-  modelValue: 0,
+  perView: 1,
+  index: 0,
+  loop: false,
+  autoplay: false,
+  interval: 5000,
+  title: undefined,
+  headingLevel: 3,
+  label: undefined,
+  previousLabel: 'Previous slide',
+  nextLabel: 'Next slide',
+  indicatorLabel: 'Go to slide {index}',
+  slideLabel: '{index} of {count}',
+  playLabel: 'Start slide rotation',
+  pauseLabel: 'Stop slide rotation',
+  classes: undefined,
 });
 
 const emit = defineEmits<{
-  'update:modelValue': [index: number];
+  'index-change': [index: number];
 }>();
 
-const activeIndex = ref(props.modelValue);
+defineSlots<{
+  slide?: (scope: { slide: CarouselSlide; index: number }) => unknown;
+}>();
 
-watch(
-  () => props.modelValue,
-  (val) => {
-    activeIndex.value = val;
+const attrs = useAttrs();
+const instance = getCurrentInstance();
+
+/** Whether the parent passes `index`, so the carousel shows only what it says. */
+function isBound(): boolean {
+  const raw = instance?.vnode.props;
+  return !!raw && 'index' in raw;
+}
+
+const localIndex = ref(props.index);
+const view = computed(() => Math.max(1, Math.floor(props.perView)));
+const pages = computed(() => carouselPageCount(props.slides.length, view.value));
+const hasTitle = computed(() => typeof props.title === 'string' && props.title !== '');
+const headingTag = computed(() => `h${Math.min(6, Math.max(2, Math.floor(props.headingLevel)))}`);
+const navVariant = computed(() => (hasTitle.value ? 'outline' : 'soft'));
+
+const machine = useCarousel(() => ({
+  slideCount: props.slides.length,
+  perView: view.value,
+  spacing: '12px',
+  scope: 'carousel',
+  index: isBound() ? props.index : localIndex.value,
+  loop: props.loop,
+  autoplay: props.autoplay,
+  interval: props.interval,
+  labels: {
+    previous: props.previousLabel,
+    next: props.nextLabel,
+    indicator: props.indicatorLabel,
+    slide: props.slideLabel,
+    play: props.playLabel,
+    pause: props.pauseLabel,
   },
-);
+  onIndexChange: ({ index }) => {
+    if (!isBound()) localIndex.value = index;
+    emit('index-change', index);
+  },
+}));
 
-function goTo(index: number) {
-  const total = props.slides.length;
-  if (total === 0) return;
-  activeIndex.value = ((index % total) + total) % total;
-  emit('update:modelValue', activeIndex.value);
+/** The machine's API, re-wrapped in this package's `computed` for the template type-check. */
+const carousel = computed(() => machine.value);
+
+function classOf(name: CarouselPart): string | undefined {
+  return props.classes?.[name];
 }
 
-function prev() {
-  goTo(activeIndex.value - 1);
+/** Behavior props for a part, plus its extra class. */
+function withClass(own: unknown, name: CarouselPart): Record<string, unknown> {
+  const attributes = own as Record<string, unknown>;
+  const className = classOf(name);
+  return className ? mergeProps(attributes, { class: className }) : attributes;
 }
 
-function next() {
-  goTo(activeIndex.value + 1);
+function rootAttrs(): Record<string, unknown> {
+  const own = carousel.value.getRootProps() as Record<string, unknown>;
+  return mergeProps(attrs, own, {
+    class: ['apui-carousel', props.classes?.root],
+    'aria-label': props.label || props.title || 'Carousel',
+  });
 }
 
-const wrapperClasses = computed(() => cn('relative w-full overflow-hidden', props.className));
+const text = (value: unknown): string | undefined =>
+  typeof value === 'string' && value !== '' ? value : undefined;
+
+/** The default Card's props for a slide; the 2.x `src` and `caption` still work. */
+function card(slide: CarouselSlide): Record<string, unknown> {
+  return {
+    media: text(slide.image) ?? text(slide.src),
+    mediaAlt: text(slide.alt) ?? '',
+    title: text(slide.title) ?? text(slide.caption),
+    description: text(slide.description),
+    href: text(slide.href),
+  };
+}
 </script>
 
 <template>
-  <div
-    :class="wrapperClasses"
-    role="region"
-    aria-roledescription="carousel"
-    :aria-label="($attrs['aria-label'] as string) || 'Carousel'"
-  >
-    <div class="relative">
-      <div
-        v-for="(slide, index) in slides"
-        :key="slide.id"
-        :class="cn('w-full', index === activeIndex ? 'block' : 'hidden')"
-        role="group"
-        aria-roledescription="slide"
-        :aria-label="`Slide ${index + 1} of ${slides.length}`"
-        :aria-hidden="index !== activeIndex"
-      >
-        <slot name="slide" :slide="slide" :index="index" :is-active="index === activeIndex">
-          <img
-            v-if="slide.src"
-            :src="slide.src"
-            :alt="slide.alt || `Slide ${index + 1}`"
-            class="w-full object-cover"
-          />
-          <p v-if="slide.caption" class="text-center py-2 text-sm text-base-content/70">
-            {{ slide.caption }}
-          </p>
-        </slot>
-      </div>
+  <div v-bind="rootAttrs()">
+    <div v-if="hasTitle" v-bind="part('carousel', 'header', classOf('header'))">
+      <component :is="headingTag" v-bind="part('carousel', 'title', classOf('title'))">
+        {{ title }}
+      </component>
+      <Button
+        :variant="navVariant"
+        color="neutral"
+        size="sm"
+        icon-only
+        leading-icon="chevron-left"
+        v-bind="withClass(carousel.getPrevTriggerProps(), 'prevTrigger')"
+      />
+      <Button
+        :variant="navVariant"
+        color="neutral"
+        size="sm"
+        icon-only
+        leading-icon="chevron-right"
+        v-bind="withClass(carousel.getNextTriggerProps(), 'nextTrigger')"
+      />
     </div>
-
-    <!-- Navigation arrows -->
-    <template v-if="showArrows && slides.length > 1">
+    <div v-bind="part('carousel', 'viewport', classOf('viewport'))">
+      <div v-bind="withClass(carousel.getItemGroupProps(), 'itemGroup')" tabindex="0">
+        <div
+          v-for="(slide, i) in slides"
+          :key="i"
+          v-bind="withClass(carousel.getItemProps({ index: i }), 'item')"
+        >
+          <slot name="slide" :slide="slide" :index="i">
+            <Card v-bind="card(slide)" />
+          </slot>
+        </div>
+      </div>
+      <template v-if="!hasTitle">
+        <Button
+          :variant="navVariant"
+          color="neutral"
+          size="sm"
+          icon-only
+          leading-icon="chevron-left"
+          v-bind="withClass(carousel.getPrevTriggerProps(), 'prevTrigger')"
+        />
+        <Button
+          :variant="navVariant"
+          color="neutral"
+          size="sm"
+          icon-only
+          leading-icon="chevron-right"
+          v-bind="withClass(carousel.getNextTriggerProps(), 'nextTrigger')"
+        />
+      </template>
       <button
-        type="button"
-        class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-base-100/80 hover:bg-base-100 text-base-content flex items-center justify-center text-lg shadow-sm backdrop-blur-sm transition-colors cursor-pointer"
-        aria-label="Previous slide"
-        @click="prev"
+        v-if="autoplay"
+        v-bind="withClass(carousel.getAutoplayTriggerProps(), 'autoplayTrigger')"
       >
-        ‹
+        <DsIcon :name="carousel.isPlaying ? 'pause' : 'play'" />
       </button>
+    </div>
+    <div v-if="pages > 1" v-bind="withClass(carousel.getIndicatorGroupProps(), 'indicatorGroup')">
       <button
-        type="button"
-        class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-base-100/80 hover:bg-base-100 text-base-content flex items-center justify-center text-lg shadow-sm backdrop-blur-sm transition-colors cursor-pointer"
-        aria-label="Next slide"
-        @click="next"
-      >
-        ›
-      </button>
-    </template>
-
-    <!-- Dot indicators -->
-    <div v-if="showIndicators && slides.length > 1" class="flex justify-center gap-2 py-2">
-      <button
-        v-for="(slide, index) in slides"
-        :key="slide.id"
-        type="button"
-        :class="
-          cn(
-            'w-2 h-2 rounded-full transition-colors',
-            index === activeIndex ? 'bg-primary' : 'bg-base-300',
-          )
-        "
-        :aria-label="`Go to slide ${index + 1}`"
-        :aria-current="index === activeIndex ? 'true' : undefined"
-        @click="goTo(index)"
+        v-for="i in pages"
+        :key="i"
+        v-bind="withClass(carousel.getIndicatorProps({ index: i - 1 }), 'indicator')"
       />
     </div>
   </div>

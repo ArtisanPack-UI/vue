@@ -1,71 +1,62 @@
-import type { DaisyColor } from '@artisanpack-ui/tokens';
+import type { ChartNotation, ChartSeriesInput, ChartType } from '@artisanpack-ui/behavior';
 
-/**
- * A data point for pie, donut, and similar single-series chart types.
- */
-export interface ChartDataPoint {
-  /** Label for the data point. */
-  label: string;
-  /** Numeric value. */
-  value: number;
-  /** Color for this data point (DaisyUI name or CSS color). */
-  color?: DaisyColor | string;
-}
+export type { ChartNotation, ChartType };
 
-/**
- * A data series for bar, line, area, and similar multi-series chart types.
- */
-export interface ChartSeries {
-  /** Series name shown in legend and tooltips. */
-  name: string;
-  /** Array of numeric values. */
-  data: number[];
-  /** Color for this series (DaisyUI name or CSS color). */
-  color?: DaisyColor | string;
-}
+/** One named series; `data` lines up with `labels`. */
+export type ChartSeries = ChartSeriesInput;
 
-/**
- * Supported chart types.
- */
-export type ChartType =
-  | 'bar'
+/** The parts of a Chart that accept extra classes. */
+export type ChartPart =
+  | 'root'
+  | 'header'
+  | 'title'
+  | 'description'
+  | 'actions'
+  | 'legend'
+  | 'swatch'
+  | 'body'
+  | 'plot'
+  | 'grid'
+  | 'axis'
+  | 'mark'
   | 'line'
   | 'area'
-  | 'donut'
-  | 'pie'
-  | 'radialBar'
-  | 'radar'
-  | 'polarArea';
+  | 'point'
+  | 'crosshair'
+  | 'dot'
+  | 'value'
+  | 'tooltip'
+  | 'table';
 
 /**
- * Props for the Chart component.
- *
- * A chart component powered by ApexCharts with support for 8 chart types,
- * DaisyUI color integration, and full ApexCharts options customization.
+ * Props for the Chart component (design-system manifest `Chart`, #63).
+ * `class` and every other attribute go to the root.
  */
 export interface ChartProps {
-  /** Chart type. @defaultValue `'bar'` */
+  /** Bars (the first series), lines, lines with a fill, or a donut. @defaultValue `'bar'` */
   type?: ChartType;
-  /** Labels for x-axis categories or pie/donut slice labels. */
-  labels?: string[];
-  /** Multi-series data for bar, line, and area charts. */
-  series?: ChartSeries[];
-  /** Simple data points for pie, donut, and similar chart types. */
-  data?: ChartDataPoint[];
-  /** Chart height in pixels or CSS value. @defaultValue `350` */
-  height?: number | string;
-  /** Chart width in pixels or CSS value. */
-  width?: number | string;
-  /** Default DaisyUI color. */
-  color?: DaisyColor;
-  /** ApexCharts options for advanced customization (deep-merged with defaults). */
-  options?: Record<string, unknown>;
-  /** When true, shows a legend. @defaultValue `true` */
-  showLegend?: boolean;
-  /** When true, enables animations. @defaultValue `true` */
-  animated?: boolean;
-  /** Chart title. */
-  title?: string;
-  /** Additional CSS classes. */
-  className?: string;
+  /** `[{ name, data }]`, or a plain array of values for one series named by `title`. */
+  series: readonly ChartSeries[] | readonly (number | null)[];
+  /** The categories: x-axis labels, or the donut's slices. */
+  labels?: readonly string[];
+  /** The heading; it names the plot and the table. */
+  title: string;
+  /** Supporting text under the title. */
+  description?: string;
+  /** Header controls as text; the `actions` slot replaces it. */
+  actions?: string;
+  /** Shows the data table under the plot (the spec's `showTable`). @defaultValue `false` */
+  tabular?: boolean;
+  /** Printed before every value, such as `$`. */
+  prefix?: string;
+  /** Printed after every value, such as `%`. */
+  suffix?: string;
+  /** `standard` (12,500) or `compact` ($12.5k). @defaultValue `'standard'` */
+  notation?: ChartNotation;
+  /** The plot's viewBox width. @defaultValue `520` */
+  width?: number;
+  /** The plot's viewBox height. @defaultValue `220` */
+  height?: number;
+  /** Extra classes per part. */
+  classes?: Partial<Record<ChartPart, string>>;
 }

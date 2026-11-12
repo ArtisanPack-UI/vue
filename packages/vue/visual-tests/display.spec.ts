@@ -4,6 +4,7 @@ import { testVariant } from './helpers';
 const STORY = {
   avatar: 'src-components-display-avatar-avatar-story-vue',
   badge: 'src-components-display-badge-badge-story-vue',
+  carousel: 'src-components-display-carousel-carousel-story-vue',
   code: 'src-components-display-code-code-story-vue',
   diff: 'src-components-display-diff-diff-story-vue',
   imageGallery: 'src-components-display-imagegallery-imagegallery-story-vue',
@@ -17,12 +18,12 @@ const STORY = {
 };
 
 test.describe('Display / Code', () => {
-  test('default', async ({ page }) => {
-    await testVariant(page, STORY.code, 0, 'code-default');
+  test('numbered, highlighted line', async ({ page }) => {
+    await testVariant(page, STORY.code, 0, 'code-numbered');
   });
 
-  test('with line numbers', async ({ page }) => {
-    await testVariant(page, STORY.code, 1, 'code-line-numbers');
+  test('plain block', async ({ page }) => {
+    await testVariant(page, STORY.code, 1, 'code-plain');
   });
 
   test('inline', async ({ page }) => {
@@ -30,7 +31,16 @@ test.describe('Display / Code', () => {
   });
 });
 
-// Carousel is excluded — auto-sliding content produces non-deterministic screenshots
+// Carousel's autoplay variant is left out: rotating content isn't deterministic.
+test.describe('Display / Carousel', () => {
+  test('several per view, with a header', async ({ page }) => {
+    await testVariant(page, STORY.carousel, 0, 'carousel-several-per-view');
+  });
+
+  test('custom slides with overlay buttons', async ({ page }) => {
+    await testVariant(page, STORY.carousel, 1, 'carousel-custom-slides');
+  });
+});
 
 test.describe('Display / Avatar', () => {
   test('sizes', async ({ page }) => {

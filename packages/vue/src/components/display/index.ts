@@ -52,10 +52,10 @@ export type {
 } from './Timeline/types';
 
 export { default as Code } from './Code/Code.vue';
-export type { CodeProps } from './Code/types';
+export type { CodeProps, CodePart } from './Code/types';
 
 export { default as Carousel } from './Carousel/Carousel.vue';
-export type { CarouselProps, CarouselSlide } from './Carousel/types';
+export type { CarouselProps, CarouselSlide, CarouselPart } from './Carousel/types';
 
 export { default as Diff } from './Diff/Diff.vue';
 export type { DiffProps, DiffPart, DiffView } from './Diff/types';

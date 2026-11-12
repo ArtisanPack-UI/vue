@@ -1,49 +1,62 @@
 <script setup lang="ts">
-/** @module Icon */
-import { computed } from 'vue';
-import { cn } from '@artisanpack-ui/tokens';
-import type { DaisyColor, Size } from '@artisanpack-ui/tokens';
+/**
+ * @module Icon
+ *
+ * One glyph from the icon registry (`@artisanpack-ui/behavior/icons`, D-017)
+ * at four sizes, plain or on a soft-colored tile, rendering the
+ * design-system Icon markup contract (`.apui-icon`, #65). Decorative unless
+ * it has a `label`; directional icons mirror under RTL. The default slot
+ * draws your own `<svg>` instead of the name.
+ */
+import { isDirectionalIcon } from '@artisanpack-ui/behavior/icons';
+import { useSlots } from 'vue';
+import { DsIcon, flag, hasContent } from '../../_shared/design-system';
 import type { IconProps } from './types';
 
 const props = withDefaults(defineProps<IconProps>(), {
+  name: undefined,
+  variant: 'plain',
   size: 'md',
+  color: undefined,
+  label: undefined,
+  mirror: undefined,
+  classes: undefined,
 });
 
-const colorMap: Record<DaisyColor, string> = {
-  primary: 'text-primary',
-  secondary: 'text-secondary',
-  accent: 'text-accent',
-  success: 'text-success',
-  warning: 'text-warning',
-  error: 'text-error',
-  info: 'text-info',
-  neutral: 'text-neutral',
-};
+const slots = useSlots();
 
-const sizeMap: Record<Size, string> = {
-  xs: 'w-3 h-3',
-  sm: 'w-4 h-4',
-  md: 'w-5 h-5',
-  lg: 'w-6 h-6',
-};
+function hasSlot(): boolean {
+  return hasContent(slots.default?.());
+}
 
-const iconClasses = computed(() =>
-  cn(
-    'inline-flex shrink-0',
-    sizeMap[props.size],
-    props.color && colorMap[props.color],
-    props.className,
-  ),
-);
+function labeled(): boolean {
+  return typeof props.label === 'string' && props.label !== '';
+}
+
+function rootAttrs(): Record<string, unknown> {
+  const mirrored = props.mirror ?? (!hasSlot() && isDirectionalIcon(props.name));
+  return {
+    class: [
+      'apui-icon',
+      props.variant === 'tile' ? 'apui-icon-tile' : undefined,
+      props.classes?.root,
+    ],
+    'data-scope': 'icon',
+    'data-part': 'root',
+    'data-variant': props.variant,
+    'data-size': props.size,
+    'data-color': props.color,
+    'data-mirror': flag(mirrored),
+    role: labeled() ? 'img' : undefined,
+    'aria-label': labeled() ? props.label : undefined,
+    'aria-hidden': labeled() ? undefined : 'true',
+  };
+}
 </script>
 
 <template>
-  <span
-    :class="iconClasses"
-    :role="ariaLabel ? 'img' : 'presentation'"
-    :aria-label="ariaLabel"
-    :aria-hidden="ariaLabel ? undefined : 'true'"
-  >
-    <slot />
+  <span v-bind="rootAttrs()">
+    <slot v-if="hasSlot()" />
+    <DsIcon v-else-if="name" :name="name" data-scope="icon" data-part="svg" :class="classes?.svg" />
   </span>
 </template>

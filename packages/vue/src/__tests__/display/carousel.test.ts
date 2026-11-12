@@ -1,72 +1,131 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/vue';
+import { beforeAll, describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/vue';
+import { createSSRApp, h, nextTick } from 'vue';
+import { renderToString } from 'vue/server-renderer';
 import { Carousel } from '../../components/display';
 
-const slides = [
-  { id: 1, src: '/img1.jpg', alt: 'Image 1', caption: 'First slide' },
-  { id: 2, src: '/img2.jpg', alt: 'Image 2', caption: 'Second slide' },
-  { id: 3, src: '/img3.jpg', alt: 'Image 3', caption: 'Third slide' },
-];
+const slides = [1, 2, 3, 4].map((i) => ({
+  image: `/photos/${i}.jpg`,
+  alt: `Photo ${i}`,
+  title: `Property ${i}`,
+  description: `City ${i}`,
+}));
+
+const q = (part: string, root: ParentNode = document.body) =>
+  root.querySelector<HTMLElement>(`[data-scope="carousel"][data-part="${part}"]`);
+const all = (part: string, root: ParentNode = document.body) =>
+  Array.from(root.querySelectorAll<HTMLElement>(`[data-scope="carousel"][data-part="${part}"]`));
+
+/** jsdom has no layout observers; the carousel machine needs both to exist. */
+beforeAll(() => {
+  class Observer {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+    takeRecords() {
+      return [];
+    }
+  }
+  const win = window as unknown as Record<string, unknown>;
+  win.IntersectionObserver ??= Observer;
+  win.ResizeObserver ??= Observer;
+  Element.prototype.scrollTo = function scrollTo() {};
+});
 
 describe('Carousel', () => {
-  it('renders first slide by default', () => {
-    render(Carousel, { props: { slides } });
-    expect(screen.getByText('First slide')).toBeTruthy();
-  });
-
-  it('shows navigation arrows', () => {
+  it('renders the carousel region with a Card per slide', () => {
     const { container } = render(Carousel, { props: { slides } });
-    expect(container.querySelector('[aria-label="Previous slide"]')).toBeTruthy();
-    expect(container.querySelector('[aria-label="Next slide"]')).toBeTruthy();
+    const root = container.querySelector<HTMLElement>('.apui-carousel')!;
+    expect(root.getAttribute('data-part')).toBe('root');
+    expect(root.getAttribute('role')).toBe('region');
+    expect(root.getAttribute('aria-roledescription')).toBe('carousel');
+    expect(root.getAttribute('aria-label')).toBe('Carousel');
+    expect(root.style.getPropertyValue('--slides-per-page')).toBe('1');
+    expect(root.style.getPropertyValue('--slide-spacing')).toBe('12px');
+    const items = all('item', container);
+    expect(items).toHaveLength(4);
+    expect(items[1]!.getAttribute('aria-label')).toBe('2 of 4');
+    expect(items[0]!.querySelector('.apui-card img')!.getAttribute('alt')).toBe('Photo 1');
+    expect(items[1]!.textContent).toContain('Property 2');
+    expect(q('item-group', container)!.getAttribute('tabindex')).toBe('0');
+    expect(all('indicator', container)).toHaveLength(4);
+    expect(q('autoplay-trigger', container)).toBeNull();
   });
 
-  it('hides arrows when showArrows is false', () => {
+  it('peeks with perView above one and has one dot per start position', () => {
+    const { container } = render(Carousel, { props: { slides, perView: 3 } });
+    expect(
+      container
+        .querySelector<HTMLElement>('.apui-carousel')!
+        .style.getPropertyValue('--slides-per-page'),
+    ).toBe('3.15');
+    expect(all('indicator', container)).toHaveLength(2);
+    expect(all('indicator', container)[1]!.getAttribute('aria-label')).toBe('Go to slide 2');
+  });
+
+  it('server-renders the dots and triggers the mounted carousel measures to', async () => {
+    // Five slides, three per view: three positions, the last at the end of the track.
+    const five = [...slides, { ...slides[0]!, alt: 'Photo 5' }];
+    const host = document.createElement('div');
+    host.innerHTML = await renderToString(
+      createSSRApp({ render: () => h(Carousel, { slides: five, perView: 3, index: 2 }) }),
+    );
+    const dots = all('indicator', host);
+    expect(dots).toHaveLength(3);
+    expect(dots.map((dot) => dot.getAttribute('aria-current'))).toEqual([null, null, 'true']);
+    expect(q('next-trigger', host)!.hasAttribute('disabled')).toBe(true);
+    expect(q('prev-trigger', host)!.hasAttribute('disabled')).toBe(false);
+  });
+
+  it('puts a title and outline buttons in the header', () => {
+    render(Carousel, { props: { slides, title: 'Featured properties', headingLevel: 2 } });
+    const region = screen.getByRole('region', { name: 'Featured properties' });
+    const header = q('header', region)!;
+    expect(header.querySelector('h2[data-part="title"]')!.textContent?.trim()).toBe(
+      'Featured properties',
+    );
+    const previous = screen.getByRole('button', { name: 'Previous slide' });
+    expect(header.contains(previous)).toBe(true);
+    expect(previous.getAttribute('data-variant')).toBe('outline');
+    expect((previous as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('overlays soft buttons on the viewport without a title', () => {
+    render(Carousel, { props: { slides, label: 'Notes', loop: true } });
+    const next = screen.getByRole('button', { name: 'Next slide' });
+    expect(q('viewport')!.contains(next)).toBe(true);
+    expect(next.getAttribute('data-variant')).toBe('soft');
+    expect(next.querySelector('[data-mirror]')).not.toBeNull();
+    expect(
+      (screen.getByRole('button', { name: 'Previous slide' }) as HTMLButtonElement).disabled,
+    ).toBe(false);
+  });
+
+  it('renders the slide slot, and the 2.x src and caption keys', () => {
     const { container } = render(Carousel, {
-      props: { slides, showArrows: false },
+      props: { slides: [{ text: 'One' }, { text: 'Two' }] },
+      slots: {
+        slide: ({ slide, index }: { slide: { text: string }; index: number }) =>
+          h('q', { 'data-i': index }, slide.text),
+      },
     });
-    expect(container.querySelector('[aria-label="Previous slide"]')).toBeFalsy();
-  });
-
-  it('shows dot indicators', () => {
-    const { container } = render(Carousel, { props: { slides } });
-    const dots = container.querySelectorAll('[aria-label^="Go to slide"]');
-    expect(dots.length).toBe(3);
-  });
-
-  it('navigates to next slide on arrow click', async () => {
-    const { container, emitted } = render(Carousel, { props: { slides } });
-    const nextBtn = container.querySelector('[aria-label="Next slide"]')!;
-    await fireEvent.click(nextBtn);
-    expect(emitted()['update:modelValue']).toBeTruthy();
-    expect(emitted()['update:modelValue'][0]).toEqual([1]);
-  });
-
-  it('navigates to previous slide with wrap-around', async () => {
-    const { container, emitted } = render(Carousel, {
-      props: { slides, modelValue: 0 },
+    expect(container.querySelectorAll('[data-part="item"] > q')).toHaveLength(2);
+    expect(container.querySelector('q[data-i="1"]')!.textContent).toBe('Two');
+    const old = render(Carousel, {
+      props: { slides: [{ src: '/a.jpg', alt: 'A', caption: 'Old' }] },
     });
-    const prevBtn = container.querySelector('[aria-label="Previous slide"]')!;
-    await fireEvent.click(prevBtn);
-    expect(emitted()['update:modelValue'][0]).toEqual([2]);
+    expect(old.container.querySelector('.apui-card img')!.getAttribute('src')).toBe('/a.jpg');
+    expect(old.container.textContent).toContain('Old');
   });
 
-  it('has correct ARIA attributes', () => {
-    const { container } = render(Carousel, { props: { slides } });
-    expect(container.querySelector('[role="region"]')).toBeTruthy();
-    expect(container.querySelector('[aria-roledescription="carousel"]')).toBeTruthy();
-  });
-
-  it('marks inactive slides as aria-hidden', () => {
-    const { container } = render(Carousel, { props: { slides } });
-    const groups = container.querySelectorAll('[role="group"]');
-    expect(groups[0]?.getAttribute('aria-hidden')).toBe('false');
-    expect(groups[1]?.getAttribute('aria-hidden')).toBe('true');
-  });
-
-  it('hides indicators when showIndicators is false', () => {
-    const { container } = render(Carousel, {
-      props: { slides, showIndicators: false },
-    });
-    expect(container.querySelector('[aria-label^="Go to slide"]')).toBeFalsy();
+  // The position shown needs layout (the machine snaps to measured slides),
+  // which jsdom lacks: the behavior package's Chromium tests cover it.
+  it('shows a pause button with autoplay', async () => {
+    render(Carousel, { props: { slides, autoplay: true } });
+    await nextTick();
+    expect(
+      screen.getByRole('button', { name: 'Stop slide rotation' }).getAttribute('data-part'),
+    ).toBe('autoplay-trigger');
+    expect(q('item-group')!.getAttribute('aria-live')).toBe('off');
   });
 });

@@ -17,7 +17,12 @@ export * from './components/feedback';
 export * from './components/utility';
 
 // Icon registry (shared with every stack through @artisanpack-ui/behavior)
-export { isSafeIconBody, registerIcons, UnsafeIconError } from '@artisanpack-ui/behavior/icons';
+export {
+  isSafeIconBody,
+  registerDirectionalIcons,
+  registerIcons,
+  UnsafeIconError,
+} from '@artisanpack-ui/behavior/icons';
 export type { IconSet } from '@artisanpack-ui/behavior/icons';
 
 // Composables

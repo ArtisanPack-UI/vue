@@ -18,15 +18,20 @@ import {
   type VNode,
   type VNodeArrayChildren,
 } from 'vue';
-import { ICON_SVG_ATTRIBUTES, resolveIcon } from '@artisanpack-ui/behavior/icons';
+import {
+  ICON_SVG_ATTRIBUTES,
+  isDirectionalIcon,
+  resolveIcon,
+} from '@artisanpack-ui/behavior/icons';
 
-/** Icon names whose part span gets `data-mirror`, so CSS flips them under RTL. */
-export const MIRRORED_ICONS: ReadonlySet<string> = new Set([
-  'arrow-right',
-  'arrow-left',
-  'chevron-right',
-  'chevron-left',
-]);
+/**
+ * Icon names whose part span gets `data-mirror`, so CSS flips them under RTL:
+ * the registry's directional names (`DIRECTIONAL_ICONS`, plus any an app
+ * adds with `registerDirectionalIcons`).
+ */
+export const MIRRORED_ICONS: Pick<ReadonlySet<string>, 'has'> = {
+  has: (name: string) => isDirectionalIcon(name),
+};
 
 /** A present-empty boolean data attribute: `''` when on, omitted when off. */
 export function flag(on: unknown): '' | undefined {
