@@ -7,24 +7,28 @@
  *
  * @example
  * ```vue
- * import { Alert, Loading, Skeleton, EmptyState, ErrorDisplay, Toast, Toaster, toast } from '@artisanpack-ui/vue';
+ * import { Alert, Loading, Skeleton, EmptyState, ErrorState, Toast, Toaster, toast } from '@artisanpack-ui/vue';
  * ```
  *
  * @packageDocumentation
  */
 
 export { default as Alert } from './Alert/Alert.vue';
-export type { AlertProps, AlertColor } from './Alert/types';
+export type { AlertProps, AlertColor, AlertEmits, AlertPart } from './Alert/types';
 
 export { default as Loading } from './Loading/Loading.vue';
-export type { LoadingProps, LoadingVariant } from './Loading/types';
+export type { LoadingProps, LoadingVariant, LoadingPart } from './Loading/types';
 
 export { default as Skeleton } from './Skeleton/Skeleton.vue';
 export type { SkeletonProps } from './Skeleton/types';
 
 export { default as EmptyState } from './EmptyState/EmptyState.vue';
-export type { EmptyStateProps } from './EmptyState/types';
+export type { EmptyStateProps, EmptyStatePart } from './EmptyState/types';
 
+export { default as ErrorState } from './ErrorState/ErrorState.vue';
+export type { ErrorStateProps, ErrorStatePart } from './ErrorState/types';
+
+/** @deprecated Use ErrorState (#60). */
 export { default as ErrorDisplay } from './Error/Error.vue';
 export type { ErrorDisplayProps } from './Error/types';
 

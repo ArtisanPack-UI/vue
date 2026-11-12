@@ -1,5 +1,5 @@
 {
-  "components": ["Button", "Input", "Select", "Checkbox", "Card", "Dialog", "DropdownMenu", "Toast", "Textarea", "Password", "Pin", "Range", "Toggle", "Fieldset", "Form", "ValidationSummary", "Combobox", "Link", "Breadcrumbs", "Pagination", "Steps", "Tabs", "Menu", "Navbar", "DatePicker", "Spotlight", "RadioGroup", "CheckboxGroup", "Rating", "ColorPicker", "File", "Signature", "RichTextEditor", "CodeEditor"],
+  "components": ["Button", "Input", "Select", "Checkbox", "Card", "Dialog", "DropdownMenu", "Toast", "Textarea", "Password", "Pin", "Range", "Toggle", "Fieldset", "Form", "ValidationSummary", "Combobox", "Link", "Breadcrumbs", "Pagination", "Steps", "Tabs", "Menu", "Navbar", "DatePicker", "Spotlight", "RadioGroup", "CheckboxGroup", "Rating", "ColorPicker", "File", "Signature", "RichTextEditor", "CodeEditor", "Accordion", "Collapse", "AppShell", "PageHeader", "Divider", "Grid", "Stack", "Drawer", "Popover", "Tooltip", "Heading", "Text", "ListItem", "UserMenu", "Avatar", "Badge", "Alert", "Loading", "Progress", "ProgressRadial", "Skeleton", "EmptyState", "ErrorState", "Stat", "KpiCard", "Sparkline", "Timeline", "Diff", "ImageGallery", "ImageSlider", "Table"],
   "css": ["../../node_modules/@artisanpack-ui/css/dist/index.css"],
   "stacks": {
     "vue": { "host": "gates/fixture-host.js" }

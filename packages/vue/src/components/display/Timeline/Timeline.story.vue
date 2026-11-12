@@ -1,65 +1,46 @@
 <script setup lang="ts">
 import Timeline from './Timeline.vue';
-
-const items = [
-  {
-    id: '1',
-    title: 'Order Placed',
-    description: 'Your order has been placed.',
-    time: '10:00 AM',
-    color: 'primary' as const,
-  },
-  {
-    id: '2',
-    title: 'Processing',
-    description: 'Your order is being processed.',
-    time: '11:30 AM',
-    color: 'info' as const,
-  },
-  {
-    id: '3',
-    title: 'Shipped',
-    description: 'Your order has been shipped.',
-    time: '2:00 PM',
-    color: 'success' as const,
-  },
-  {
-    id: '4',
-    title: 'Delivered',
-    description: 'Your order has been delivered.',
-    time: '5:00 PM',
-    color: 'success' as const,
-  },
-];
+import TimelineItem from './TimelineItem.vue';
 </script>
 
 <template>
   <Story title="Display/Timeline" group="display">
-    <Variant title="Playground">
-      <template #controls="{ state }">
-        <HstCheckbox v-model="state.vertical" title="Vertical" />
-        <HstCheckbox v-model="state.snap" title="Snap" />
-        <HstCheckbox v-model="state.compact" title="Compact" />
-      </template>
-
-      <template #default="{ state }">
-        <Timeline
-          :items="items"
-          :vertical="state.vertical"
-          :snap="state.snap"
-          :compact="state.compact"
-        />
-      </template>
+    <Variant title="Activity feed">
+      <div style="max-width: 460px">
+        <Timeline label="Activity">
+          <TimelineItem
+            icon="circle-check"
+            color="success"
+            time="2h ago"
+            datetime="2026-11-12T08:00"
+            description="Phoenix Baker accepted $248,000."
+          >
+            <strong>Offer accepted</strong> on Lakeview Lofts
+          </TimelineItem>
+          <TimelineItem
+            icon="message-square"
+            time="5h ago"
+            card="Can we move the viewing to Thursday at 11:00? The tenant is out until then."
+          >
+            <strong>Olivia Rhye</strong> commented
+          </TimelineItem>
+          <TimelineItem icon="house" color="primary" time="Dec 13" title="Listing published" />
+        </Timeline>
+      </div>
     </Variant>
 
-    <Variant title="Compact">
-      <Timeline :items="items" :compact="true" />
+    <Variant title="Dots, from data">
+      <Timeline
+        style="max-width: 360px"
+        variant="dot"
+        label="Shipping history"
+        :items="[
+          { title: 'Delivered', time: 'Nov 7, 14:02', color: 'success' },
+          { title: 'Out for delivery', time: 'Nov 7, 08:15', color: 'primary' },
+          { title: 'Arrived at Barcelona hub', time: 'Nov 6, 22:40' },
+          { title: 'Shipped from Madrid', time: 'Nov 6, 09:10' },
+        ]"
+      />
     </Variant>
   </Story>
 </template>
-
-<docs lang="md">
-# Timeline
-
-A timeline component for displaying chronological events with colors and layout options.
-</docs>

@@ -1,53 +1,65 @@
 <script setup lang="ts">
-/** @module Loading */
-import { computed } from 'vue';
-import { cn } from '@artisanpack-ui/tokens';
-import type { DaisyColor, Size } from '@artisanpack-ui/tokens';
-import type { LoadingProps, LoadingVariant } from './types';
+/**
+ * @module Loading
+ *
+ * Shows that work is in progress, rendering the design-system Loading markup
+ * contract (`.apui-loading`, #60): a `role="status"` region with a spinner or
+ * dots and a label. It waits `delay` ms before showing (`--apui-_delay`).
+ */
+import { mergeProps, useAttrs, useSlots } from 'vue';
+import { flag, hasContent, part } from '../../_shared/design-system';
+import type { LoadingProps } from './types';
+
+defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(defineProps<LoadingProps>(), {
   variant: 'spinner',
-  ariaLabel: 'Loading',
+  size: 'md',
+  color: 'primary',
+  label: 'Loading',
+  overlay: false,
+  delay: 300,
+  classes: undefined,
 });
 
-const colorMap: Record<DaisyColor, string> = {
-  primary: 'text-primary',
-  secondary: 'text-secondary',
-  accent: 'text-accent',
-  success: 'text-success',
-  warning: 'text-warning',
-  error: 'text-error',
-  info: 'text-info',
-  neutral: 'text-neutral',
-};
+const attrs = useAttrs();
+const slots = useSlots();
 
-const sizeMap: Record<Size, string> = {
-  xs: 'loading-xs',
-  sm: 'loading-sm',
-  md: 'loading-md',
-  lg: 'loading-lg',
-};
+function hasText(): boolean {
+  return !!slots.default && hasContent(slots.default());
+}
 
-const variantMap: Record<LoadingVariant, string> = {
-  spinner: 'loading-spinner',
-  dots: 'loading-dots',
-  ring: 'loading-ring',
-  ball: 'loading-ball',
-  bars: 'loading-bars',
-  infinity: 'loading-infinity',
-};
+function rootAttrs(): Record<string, unknown> {
+  return mergeProps(
+    {
+      class: 'apui-loading',
+      'data-scope': 'loading',
+      'data-part': 'root',
+      role: 'status',
+      'data-variant': props.variant,
+      'data-size': props.size,
+      'data-color': props.color,
+      'data-overlay': flag(props.overlay),
+      style: { '--apui-_delay': `${props.delay}ms` },
+    },
+    attrs,
+    { class: props.classes?.root },
+  );
+}
 
-const loadingClasses = computed(() =>
-  cn(
-    'loading',
-    variantMap[props.variant],
-    props.color && colorMap[props.color],
-    props.size && sizeMap[props.size],
-    props.className,
-  ),
-);
+function labelAttrs(): Record<string, unknown> {
+  const own = part('loading', 'label', props.classes?.label);
+  return hasText() ? own : mergeProps(own, { class: 'apui-sr-only' });
+}
 </script>
 
 <template>
-  <span role="status" :aria-label="ariaLabel" :class="loadingClasses" />
+  <span v-bind="rootAttrs()">
+    <span v-bind="part('loading', 'indicator', classes?.indicator, { 'aria-hidden': 'true' })"
+      ><template v-if="variant === 'dots'"><span /><span /><span /></template
+    ></span>
+    <span v-bind="labelAttrs()"
+      ><slot>{{ label }}</slot></span
+    >
+  </span>
 </template>

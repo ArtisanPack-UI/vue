@@ -10,7 +10,7 @@
 import { computed, getCurrentInstance, mergeProps, ref, useAttrs, useSlots } from 'vue';
 import { useDialog } from '@artisanpack-ui/behavior/vue';
 import Button from '../../form/Button/Button.vue';
-import { DsIcon, hasContent, part } from '../../_shared/design-system';
+import { definedProps, DsIcon, hasContent, part } from '../../_shared/design-system';
 import type { DialogProps } from './types';
 
 defineOptions({ inheritAttrs: false });
@@ -67,6 +67,8 @@ const machine = useDialog(() => ({
   open: shownOpen(),
   role: props.role,
   modal: props.modal,
+  // Without a title, an aria-label names the panel instead (as React).
+  label: hasTitle() ? undefined : (attrs['aria-label'] as string | undefined),
   onOpenChange: ({ open }) => {
     if (!isBound()) localOpen.value = open;
     emit('update:open', open);
@@ -115,7 +117,7 @@ function classOf(name: keyof NonNullable<DialogProps['classes']>): string | unde
 
 /** The panel: Zag's content part, carrying the root class and every attribute (D-019). */
 function contentAttrs(): Record<string, unknown> {
-  return mergeProps(attrs, dialog.value.getContentProps() as Record<string, unknown>, {
+  return mergeProps(attrs, definedProps(dialog.value.getContentProps()), {
     class: ['apui-dialog', props.classes?.root, props.classes?.content],
     'data-size': props.size,
     'data-surface': props.surface,

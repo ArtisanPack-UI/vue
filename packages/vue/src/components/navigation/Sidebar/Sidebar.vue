@@ -1,5 +1,9 @@
 <script setup lang="ts">
-/** @module Sidebar */
+/**
+ * @module Sidebar
+ *
+ * @deprecated Use AppShell (#58): the sidebar is a part of the application frame.
+ */
 import { computed, useId } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { SidebarProps } from './types';

@@ -9,16 +9,6 @@ const STORY = {
   tooltip: 'src-components-utility-tooltip-tooltip-story-vue',
 };
 
-test.describe('Utility / Tooltip', () => {
-  test('default', async ({ page }) => {
-    await testVariant(page, STORY.tooltip, 0, 'tooltip-default');
-  });
-
-  test('positions', async ({ page }) => {
-    await testVariant(page, STORY.tooltip, 1, 'tooltip-positions');
-  });
-});
-
 test.describe('Utility / Clipboard', () => {
   test('default', async ({ page }) => {
     await testVariant(page, STORY.clipboard, 0, 'clipboard-default');
@@ -56,5 +46,19 @@ test.describe('Utility / ThemeToggle', () => {
 test.describe('Utility / Markdown', () => {
   test('default', async ({ page }) => {
     await testVariant(page, STORY.markdown, 0, 'markdown-default');
+  });
+});
+
+test.describe('Utility / Tooltip', () => {
+  test('default', async ({ page }) => {
+    await testVariant(page, STORY.tooltip, 0, 'tooltip-default');
+  });
+
+  test('long text', async ({ page }) => {
+    await testVariant(page, STORY.tooltip, 1, 'tooltip-long-text');
+  });
+
+  test('forced open', async ({ page }) => {
+    await testVariant(page, STORY.tooltip, 2, 'tooltip-forced-open');
   });
 });

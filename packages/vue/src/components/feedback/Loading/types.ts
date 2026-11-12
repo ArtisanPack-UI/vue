@@ -1,24 +1,29 @@
-import type { DaisyColor, Size } from '@artisanpack-ui/tokens';
+/** The indicator a Loading shows. */
+export type LoadingVariant = 'spinner' | 'dots';
+
+/** The parts of a Loading that accept extra classes. */
+export type LoadingPart = 'root' | 'indicator' | 'label';
 
 /**
- * Visual variant of the loading indicator animation.
- */
-export type LoadingVariant = 'spinner' | 'dots' | 'ring' | 'ball' | 'bars' | 'infinity';
-
-/**
- * Props for the Loading component.
+ * Props for the Loading component (design-system manifest `Loading`, #60).
  *
- * Renders an animated loading indicator using DaisyUI's loading component.
+ * A status region with a spinner or three dots. The default slot shows
+ * visible text beside the indicator; without it, `label` is rendered
+ * visually hidden. `class` and every other attribute go to the root.
  */
 export interface LoadingProps {
-  /** The DaisyUI color variant applied to the loading indicator. */
-  color?: DaisyColor;
-  /** The size of the loading indicator. */
-  size?: Size;
-  /** The visual animation style of the loading indicator. @defaultValue `'spinner'` */
+  /** A spinning ring or three pulsing dots. @defaultValue `'spinner'` */
   variant?: LoadingVariant;
-  /** Accessible label for the loading indicator. @defaultValue `'Loading'` */
-  ariaLabel?: string;
-  /** Additional CSS classes. */
-  className?: string;
+  /** The indicator's size. @defaultValue `'md'` */
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  /** Tints the indicator. @defaultValue `'primary'` */
+  color?: 'primary' | 'secondary' | 'accent' | 'neutral' | 'success' | 'warning' | 'error' | 'info';
+  /** What's loading, for screen readers, when there's no visible text; translate it. @defaultValue `'Loading'` */
+  label?: string;
+  /** Covers the nearest positioned ancestor. Set `aria-busy` on that region. @defaultValue `false` */
+  overlay?: boolean;
+  /** Milliseconds to wait before showing, so fast loads don't flash. @defaultValue `300` */
+  delay?: number;
+  /** Extra classes per part, such as `{ indicator: '…', label: '…' }`. */
+  classes?: Partial<Record<LoadingPart, string>>;
 }

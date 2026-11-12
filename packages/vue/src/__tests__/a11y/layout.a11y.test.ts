@@ -16,13 +16,12 @@ import {
 describe('Layout components accessibility', () => {
   it('Accordion has no a11y violations', async () => {
     const { container } = render(Accordion, {
-      slots: {
-        default: `
-          <div data-accordion-item>
-            <button>Section 1</button>
-            <div>Content 1</div>
-          </div>
-        `,
+      props: {
+        modelValue: ['one'],
+        items: [
+          { value: 'one', title: 'Section 1', content: 'Content 1' },
+          { value: 'two', title: 'Section 2', content: 'Content 2', disabled: true },
+        ],
       },
     });
     const results = await axe(container);
@@ -40,7 +39,7 @@ describe('Layout components accessibility', () => {
 
   it('Collapse has no a11y violations', async () => {
     const { container } = render(Collapse, {
-      props: { title: 'Details' },
+      props: { label: 'Details' },
       slots: { default: '<p>Collapsed content</p>' },
     });
     const results = await axe(container);
@@ -55,7 +54,7 @@ describe('Layout components accessibility', () => {
 
   it('Grid has no a11y violations', async () => {
     const { container } = render(Grid, {
-      props: { cols: 3 },
+      props: { columns: 3 },
       slots: { default: '<div>Item 1</div><div>Item 2</div><div>Item 3</div>' },
     });
     const results = await axe(container);

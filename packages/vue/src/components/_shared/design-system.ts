@@ -53,6 +53,22 @@ export function part(
   return attributes;
 }
 
+/**
+ * A behavior part's props without its `undefined` values. Vue's `mergeProps`
+ * lets a later `undefined` overwrite an earlier value, so merging Zag's
+ * `"aria-label": undefined` over the author's attributes would drop the
+ * author's. Merged this way, the part's value wins unless it's undefined, as
+ * Zag's own `mergeProps` (and the React stack) behaves.
+ */
+export function definedProps(zagProps: unknown): Record<string, unknown> {
+  const own = zagProps as Record<string, unknown>;
+  const kept: Record<string, unknown> = {};
+  for (const key of Object.keys(own)) {
+    if (own[key] !== undefined) kept[key] = own[key];
+  }
+  return kept;
+}
+
 /** Whether rendered slot output has visible content (not only comments or whitespace). */
 export function hasContent(output: unknown): boolean {
   if (output === null || output === undefined || output === false) return false;

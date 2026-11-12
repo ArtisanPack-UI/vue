@@ -1,17 +1,27 @@
-import type { DaisyColor } from '@artisanpack-ui/tokens';
+/** A rule across the inline axis, or a vertical one. Emitted as `data-orientation`. */
+export type DividerOrientation = 'horizontal' | 'vertical';
 
-/**
- * Props for the Divider component.
- *
- * A visual separator with optional label text and color variants.
- */
+/** Where a label sits along the rule. Emitted as `data-align`. */
+export type DividerAlign = 'start' | 'center' | 'end';
+
+/** Subtle uses the muted border, strong the default border. Emitted as `data-strength`. */
+export type DividerStrength = 'subtle' | 'strong';
+
+/** The parts of a Divider that accept extra classes. */
+export type DividerPart = 'root' | 'label';
+
+/** Props for the Divider component. The default slot is the label. */
 export interface DividerProps {
-  /** When true, renders the divider vertically instead of horizontally. @defaultValue `false` */
-  vertical?: boolean;
-  /** DaisyUI color variant applied to the divider. */
-  color?: DaisyColor;
-  /** Optional inline label text displayed within the divider. */
+  /** @defaultValue `'horizontal'` */
+  orientation?: DividerOrientation;
+  /** Text in the middle of the rule. The default slot overrides it. */
   label?: string;
-  /** Position of the label along the divider. @defaultValue `'center'` */
-  labelPosition?: 'start' | 'center' | 'end';
+  /** @defaultValue `'center'` */
+  align?: DividerAlign;
+  /** @defaultValue `'subtle'` */
+  strength?: DividerStrength;
+  /** Hides the divider from assistive technology. @defaultValue `false` */
+  decorative?: boolean;
+  /** Extra classes per part; `classes.root` merges with `class`. */
+  classes?: Partial<Record<DividerPart, string>>;
 }

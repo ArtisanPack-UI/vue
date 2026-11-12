@@ -1,67 +1,81 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/vue';
-import { Timeline } from '../../components/display';
-
-const sampleItems = [
-  { id: 1, title: 'First event', description: 'Description 1', time: '2024-01-01' },
-  { id: 2, title: 'Second event', description: 'Description 2', time: '2024-01-15' },
-  { id: 3, title: 'Third event', time: '2024-02-01' },
-];
+import { defineComponent, h } from 'vue';
+import Timeline from '../../components/display/Timeline/Timeline.vue';
+import TimelineItem from '../../components/display/Timeline/TimelineItem.vue';
 
 describe('Timeline', () => {
-  it('renders all timeline items', () => {
-    render(Timeline, { props: { items: sampleItems } });
-    expect(screen.getByText('First event')).toBeTruthy();
-    expect(screen.getByText('Second event')).toBeTruthy();
-    expect(screen.getByText('Third event')).toBeTruthy();
-  });
-
-  it('renders descriptions', () => {
-    render(Timeline, { props: { items: sampleItems } });
-    expect(screen.getByText('Description 1')).toBeTruthy();
-    expect(screen.getByText('Description 2')).toBeTruthy();
-  });
-
-  it('renders time labels', () => {
-    render(Timeline, { props: { items: sampleItems } });
-    expect(screen.getByText('2024-01-01')).toBeTruthy();
-    expect(screen.getByText('2024-01-15')).toBeTruthy();
-  });
-
-  it('applies vertical class by default', () => {
-    const { container } = render(Timeline, { props: { items: sampleItems } });
-    expect(container.querySelector('.timeline-vertical')).toBeTruthy();
-  });
-
-  it('applies horizontal class when vertical is false', () => {
+  it('composes an ordered list from TimelineItem children', () => {
     const { container } = render(Timeline, {
-      props: { items: sampleItems, vertical: false },
+      props: { label: 'Activity' },
+      slots: {
+        default: () => [
+          h(
+            TimelineItem,
+            {
+              icon: 'circle-check',
+              color: 'success',
+              time: '2h ago',
+              datetime: '2026-11-12T08:00',
+              description: 'Phoenix Baker accepted $248,000.',
+            },
+            { default: () => [h('strong', 'Offer accepted'), ' on Lakeview Lofts'] },
+          ),
+          h(TimelineItem, { title: 'Listing published', time: 'Dec 13' }),
+        ],
+      },
     });
-    expect(container.querySelector('.timeline-horizontal')).toBeTruthy();
+    const list = screen.getByRole('list', { name: 'Activity' });
+    expect(list.className).toBe('apui-timeline');
+    expect(list.getAttribute('data-variant')).toBe('icon');
+    const items = container.querySelectorAll('li[data-scope="timeline"][data-part="item"]');
+    expect(items).toHaveLength(2);
+    expect([...items[0]!.children].map((el) => el.getAttribute('data-part'))).toEqual([
+      'marker',
+      'head',
+      'body',
+    ]);
+    const marker = items[0]!.querySelector('[data-part="marker"]')!;
+    expect(marker.getAttribute('data-color')).toBe('success');
+    expect(marker.getAttribute('aria-hidden')).toBe('true');
+    expect(marker.querySelector('svg')).not.toBeNull();
+    expect(items[0]!.querySelector('[data-part="head"] > strong')!.textContent).toBe(
+      'Offer accepted',
+    );
+    expect(items[0]!.querySelector('time[data-part="time"]')!.getAttribute('datetime')).toBe(
+      '2026-11-12T08:00',
+    );
+    expect(items[1]!.querySelector('[data-part="marker"]')!.hasAttribute('data-color')).toBe(false);
   });
 
-  it('applies snap class', () => {
+  it('renders items before composed children, with dots and cards', () => {
     const { container } = render(Timeline, {
-      props: { items: sampleItems, snap: true },
+      props: {
+        variant: 'dot',
+        items: [
+          { title: 'Delivered', time: 'Nov 7', color: 'success' },
+          { title: 'Olivia commented', card: 'Thursday at 11?', icon: 'message-square' },
+        ],
+      },
+      slots: { default: () => h(TimelineItem, { title: 'Shipped' }) },
     });
-    expect(container.querySelector('.timeline-snap-icon')).toBeTruthy();
+    expect(container.querySelector('ol')!.getAttribute('data-variant')).toBe('dot');
+    expect(
+      [...container.querySelectorAll('[data-part="head"]')].map((head) => head.textContent),
+    ).toEqual(['DeliveredNov 7', 'Olivia commented', 'Shipped']);
+    expect(container.querySelector('[data-part="card"]')!.textContent).toBe('Thursday at 11?');
+    expect(container.querySelector('time')!.hasAttribute('datetime')).toBe(false);
   });
 
-  it('applies compact class', () => {
-    const { container } = render(Timeline, {
-      props: { items: sampleItems, compact: true },
+  it('passes classes to items rendered with v-for', () => {
+    const Host = defineComponent({
+      components: { Timeline, TimelineItem },
+      setup: () => ({ titles: ['A', 'B'] }),
+      template: `<Timeline :classes="{ root: 'r', item: 'i', time: 't' }"><TimelineItem v-for="title in titles" :key="title" :title="title" time="now" /></Timeline>`,
     });
-    expect(container.querySelector('.timeline-compact')).toBeTruthy();
-  });
-
-  it('has correct ARIA role', () => {
-    const { container } = render(Timeline, { props: { items: sampleItems } });
-    expect(container.querySelector('ul[aria-label="Timeline"]')).toBeTruthy();
-  });
-
-  it('renders correct number of list items', () => {
-    const { container } = render(Timeline, { props: { items: sampleItems } });
-    const listItems = container.querySelectorAll('li');
-    expect(listItems.length).toBe(3);
+    const { container } = render(Host);
+    expect(container.querySelector('ol')!.className).toBe('apui-timeline r');
+    expect(container.querySelectorAll('li.i')).toHaveLength(2);
+    expect(container.querySelectorAll('time.t')).toHaveLength(2);
   });
 });

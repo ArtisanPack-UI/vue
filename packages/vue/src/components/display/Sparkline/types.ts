@@ -1,30 +1,29 @@
-import type { DaisyColor } from '@artisanpack-ui/tokens';
+import type { SparklineVariant } from '@artisanpack-ui/behavior';
+
+export type { SparklineVariant };
+
+/** The parts of a Sparkline that accept extra classes. */
+export type SparklinePart = 'root' | 'area' | 'line' | 'dot' | 'bar' | 'baseline';
 
 /**
- * Props for the Sparkline component.
- *
- * A compact inline chart rendered as SVG with line, area, or bar variants.
- * Uses Catmull-Rom spline interpolation for smooth curves.
+ * Props for the Sparkline component (design-system manifest `Sparkline`,
+ * #61). `class` and every other attribute go to the `<svg>`.
  */
 export interface SparklineProps {
-  /** Array of numeric data points. */
-  data: number[];
-  /** Sparkline type. @defaultValue `'line'` */
-  type?: 'line' | 'area' | 'bar';
-  /** Height in pixels. @defaultValue `40` */
-  height?: number;
-  /** Width in pixels. Defaults to `data.length * 8`. */
+  /** The values, oldest first. Anything that isn't a finite number is skipped. */
+  data: readonly number[];
+  /** A line with a dot on the latest value, the same with a fill, or bars. @defaultValue `'line'` */
+  variant?: SparklineVariant;
+  /** The width in px. @defaultValue `96` */
   width?: number;
-  /** Color (DaisyUI name or CSS color). @defaultValue `'primary'` */
-  color?: DaisyColor | string;
-  /** Stroke width for line/area types. @defaultValue `2` */
-  strokeWidth?: number;
-  /** When true, uses Catmull-Rom curves for smooth paths. @defaultValue `true` */
-  curve?: boolean;
-  /** Fill opacity for area type (0-1). @defaultValue `0.3` */
-  fillOpacity?: number;
-  /** When true, shows a tooltip on hover. @defaultValue `true` */
-  showTooltip?: boolean;
-  /** Additional CSS classes. */
-  className?: string;
+  /** The height in px. @defaultValue `28` */
+  height?: number;
+  /**
+   * The accessible label; `{first}`, `{latest}`, `{min}`, `{max}` and
+   * `{count}` are filled in. Translate it.
+   * @defaultValue `'Trend from {first} to {latest}'`
+   */
+  label?: string;
+  /** Extra classes per part. */
+  classes?: Partial<Record<SparklinePart, string>>;
 }

@@ -1,34 +1,38 @@
 <script setup lang="ts">
-/** @module ErrorDisplay */
-import { computed } from 'vue';
-import { cn } from '@artisanpack-ui/tokens';
+/**
+ * @module ErrorDisplay
+ *
+ * @deprecated Use `ErrorState` (#60). This wrapper keeps the 2.x API and
+ * renders an ErrorState: `message` (then the default slot) → description,
+ * `retryable` + `retryLabel` → a Try again button in the actions that
+ * emits `retry`, the `icon` slot → the icon.
+ */
+import ErrorState from '../ErrorState/ErrorState.vue';
+import Button from '../../form/Button/Button.vue';
+import { warnOnce } from '../../_shared/design-system';
 import type { ErrorDisplayProps } from './types';
 
-const props = withDefaults(defineProps<ErrorDisplayProps>(), {
+withDefaults(defineProps<ErrorDisplayProps>(), {
   title: 'Something went wrong',
-  retryLabel: 'Try again',
+  message: undefined,
   retryable: false,
+  retryLabel: 'Try again',
+  className: undefined,
 });
 
 const emit = defineEmits<{
   retry: [];
 }>();
 
-const containerClasses = computed(() =>
-  cn('flex flex-col items-center justify-center gap-4 py-12 text-center', props.className),
-);
+warnOnce('ErrorDisplay', 'ErrorDisplay is deprecated; use ErrorState.');
 </script>
 
 <template>
-  <div role="alert" aria-live="assertive" :class="containerClasses">
-    <div v-if="$slots.icon" class="text-error text-6xl">
-      <slot name="icon" />
-    </div>
-    <h3 class="text-lg font-semibold text-error">{{ title }}</h3>
-    <p v-if="message" class="text-base-content/60 max-w-sm">{{ message }}</p>
-    <slot />
-    <button v-if="retryable" type="button" class="btn btn-error btn-sm mt-2" @click="emit('retry')">
-      {{ retryLabel }}
-    </button>
-  </div>
+  <ErrorState :title="title" :description="message" :class="className">
+    <template v-if="$slots.icon" #icon><slot name="icon" /></template>
+    <template v-if="$slots.default" #default>{{ message }}<slot /></template>
+    <template v-if="retryable" #actions>
+      <Button leading-icon="refresh-cw" @click="emit('retry')">{{ retryLabel }}</Button>
+    </template>
+  </ErrorState>
 </template>

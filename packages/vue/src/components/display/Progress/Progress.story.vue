@@ -4,50 +4,18 @@ import Progress from './Progress.vue';
 
 <template>
   <Story title="Display/Progress" group="display">
-    <Variant title="Playground">
-      <template #controls="{ state }">
-        <HstNumber v-model="state.value" title="Value" />
-        <HstNumber v-model="state.max" title="Max" />
-        <HstSelect
-          v-model="state.color"
-          title="Color"
-          :options="['', 'primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info']"
-        />
-        <HstCheckbox v-model="state.showValue" title="Show Value" />
-      </template>
-
-      <template #default="{ state }">
-        <div style="max-width: 400px">
-          <Progress
-            :value="state.value ?? 65"
-            :max="state.max ?? 100"
-            :color="state.color || undefined"
-            :show-value="state.showValue"
-          />
-        </div>
-      </template>
-    </Variant>
-
-    <Variant title="Colors">
-      <div style="display: flex; flex-direction: column; gap: 8px; max-width: 400px">
-        <Progress :value="80" color="primary" />
-        <Progress :value="60" color="secondary" />
-        <Progress :value="90" color="success" />
-        <Progress :value="40" color="warning" />
-        <Progress :value="20" color="error" />
+    <Variant title="Labeled">
+      <div style="display: grid; gap: 16px; padding: 16px">
+        <Progress :value="64" label="Uploading 12 photos" value-text="8 of 12" />
+        <Progress :value="92" color="warning" label="Monthly visits used" />
+        <Progress :value="40" size="sm" aria-label="Profile completeness" />
       </div>
     </Variant>
-
-    <Variant title="With Value">
-      <div style="max-width: 400px">
-        <Progress :value="72" :max="100" color="primary" :show-value="true" />
+    <Variant title="Indeterminate and segmented">
+      <div style="display: grid; gap: 16px; padding: 16px">
+        <Progress indeterminate label="Preparing export" value-text="Estimating…" />
+        <Progress segmented :value="3" :max="5" label="Listing setup" value-text="3 of 5" />
       </div>
     </Variant>
   </Story>
 </template>
-
-<docs lang="md">
-# Progress
-
-A progress bar with color variants and optional value display.
-</docs>
