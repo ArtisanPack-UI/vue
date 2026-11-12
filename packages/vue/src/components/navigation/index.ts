@@ -69,6 +69,7 @@ export type {
   NavbarPart,
 } from './Navbar/types';
 
+// Deprecated: replaced by AppShell (#58).
 export { default as Sidebar } from './Sidebar/Sidebar.vue';
 export type { SidebarProps } from './Sidebar/types';
 

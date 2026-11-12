@@ -1,141 +1,97 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/vue';
+import { fireEvent, render, screen } from '@testing-library/vue';
+import { h } from 'vue';
 import { Alert } from '../../components/feedback';
+import type { AlertColor } from '../../components/feedback';
+
+const part = (root: ParentNode, name: string) =>
+  root.querySelector(`[data-scope="alert"][data-part="${name}"]`);
 
 describe('Alert', () => {
-  it('renders slot content', () => {
-    render(Alert, { slots: { default: 'Something happened' } });
-    expect(screen.getByText('Something happened')).toBeTruthy();
-  });
-
-  it('has role="alert"', () => {
-    render(Alert, { slots: { default: 'Message' } });
-    expect(screen.getByRole('alert')).toBeTruthy();
-  });
-
-  it('applies color class', () => {
+  it('renders the contract anatomy in order', () => {
     const { container } = render(Alert, {
-      props: { color: 'success' },
-      slots: { default: 'Done' },
-    });
-    expect(container.querySelector('.alert-success')).toBeTruthy();
-  });
-
-  it('applies all color variants', () => {
-    const colors = ['info', 'success', 'warning', 'error'] as const;
-    colors.forEach((color) => {
-      const { container, unmount } = render(Alert, {
-        props: { color },
-        slots: { default: 'Test' },
-      });
-      expect(container.querySelector(`.alert-${color}`)).toBeTruthy();
-      unmount();
-    });
-  });
-
-  it('renders icon slot when provided', () => {
-    render(Alert, {
-      slots: {
-        default: 'Message',
-        icon: '<span data-testid="icon">!</span>',
+      props: {
+        title: 'Listing published',
+        description: 'Live in search.',
+        actions: 'Undo',
+        dismissible: true,
       },
     });
-    expect(screen.getByTestId('icon')).toBeTruthy();
+    const root = container.firstElementChild!;
+    expect(root.className).toBe('apui-alert');
+    expect(root.getAttribute('role')).toBe('status');
+    expect(root.getAttribute('data-color')).toBe('neutral');
+    expect(root.getAttribute('data-variant')).toBe('soft');
+    expect(root.getAttribute('data-surface')).toBe('default');
+    expect([...root.children].map((el) => el.getAttribute('data-part'))).toEqual([
+      'icon',
+      'title',
+      'description',
+      'actions',
+      'close-trigger',
+    ]);
+    expect(part(root, 'title')!.tagName).toBe('P');
+    expect(part(root, 'description')!.tagName).toBe('DIV');
+    expect(part(root, 'icon')!.getAttribute('aria-hidden')).toBe('true');
   });
 
-  it('does not show dismiss button by default', () => {
-    render(Alert, { slots: { default: 'Message' } });
-    expect(screen.queryByLabelText('Dismiss alert')).toBeFalsy();
+  it('makes an error an alert, and every other color a status', () => {
+    render(Alert, { props: { color: 'error', title: 'Payment failed' } });
+    expect(screen.getByRole('alert').getAttribute('data-color')).toBe('error');
   });
 
-  it('shows dismiss button when dismissible', () => {
-    render(Alert, {
-      props: { dismissible: true },
-      slots: { default: 'Message' },
-    });
-    expect(screen.getByLabelText('Dismiss alert')).toBeTruthy();
-  });
-
-  it('hides alert when dismissed (uncontrolled)', async () => {
-    render(Alert, {
-      props: { dismissible: true },
-      slots: { default: 'Message' },
-    });
-    await fireEvent.click(screen.getByLabelText('Dismiss alert'));
-    expect(screen.queryByRole('alert')).toBeFalsy();
-  });
-
-  it('emits dismiss event when dismissed', async () => {
-    const { emitted } = render(Alert, {
-      props: { dismissible: true },
-      slots: { default: 'Message' },
-    });
-    await fireEvent.click(screen.getByLabelText('Dismiss alert'));
-    expect(emitted().dismiss).toBeTruthy();
-  });
-
-  it('applies custom className', () => {
+  it("shows the color's status icon, a named icon, or a slot", () => {
+    const svg = (color: AlertColor, icon?: string) => {
+      const { container, unmount } = render(Alert, { props: { color, icon, title: 'x' } });
+      const html = part(container, 'icon')!.innerHTML;
+      unmount();
+      return html;
+    };
+    expect(svg('success')).not.toBe(svg('info'));
+    expect(svg('primary')).toBe(svg('info'));
+    expect(svg('info', 'trash')).not.toBe(svg('info'));
     const { container } = render(Alert, {
-      props: { className: 'custom-class' },
-      slots: { default: 'Message' },
+      props: { title: 'x' },
+      slots: { icon: () => h('i', { 'data-testid': 'own' }) },
     });
-    expect(container.querySelector('.custom-class')).toBeTruthy();
+    expect(part(container, 'icon')!.querySelector('[data-testid="own"]')).not.toBeNull();
   });
 
-  it('uses polite aria-live for info and success', () => {
-    const { unmount } = render(Alert, {
-      props: { color: 'info' },
-      slots: { default: 'Message' },
-    });
-    expect(screen.getByRole('alert').getAttribute('aria-live')).toBe('polite');
-    unmount();
-
-    render(Alert, {
-      props: { color: 'success' },
-      slots: { default: 'Message' },
-    });
-    expect(screen.getByRole('alert').getAttribute('aria-live')).toBe('polite');
+  it('fills the description from the default slot', () => {
+    const { container } = render(Alert, { slots: { default: 'Update the card.' } });
+    expect(part(container, 'description')!.textContent).toBe('Update the card.');
   });
 
-  it('uses assertive aria-live for warning and error', () => {
-    const { unmount } = render(Alert, {
-      props: { color: 'warning' },
-      slots: { default: 'Message' },
+  it('dismisses itself and emits open-change false', async () => {
+    const { container, emitted } = render(Alert, {
+      props: { title: 'Saved', dismissible: true, closeLabel: 'Fermer' },
     });
-    expect(screen.getByRole('alert').getAttribute('aria-live')).toBe('assertive');
-    unmount();
-
-    render(Alert, {
-      props: { color: 'error' },
-      slots: { default: 'Message' },
-    });
-    expect(screen.getByRole('alert').getAttribute('aria-live')).toBe('assertive');
+    const close = screen.getByRole('button', { name: 'Fermer' });
+    expect(close.getAttribute('data-variant')).toBe('ghost');
+    expect(close.getAttribute('data-size')).toBe('xs');
+    await fireEvent.click(close);
+    expect(container.firstElementChild!.hasAttribute('hidden')).toBe(true);
+    expect(emitted()['open-change']).toEqual([[false]]);
   });
 
-  it('defaults to polite aria-live without color', () => {
-    render(Alert, { slots: { default: 'Message' } });
-    expect(screen.getByRole('alert').getAttribute('aria-live')).toBe('polite');
+  it('names the close button Dismiss by default, and has none unless dismissible', () => {
+    const { container } = render(Alert, { props: { title: 'x', dismissible: true } });
+    expect(screen.getByRole('button', { name: 'Dismiss' })).toBeTruthy();
+    const plain = render(Alert, { props: { title: 'y' } });
+    expect(part(plain.container, 'close-trigger')).toBeNull();
+    expect(part(container, 'close-trigger')).not.toBeNull();
   });
 
-  it('supports controlled visible prop', async () => {
-    const { rerender } = render(Alert, {
-      props: { visible: true },
-      slots: { default: 'Controlled' },
+  it('emits variant and surface, and applies classes and attributes', () => {
+    const { container } = render(Alert, {
+      props: { variant: 'solid', surface: 'glass', title: 'x', classes: { root: 'r', title: 't' } },
+      attrs: { class: 'extra', 'data-testid': 'a' },
     });
-    expect(screen.getByText('Controlled')).toBeTruthy();
-
-    await rerender({ visible: false });
-    expect(screen.queryByRole('alert')).toBeFalsy();
-  });
-
-  it('does not hide internally when controlled and dismissed', async () => {
-    const { emitted } = render(Alert, {
-      props: { visible: true, dismissible: true },
-      slots: { default: 'Controlled' },
-    });
-    await fireEvent.click(screen.getByLabelText('Dismiss alert'));
-    expect(emitted().dismiss).toBeTruthy();
-    // Still visible because parent controls visibility
-    expect(screen.getByText('Controlled')).toBeTruthy();
+    const root = container.firstElementChild!;
+    expect(root.getAttribute('data-variant')).toBe('solid');
+    expect(root.getAttribute('data-surface')).toBe('glass');
+    expect(root.className).toBe('apui-alert extra r');
+    expect(root.getAttribute('data-testid')).toBe('a');
+    expect(part(root, 'title')!.className).toBe('t');
   });
 });

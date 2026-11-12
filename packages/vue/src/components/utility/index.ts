@@ -19,7 +19,13 @@ export { default as ThemeToggle } from './ThemeToggle/ThemeToggle.vue';
 export type { ThemeToggleProps } from './ThemeToggle/types';
 
 export { default as Tooltip } from './Tooltip/Tooltip.vue';
-export type { TooltipProps, TooltipPosition } from './Tooltip/types';
+export type {
+  TooltipProps,
+  TooltipPlacement,
+  TooltipSize,
+  TooltipPart,
+  TooltipPosition,
+} from './Tooltip/types';
 
 export { default as Clipboard } from './Clipboard/Clipboard.vue';
 export type { ClipboardProps } from './Clipboard/types';

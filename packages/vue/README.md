@@ -81,7 +81,7 @@ import { useTheme, useBreakpoint } from '@artisanpack-ui/vue/composables';
 - **Form** - Button, Input, Select, Checkbox, Toggle, DatePicker, ColorPicker, RichTextEditor, Password, Pin, and more
 - **Layout** - Card, Modal, Tabs, Accordion, Drawer, Dropdown, Grid, Stack, Popover, Collapse, Divider
 - **Navigation** - Menu, Breadcrumbs, Pagination, Steps, Navbar, Sidebar, SpotlightSearch
-- **Display** - Avatar, Badge, Progress, Stat, Timeline, Carousel, Code, Diff, Sparkline
+- **Display** - Avatar, Badge, Progress, Stat, KpiCard, Timeline, Carousel, Code, Diff, Sparkline
 - **Data** - Table, Calendar, Chart
 - **Feedback** - Alert, Toast, Loading, Skeleton, EmptyState, Error
 - **Utility** - Icon, ThemeToggle, Tooltip, Clipboard, Markdown

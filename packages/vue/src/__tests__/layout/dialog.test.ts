@@ -304,4 +304,9 @@ describe('Dialog', () => {
     expect(inPlace).toContain('class="apui-dialog"');
     expect(inPlace).toContain('data-state="open"');
   });
+
+  it('keeps the author aria-label as the name of an untitled dialog', () => {
+    render(Dialog, { props: { open: true }, attrs: { 'aria-label': 'Confirm' } });
+    expect(panel().getAttribute('aria-label')).toBe('Confirm');
+  });
 });

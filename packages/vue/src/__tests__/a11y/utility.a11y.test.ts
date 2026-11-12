@@ -62,7 +62,7 @@ describe('Utility components accessibility', () => {
 
   it('Tooltip has no a11y violations', async () => {
     const { container } = render(Tooltip, {
-      props: { text: 'Helpful tip' },
+      props: { content: 'Helpful tip', open: true, portal: false },
       slots: { default: '<button>Hover me</button>' },
     });
     const results = await axe(container);

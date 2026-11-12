@@ -1,67 +1,39 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/vue';
+import { describe, it, expect, vi } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/vue';
 import { ErrorDisplay } from '../../components/feedback';
 
-describe('ErrorDisplay', () => {
-  it('renders default title', () => {
-    render(ErrorDisplay);
-    expect(screen.getByText('Something went wrong')).toBeTruthy();
+describe('ErrorDisplay (deprecated alias of ErrorState)', () => {
+  it('renders an ErrorState from the 2.x props', () => {
+    const { container } = render(ErrorDisplay, { props: { message: 'Try later.' } });
+    const root = screen.getByRole('alert');
+    expect(root.className).toContain('apui-error-state');
+    expect(screen.getByRole('heading', { name: 'Something went wrong' })).toBeTruthy();
+    expect(container.querySelector('[data-part="description"]')!.textContent).toBe('Try later.');
+    expect(container.querySelector('[data-part="actions"]')).toBeNull();
   });
 
-  it('renders custom title', () => {
-    render(ErrorDisplay, { props: { title: '404 Not Found' } });
-    expect(screen.getByText('404 Not Found')).toBeTruthy();
-  });
-
-  it('renders message', () => {
-    render(ErrorDisplay, { props: { message: 'Please try again later' } });
-    expect(screen.getByText('Please try again later')).toBeTruthy();
-  });
-
-  it('has role="alert"', () => {
-    render(ErrorDisplay);
-    expect(screen.getByRole('alert')).toBeTruthy();
-  });
-
-  it('renders icon slot', () => {
-    render(ErrorDisplay, {
-      slots: { icon: '<span data-testid="error-icon">⚠</span>' },
-    });
-    expect(screen.getByTestId('error-icon')).toBeTruthy();
-  });
-
-  it('shows retry button when retryable is true', () => {
-    render(ErrorDisplay, { props: { retryable: true } });
-    expect(screen.getByText('Try again')).toBeTruthy();
-  });
-
-  it('does not show retry button by default', () => {
-    render(ErrorDisplay);
-    expect(screen.queryByText('Try again')).toBeFalsy();
-  });
-
-  it('emits retry when retry button is clicked', async () => {
+  it('adds a retry button that emits retry', async () => {
     const { emitted } = render(ErrorDisplay, {
-      props: { retryable: true },
+      props: { title: 'Failed', retryable: true, retryLabel: 'Réessayer' },
     });
-    await fireEvent.click(screen.getByText('Try again'));
-    expect(emitted().retry).toBeTruthy();
+    await fireEvent.click(screen.getByRole('button', { name: 'Réessayer' }));
+    expect(emitted().retry).toHaveLength(1);
   });
 
-  it('renders custom retry label', () => {
-    render(ErrorDisplay, {
-      props: { retryable: true, retryLabel: 'Reload' },
+  it('keeps className on the root', () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    render(ErrorDisplay, { props: { className: 'legacy' } });
+    expect(screen.getByRole('alert').className).toContain('legacy');
+  });
+
+  it('renders the message and the default slot together in the description', () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const { container } = render(ErrorDisplay, {
+      props: { message: 'Try later.' },
+      slots: { default: '<a href="/status">Status</a>' },
     });
-    expect(screen.getByText('Reload')).toBeTruthy();
-  });
-
-  it('renders default slot content', () => {
-    render(ErrorDisplay, { slots: { default: 'Extra details' } });
-    expect(screen.getByText('Extra details')).toBeTruthy();
-  });
-
-  it('applies custom className', () => {
-    render(ErrorDisplay, { props: { className: 'custom' } });
-    expect(screen.getByRole('alert').classList.contains('custom')).toBe(true);
+    expect(container.querySelector('[data-part="description"]')!.innerHTML).toBe(
+      'Try later.<a href="/status">Status</a>',
+    );
   });
 });

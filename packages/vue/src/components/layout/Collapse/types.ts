@@ -1,22 +1,21 @@
-/**
- * Props for the Collapse component.
- *
- * An expandable/collapsible content section with a clickable title.
- * Supports controlled (`v-model`) and uncontrolled modes.
- */
+/** Section hides the region while closed; read-more clamps it behind a fade. Emitted as `data-variant`. */
+export type CollapseVariant = 'section' | 'read-more';
+
+/** The parts of a Collapse that accept extra classes. */
+export type CollapsePart = 'root' | 'trigger' | 'icon' | 'content' | 'fade';
+
+/** Props for the Collapse component. The default slot is the region; the `trigger` slot overrides `label`. */
 export interface CollapseProps {
-  /** Clickable heading text for the collapse trigger. */
-  title: string;
-  /** Icon style for the expand/collapse indicator. @defaultValue `'arrow'` */
-  icon?: 'arrow' | 'plus' | 'none';
-  /** Whether the panel is open. Used for controlled mode via `v-model:open`. */
+  /** Whether the region shows (`v-model:open`). @defaultValue `false` */
   open?: boolean;
-  /** Initial open state for uncontrolled mode. @defaultValue `false` */
-  defaultOpen?: boolean;
-  /** Radio input name for semantic grouping (only one open at a time within the same name group). */
-  name?: string;
-  /** When true, adds a border around the collapse. @defaultValue `false` */
-  bordered?: boolean;
-  /** When true, disables interaction. @defaultValue `false` */
+  /** @defaultValue `'section'` */
+  variant?: CollapseVariant;
+  /** The trigger's text. Read-more defaults it to `'Read more'`. */
+  label?: string;
+  /** The trigger's text while open. Read-more defaults it to `'Show less'`. */
+  openLabel?: string;
+  /** The trigger can't be focused or toggled. @defaultValue `false` */
   disabled?: boolean;
+  /** Extra classes per part; `classes.root` merges with `class`. */
+  classes?: Partial<Record<CollapsePart, string>>;
 }

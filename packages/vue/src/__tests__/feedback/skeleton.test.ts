@@ -3,54 +3,25 @@ import { render } from '@testing-library/vue';
 import { Skeleton } from '../../components/feedback';
 
 describe('Skeleton', () => {
-  it('renders with skeleton class', () => {
+  it('is a hidden block by default', () => {
     const { container } = render(Skeleton);
-    expect(container.querySelector('.skeleton')).toBeTruthy();
+    const root = container.firstElementChild!;
+    expect(root.tagName).toBe('SPAN');
+    expect(root.className).toBe('apui-skeleton');
+    expect(root.getAttribute('data-shape')).toBe('block');
+    expect(root.getAttribute('aria-hidden')).toBe('true');
+    expect(root.hasAttribute('style')).toBe(false);
   });
 
-  it('is hidden from assistive technology', () => {
-    const { container } = render(Skeleton);
-    expect(container.firstElementChild?.getAttribute('aria-hidden')).toBe('true');
-  });
-
-  it('applies width and height styles', () => {
+  it('writes width and height, numbers as px', () => {
     const { container } = render(Skeleton, {
-      props: { width: '200px', height: '20px' },
+      props: { shape: 'circle', width: 40, height: '2rem' },
+      attrs: { class: 'extra' },
     });
-    const el = container.firstElementChild as HTMLElement;
-    expect(el.style.width).toBe('200px');
-    expect(el.style.height).toBe('20px');
-  });
-
-  it('applies circle variant', () => {
-    const { container } = render(Skeleton, {
-      props: { circle: true, height: '48px' },
-    });
-    const el = container.firstElementChild as HTMLElement;
-    expect(el.classList.contains('rounded-full')).toBe(true);
-    expect(el.style.width).toBe('48px');
-    expect(el.style.height).toBe('48px');
-  });
-
-  it('applies circle variant with width only', () => {
-    const { container } = render(Skeleton, {
-      props: { circle: true, width: '64px' },
-    });
-    const el = container.firstElementChild as HTMLElement;
-    expect(el.classList.contains('rounded-full')).toBe(true);
-    expect(el.style.width).toBe('64px');
-    expect(el.style.height).toBe('64px');
-  });
-
-  it('applies custom className', () => {
-    const { container } = render(Skeleton, {
-      props: { className: 'custom' },
-    });
-    expect(container.querySelector('.custom')).toBeTruthy();
-  });
-
-  it('renders as a div element', () => {
-    const { container } = render(Skeleton);
-    expect(container.querySelector('div.skeleton')).toBeTruthy();
+    const root = container.firstElementChild as HTMLElement;
+    expect(root.getAttribute('data-shape')).toBe('circle');
+    expect(root.style.width).toBe('40px');
+    expect(root.style.height).toBe('2rem');
+    expect(root.className).toBe('apui-skeleton extra');
   });
 });

@@ -1,77 +1,61 @@
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/vue';
-import { Sparkline } from '../../components/display';
+import Sparkline from '../../components/display/Sparkline/Sparkline.vue';
 
-const data = [5, 10, 8, 15, 12, 20, 18, 25];
+const parts = (container: Element) => [
+  ...new Set(
+    [...container.querySelectorAll('[data-scope="sparkline"]')].map((el) =>
+      el.getAttribute('data-part'),
+    ),
+  ),
+];
 
 describe('Sparkline', () => {
-  it('renders an SVG element', () => {
-    const { container } = render(Sparkline, { props: { data } });
-    expect(container.querySelector('svg')).toBeTruthy();
+  it('renders an image labeled with its first and latest values', () => {
+    const { container } = render(Sparkline, { props: { data: [3, 5, 9] } });
+    const svg = container.querySelector('svg')!;
+    expect(svg.getAttribute('class')).toBe('apui-sparkline');
+    expect(svg.getAttribute('role')).toBe('img');
+    expect(svg.getAttribute('aria-label')).toBe('Trend from 3 to 9');
+    expect(svg.getAttribute('data-variant')).toBe('line');
+    expect(svg.getAttribute('viewBox')).toBe('0 0 96 28');
   });
 
-  it('renders nothing when data is empty', () => {
-    const { container } = render(Sparkline, { props: { data: [] } });
-    expect(container.querySelector('svg')).toBeFalsy();
+  it('draws the spec coordinates', () => {
+    const { container } = render(Sparkline, { props: { data: [2, 4, 3, 7, 6, 9, 12, 11, 14] } });
+    expect(container.querySelector('[data-part="line"]')!.getAttribute('d')).toBe(
+      'M2.0,25.0 L13.5,21.3 L25.0,23.2 L36.5,15.8 L48.0,17.7 L59.5,12.2 L71.0,6.7 L82.5,8.5 L94.0,3.0',
+    );
+    const dot = container.querySelector('[data-part="dot"]')!;
+    expect([dot.getAttribute('cx'), dot.getAttribute('cy'), dot.getAttribute('r')]).toEqual([
+      '94.0',
+      '3.0',
+      '2.5',
+    ]);
   });
 
-  it('renders a line path by default', () => {
-    const { container } = render(Sparkline, { props: { data } });
-    const path = container.querySelector('path[stroke]');
-    expect(path).toBeTruthy();
-    expect(path?.getAttribute('fill')).toBe('none');
+  it.each([
+    ['line', ['baseline', 'line', 'dot']],
+    ['area', ['baseline', 'area', 'line', 'dot']],
+    ['bar', ['baseline', 'bar']],
+  ] as const)('draws the %s parts', (variant, expected) => {
+    const { container } = render(Sparkline, { props: { data: [-2, 4, 3, 9], variant } });
+    expect(parts(container)).toEqual(expected);
   });
 
-  it('renders area fill when type is area', () => {
+  it('takes a translated label, a size and part classes', () => {
     const { container } = render(Sparkline, {
-      props: { data, type: 'area' },
+      props: {
+        data: [1, 2],
+        width: 140,
+        height: 48,
+        label: 'Tendencia: {latest}',
+        classes: { line: 'l' },
+      },
     });
-    const paths = container.querySelectorAll('path');
-    // Should have both the fill path and the stroke path
-    expect(paths.length).toBe(2);
-  });
-
-  it('renders bars when type is bar', () => {
-    const { container } = render(Sparkline, {
-      props: { data, type: 'bar' },
-    });
-    const rects = container.querySelectorAll('rect');
-    expect(rects.length).toBe(data.length);
-  });
-
-  it('uses default width based on data length', () => {
-    const { container } = render(Sparkline, { props: { data } });
-    const svg = container.querySelector('svg');
-    expect(svg?.getAttribute('width')).toBe(String(data.length * 8));
-  });
-
-  it('uses custom width', () => {
-    const { container } = render(Sparkline, {
-      props: { data, width: 200 },
-    });
-    const svg = container.querySelector('svg');
-    expect(svg?.getAttribute('width')).toBe('200');
-  });
-
-  it('uses custom height', () => {
-    const { container } = render(Sparkline, {
-      props: { data, height: 60 },
-    });
-    const svg = container.querySelector('svg');
-    expect(svg?.getAttribute('height')).toBe('60');
-  });
-
-  it('has correct ARIA role and accessible name', () => {
-    const { container } = render(Sparkline, { props: { data } });
-    const el = container.querySelector('[role="img"]');
-    expect(el).toBeTruthy();
-    expect(el?.getAttribute('aria-label')).toBe('Sparkline chart');
-  });
-
-  it('applies custom className', () => {
-    const { container } = render(Sparkline, {
-      props: { data, className: 'my-sparkline' },
-    });
-    expect(container.querySelector('.my-sparkline')).toBeTruthy();
+    const svg = container.querySelector('svg')!;
+    expect(svg.getAttribute('aria-label')).toBe('Tendencia: 2');
+    expect(svg.getAttribute('viewBox')).toBe('0 0 140 48');
+    expect(container.querySelector('[data-part="line"]')!.getAttribute('class')).toBe('l');
   });
 });

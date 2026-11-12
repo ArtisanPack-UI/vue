@@ -5,6 +5,7 @@ import {
   Alert,
   EmptyState,
   ErrorDisplay,
+  ErrorState,
   Loading,
   Skeleton,
   Toast,
@@ -31,7 +32,7 @@ describe('Feedback components accessibility', () => {
 
   it('EmptyState has no a11y violations', async () => {
     const { container } = render(EmptyState, {
-      props: { heading: 'No results', description: 'Try adjusting your filters.' },
+      props: { title: 'No results', description: 'Try adjusting your filters.' },
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -40,6 +41,22 @@ describe('Feedback components accessibility', () => {
   it('ErrorDisplay has no a11y violations', async () => {
     const { container } = render(ErrorDisplay, {
       props: { title: 'Error', message: 'Something went wrong.' },
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('ErrorState has no a11y violations', async () => {
+    const { container } = render(ErrorState, {
+      props: { title: 'Couldn’t load', description: 'Try again.', code: 'Error 503' },
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('Alert dismissible has no a11y violations', async () => {
+    const { container } = render(Alert, {
+      props: { color: 'success', title: 'Saved', dismissible: true },
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();

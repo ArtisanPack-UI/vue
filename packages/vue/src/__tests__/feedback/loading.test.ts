@@ -3,47 +3,37 @@ import { render, screen } from '@testing-library/vue';
 import { Loading } from '../../components/feedback';
 
 describe('Loading', () => {
-  it('renders with role="status"', () => {
-    render(Loading);
-    expect(screen.getByRole('status')).toBeTruthy();
-  });
-
-  it('has aria-label', () => {
-    render(Loading);
-    expect(screen.getByRole('status').getAttribute('aria-label')).toBe('Loading');
-  });
-
-  it('applies default spinner variant', () => {
+  it('is a status with a visually hidden Loading label by default', () => {
     const { container } = render(Loading);
-    expect(container.querySelector('.loading-spinner')).toBeTruthy();
+    const root = screen.getByRole('status');
+    expect(root.className).toBe('apui-loading');
+    expect(root.getAttribute('data-variant')).toBe('spinner');
+    expect(root.getAttribute('data-size')).toBe('md');
+    expect(root.getAttribute('data-color')).toBe('primary');
+    expect(root.getAttribute('style')).toContain('--apui-_delay: 300ms');
+    const label = container.querySelector('[data-part="label"]')!;
+    expect(label.className).toBe('apui-sr-only');
+    expect(label.textContent).toBe('Loading');
+    const indicator = container.querySelector('[data-part="indicator"]')!;
+    expect(indicator.getAttribute('aria-hidden')).toBe('true');
+    expect(indicator.children).toHaveLength(0);
   });
 
-  it('applies variant class', () => {
-    const variants = ['spinner', 'dots', 'ring', 'ball', 'bars', 'infinity'] as const;
-    variants.forEach((variant) => {
-      const { container, unmount } = render(Loading, { props: { variant } });
-      expect(container.querySelector(`.loading-${variant}`)).toBeTruthy();
-      unmount();
+  it('shows slot text as a visible label', () => {
+    const { container } = render(Loading, { slots: { default: 'Saving changes…' } });
+    const label = container.querySelector('[data-part="label"]')!;
+    expect(label.hasAttribute('class')).toBe(false);
+    expect(label.textContent).toBe('Saving changes…');
+  });
+
+  it('renders three dots, a translated label, overlay and delay', () => {
+    const { container } = render(Loading, {
+      props: { variant: 'dots', label: 'Chargement', overlay: true, delay: 0 },
     });
-  });
-
-  it('applies color class', () => {
-    const { container } = render(Loading, { props: { color: 'primary' } });
-    expect(container.querySelector('.text-primary')).toBeTruthy();
-  });
-
-  it('applies size class', () => {
-    const { container } = render(Loading, { props: { size: 'lg' } });
-    expect(container.querySelector('.loading-lg')).toBeTruthy();
-  });
-
-  it('applies custom className', () => {
-    const { container } = render(Loading, { props: { className: 'custom' } });
-    expect(container.querySelector('.custom')).toBeTruthy();
-  });
-
-  it('renders as a span element', () => {
-    const { container } = render(Loading);
-    expect(container.querySelector('span.loading')).toBeTruthy();
+    const root = container.firstElementChild!;
+    expect(root.querySelectorAll('[data-part="indicator"] > span')).toHaveLength(3);
+    expect(root.getAttribute('data-overlay')).toBe('');
+    expect(root.getAttribute('style')).toContain('--apui-_delay: 0ms');
+    expect(root.textContent).toBe('Chargement');
   });
 });

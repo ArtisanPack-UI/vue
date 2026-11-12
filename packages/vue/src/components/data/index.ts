@@ -11,7 +11,14 @@
  */
 
 export { default as Table } from './Table/Table.vue';
-export type { TableProps, TableColumn, SortState } from './Table/types';
+export type {
+  TableProps,
+  TableColumn,
+  TableKey,
+  TablePart,
+  TableSort,
+  SortState,
+} from './Table/types';
 
 export { default as Chart } from './Chart/Chart.vue';
 export type { ChartProps, ChartSeries, ChartDataPoint, ChartType } from './Chart/types';

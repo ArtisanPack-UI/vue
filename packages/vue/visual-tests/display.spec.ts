@@ -7,6 +7,7 @@ const STORY = {
   code: 'src-components-display-code-code-story-vue',
   diff: 'src-components-display-diff-diff-story-vue',
   progress: 'src-components-display-progress-progress-story-vue',
+  progressRadial: 'src-components-display-progressradial-progressradial-story-vue',
   sparkline: 'src-components-display-sparkline-sparkline-story-vue',
   stat: 'src-components-display-stat-stat-story-vue',
   timeline: 'src-components-display-timeline-timeline-story-vue',
@@ -33,12 +34,22 @@ test.describe('Display / Avatar', () => {
 });
 
 test.describe('Display / Progress', () => {
-  test('colors', async ({ page }) => {
-    await testVariant(page, STORY.progress, 1, 'progress-colors');
+  test('labeled', async ({ page }) => {
+    await testVariant(page, STORY.progress, 0, 'progress-labeled');
   });
 
-  test('with value', async ({ page }) => {
-    await testVariant(page, STORY.progress, 2, 'progress-value');
+  test('indeterminate and segmented', async ({ page }) => {
+    await testVariant(page, STORY.progress, 1, 'progress-states');
+  });
+});
+
+test.describe('Display / ProgressRadial', () => {
+  test('sizes', async ({ page }) => {
+    await testVariant(page, STORY.progressRadial, 0, 'progress-radial-sizes');
+  });
+
+  test('colors and indeterminate', async ({ page }) => {
+    await testVariant(page, STORY.progressRadial, 1, 'progress-radial-colors');
   });
 });
 
