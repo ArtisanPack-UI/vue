@@ -1,121 +1,115 @@
 <script setup lang="ts">
-/** @module Pagination */
+/**
+ * @module Pagination
+ *
+ * Moves between the pages of a long list. Renders the design-system
+ * Pagination markup contract (`.apui-pagination`, #56): a nav landmark with
+ * an optional summary, previous, the pages and next.
+ */
 import { computed } from 'vue';
-import { cn } from '@artisanpack-ui/tokens';
-import type { Size } from '@artisanpack-ui/tokens';
+import { DsIcon, part } from '../../_shared/design-system';
+import { paginationRange } from './range';
 import type { PaginationProps } from './types';
 
 const props = withDefaults(defineProps<PaginationProps>(), {
-  siblingCount: 1,
+  page: 1,
+  pageCount: undefined,
+  total: undefined,
+  perPage: 10,
+  siblings: 1,
+  summary: false,
+  label: 'Pagination',
+  previousLabel: 'Previous page',
+  nextLabel: 'Next page',
+  pageLabel: 'Page {page}',
+  summaryLabel: undefined,
+  classes: undefined,
 });
 
 const emit = defineEmits<{
-  'update:currentPage': [page: number];
+  'page-change': [page: number];
+  'update:page': [page: number];
 }>();
 
-const sizeMap: Record<Size, string> = {
-  xs: 'btn-xs',
-  sm: 'btn-sm',
-  md: 'btn-md',
-  lg: 'btn-lg',
-};
-
-const ELLIPSIS = '…';
-
-const normalizedTotal = computed(() => Math.max(1, props.totalPages));
-const normalizedCurrent = computed(() =>
-  Math.min(Math.max(1, props.currentPage), normalizedTotal.value),
+const per = computed(() => Math.max(1, props.perPage));
+const count = computed(() =>
+  Math.max(
+    1,
+    props.pageCount ?? (props.total !== undefined ? Math.ceil(props.total / per.value) : 1),
+  ),
+);
+const current = computed(() => Math.max(1, Math.min(props.page, count.value)));
+const items = computed(() =>
+  paginationRange(current.value, count.value, Math.max(0, props.siblings)),
 );
 
-const pages = computed(() => {
-  const total = normalizedTotal.value;
-  const current = normalizedCurrent.value;
-  const siblings = Math.max(0, props.siblingCount);
-
-  if (total <= 1) return [];
-
-  const range: (number | string)[] = [];
-
-  const leftSibling = Math.max(current - siblings, 2);
-  const rightSibling = Math.min(current + siblings, total - 1);
-
-  const showLeftEllipsis = leftSibling > 2;
-  const showRightEllipsis = rightSibling < total - 1;
-
-  range.push(1);
-
-  if (showLeftEllipsis) {
-    range.push(ELLIPSIS);
-  } else {
-    for (let i = 2; i < leftSibling; i++) {
-      range.push(i);
-    }
-  }
-
-  for (let i = leftSibling; i <= rightSibling; i++) {
-    range.push(i);
-  }
-
-  if (showRightEllipsis) {
-    range.push(ELLIPSIS);
-  } else {
-    for (let i = rightSibling + 1; i < total; i++) {
-      range.push(i);
-    }
-  }
-
-  range.push(total);
-
-  return range;
+const summaryText = computed(() => {
+  if (!props.summary) return null;
+  const total = props.total;
+  const from = total === 0 ? 0 : (current.value - 1) * per.value + 1;
+  const to =
+    total === undefined ? current.value * per.value : Math.min(total, current.value * per.value);
+  const template =
+    props.summaryLabel ??
+    (total === undefined ? 'Page {page} of {pageCount}' : 'Showing {from}–{to} of {total}');
+  return template
+    .replaceAll('{from}', String(total === undefined ? from : Math.min(total, from)))
+    .replaceAll('{to}', String(to))
+    .replaceAll('{total}', total === undefined ? '' : String(total))
+    .replaceAll('{pageCount}', String(count.value))
+    .replaceAll('{page}', String(current.value));
 });
 
-function goToPage(page: number) {
-  if (page < 1 || page > normalizedTotal.value || page === normalizedCurrent.value) return;
-  emit('update:currentPage', page);
+function go(page: number) {
+  emit('page-change', page);
+  emit('update:page', page);
 }
 
-const btnClasses = computed(() => cn('join-item btn', props.size && sizeMap[props.size]));
+const atStart = computed(() => current.value <= 1);
+const atEnd = computed(() => current.value >= count.value);
 </script>
 
 <template>
-  <nav :class="cn('pagination', props.className)" role="navigation" aria-label="Pagination">
-    <div class="join">
+  <nav :class="['apui-pagination', classes?.root]" :aria-label="label">
+    <span v-if="summaryText !== null" v-bind="part('pagination', 'summary', classes?.summary)">{{
+      summaryText
+    }}</span>
+    <button
+      type="button"
+      v-bind="part('pagination', 'previous', classes?.previous)"
+      :aria-label="previousLabel"
+      :aria-disabled="atStart ? 'true' : undefined"
+      data-mirror=""
+      @click="atStart || go(current - 1)"
+    >
+      <DsIcon name="chevron-left" />
+    </button>
+    <template v-for="(item, index) in items" :key="item ?? `ellipsis-${index}`">
+      <span
+        v-if="item === null"
+        v-bind="part('pagination', 'ellipsis', classes?.ellipsis, { 'aria-hidden': 'true' })"
+        >…</span
+      >
       <button
-        :class="btnClasses"
-        :disabled="normalizedCurrent <= 1"
-        aria-label="Previous page"
+        v-else
         type="button"
-        @click="goToPage(normalizedCurrent - 1)"
+        v-bind="part('pagination', 'page', classes?.page)"
+        :aria-label="pageLabel.replaceAll('{page}', String(item))"
+        :aria-current="item === current ? 'page' : undefined"
+        @click="item === current || go(item)"
       >
-        «
+        {{ item }}
       </button>
-      <template
-        v-for="(page, index) in pages"
-        :key="typeof page === 'number' ? `page-${page}` : `gap-${index}`"
-      >
-        <button
-          v-if="typeof page === 'number'"
-          :class="cn(btnClasses, page === normalizedCurrent && 'btn-active')"
-          :aria-current="page === normalizedCurrent ? 'page' : undefined"
-          :aria-label="`Page ${page}`"
-          type="button"
-          @click="goToPage(page)"
-        >
-          {{ page }}
-        </button>
-        <span v-else :class="cn(btnClasses, 'btn-disabled')" aria-hidden="true">
-          {{ page }}
-        </span>
-      </template>
-      <button
-        :class="btnClasses"
-        :disabled="normalizedCurrent >= normalizedTotal"
-        aria-label="Next page"
-        type="button"
-        @click="goToPage(normalizedCurrent + 1)"
-      >
-        »
-      </button>
-    </div>
+    </template>
+    <button
+      type="button"
+      v-bind="part('pagination', 'next', classes?.next)"
+      :aria-label="nextLabel"
+      :aria-disabled="atEnd ? 'true' : undefined"
+      data-mirror=""
+      @click="atEnd || go(current + 1)"
+    >
+      <DsIcon name="chevron-right" />
+    </button>
   </nav>
 </template>

@@ -80,4 +80,15 @@ export { default as Stack } from './Stack/Stack.vue';
 export type { StackProps } from './Stack/types';
 
 export { default as Tabs } from './Tabs/Tabs.vue';
-export type { TabsProps, TabItem } from './Tabs/types';
+export { default as Tab } from './Tabs/Tab.vue';
+export type {
+  TabsProps,
+  TabProps,
+  TabData,
+  TabItem,
+  TabsVariant,
+  TabsSize,
+  TabsOrientation,
+  TabsActivationMode,
+  TabsPart,
+} from './Tabs/types';

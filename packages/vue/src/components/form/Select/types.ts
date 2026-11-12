@@ -14,6 +14,14 @@ export interface SelectOptionObject {
 /** An option: a string (value and label) or an option object. */
 export type SelectOption = string | SelectOptionObject;
 
+/** A group of options, rendered as a native `<optgroup>` (#53; replaces Livewire's `select-group`). */
+export interface SelectOptionGroup {
+  /** The group's label. */
+  label: string;
+  /** The options in the group. */
+  options: SelectOption[];
+}
+
 /** The parts of a Select that accept extra classes. */
 export type SelectPart =
   | 'root'
@@ -37,8 +45,8 @@ export type SelectPart =
 export interface SelectProps {
   /** Control height. @defaultValue `'md'` */
   size?: SelectSize;
-  /** The options: strings, or `{ value, label, disabled }` objects. */
-  options?: SelectOption[];
+  /** The options: strings, `{ value, label, disabled }` objects, or `{ label, options }` groups. */
+  options?: (SelectOption | SelectOptionGroup)[];
   /** The visible label, linked to the control. Without it, pass an `aria-label`. */
   label?: string;
   /** Help text under the control, linked with `aria-describedby`. */

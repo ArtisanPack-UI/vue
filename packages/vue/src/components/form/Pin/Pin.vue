@@ -1,158 +1,185 @@
 <script setup lang="ts">
-/** @module Pin */
-import { computed, onMounted, ref, useId, watch } from 'vue';
-import { cn } from '@artisanpack-ui/tokens';
-import type { PinProps } from './types';
+/**
+ * @module Pin
+ *
+ * A row of single-character cells for one-time codes. One native input lies
+ * transparent over the cells and holds the whole code; the cells mirror it.
+ * Renders the design-system Pin markup contract (`.apui-pin`, #53).
+ */
+import { computed, mergeProps, ref, useAttrs, useId, watch } from 'vue';
+import { DsIcon, flag, part } from '../../_shared/design-system';
+import { filterPin, useFormReset } from '../../_shared/form-text';
+import type { PinEmits, PinProps } from './types';
+
+defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(defineProps<PinProps>(), {
-  numeric: false,
-  hide: false,
+  length: 6,
+  type: 'numeric',
+  mask: false,
+  groupSize: undefined,
+  size: 'md',
+  label: undefined,
+  hint: undefined,
+  error: undefined,
+  invalid: false,
+  disabled: false,
+  required: false,
+  modelValue: undefined,
+  classes: undefined,
 });
 
-const emit = defineEmits<{
-  complete: [value: string];
-  incomplete: [value: string];
-  valueChange: [value: string];
-}>();
+const emit = defineEmits<PinEmits>();
 
-const model = defineModel<string>({ default: '' });
-
-const colorMap: Record<string, string> = {
-  primary: 'input-primary',
-  secondary: 'input-secondary',
-  accent: 'input-accent',
-  success: 'input-success',
-  warning: 'input-warning',
-  error: 'input-error',
-  info: 'input-info',
-  neutral: 'input-neutral',
-};
-
+const attrs = useAttrs();
 const autoId = useId();
-const pinId = computed(() => props.id ?? autoId);
-const errorId = computed(() => (props.error ? `${pinId.value}-error` : undefined));
 
-const inputs = ref<(HTMLInputElement | null)[]>([]);
+const current = ref(props.modelValue ?? '');
+watch(
+  () => props.modelValue,
+  (value) => {
+    current.value = value ?? '';
+  },
+);
 
-function setInputRef(el: HTMLInputElement | null, index: number) {
-  inputs.value[index] = el;
+/** The native control; an uncontrolled one follows its form's reset. */
+const control = ref<HTMLInputElement | null>(null);
+useFormReset(
+  control,
+  () => props.modelValue === undefined || props.modelValue === null,
+  (value) => {
+    current.value = value;
+  },
+);
+
+/** Each cell's character (or a dot when masked), and whether a separator follows it. */
+const cells = computed(() =>
+  Array.from({ length: props.length }, (_, index) => {
+    const char = current.value[index] ?? '';
+    const group = props.groupSize ?? 0;
+    return {
+      index,
+      filled: char !== '',
+      text: char !== '' && props.mask ? '•' : char,
+      active: index === Math.min(current.value.length, props.length - 1),
+      separator: group > 0 && (index + 1) % group === 0 && index < props.length - 1,
+    };
+  }),
+);
+
+function fieldId(): string {
+  const explicit = attrs.id;
+  return typeof explicit === 'string' && explicit !== '' ? explicit : autoId;
 }
 
-function getValue(): string {
-  return inputs.value.map((input) => input?.value ?? '').join('');
+function isInvalid(): boolean {
+  return props.invalid || (props.error !== undefined && props.error !== '');
 }
 
-function notifyChange(currentValue: string) {
-  model.value = currentValue;
-  emit('valueChange', currentValue);
-  if (currentValue.length === props.length) {
-    emit('complete', currentValue);
-  } else {
-    emit('incomplete', currentValue);
-  }
+function hasHint(): boolean {
+  return props.hint !== undefined && props.hint !== '';
 }
 
-function handleInput(index: number, e: Event) {
-  const target = e.target as HTMLInputElement;
-  const inputValue = target.value;
-
-  if (props.numeric && !/^\d*$/.test(inputValue)) {
-    target.value = '';
-    notifyChange(getValue());
-    return;
-  }
-
-  if (inputValue.length > 0 && index < props.length - 1) {
-    inputs.value[index + 1]?.focus();
-  }
-
-  notifyChange(getValue());
+function hasError(): boolean {
+  return props.error !== undefined && props.error !== '';
 }
 
-function handleKeyDown(index: number, e: KeyboardEvent) {
-  if (e.key === 'Backspace') {
-    const input = inputs.value[index];
-    if (input && input.value === '' && index > 0) {
-      inputs.value[index - 1]?.focus();
-    }
-  } else if (e.key === 'ArrowLeft' && index > 0) {
-    inputs.value[index - 1]?.focus();
-  } else if (e.key === 'ArrowRight' && index < props.length - 1) {
-    inputs.value[index + 1]?.focus();
-  }
+function rootAttrs(): Record<string, unknown> {
+  return {
+    class: ['apui-pin', attrs.class, props.classes?.root],
+    'data-size': props.size,
+    'data-invalid': flag(isInvalid()),
+    'data-disabled': flag(props.disabled),
+  };
 }
 
-function handlePaste(e: ClipboardEvent) {
-  e.preventDefault();
-  const startIndex = inputs.value.findIndex((i) => i === document.activeElement);
-  const start = startIndex >= 0 ? startIndex : 0;
-  const rawData = e.clipboardData?.getData('text') ?? '';
-  const sanitized = props.numeric ? rawData.replace(/\D/g, '') : rawData;
-  const pastedData = sanitized.slice(0, props.length - start);
-
-  for (let i = 0; i < props.length; i++) {
-    const input = inputs.value[i];
-    if (input) {
-      if (i >= start && i < start + pastedData.length) {
-        input.value = pastedData[i - start] ?? '';
-      }
-    }
-  }
-
-  const lastFilledIndex = start + Math.min(pastedData.length, props.length - start) - 1;
-  if (lastFilledIndex >= 0 && lastFilledIndex < props.length - 1) {
-    inputs.value[lastFilledIndex + 1]?.focus();
-  } else if (lastFilledIndex === props.length - 1) {
-    inputs.value[lastFilledIndex]?.focus();
-  }
-
-  notifyChange(getValue());
+/** Applies a typed or pasted value: filtered, written back to the input, emitted. */
+function commit(element: HTMLInputElement, raw: string): void {
+  const value = filterPin(raw, props.type, props.length);
+  if (element.value !== value) element.value = value;
+  const changed = value !== current.value;
+  current.value = value;
+  if (!changed) return;
+  emit('update:modelValue', value);
+  if (value.length === props.length) emit('complete', value);
 }
 
-// Sync controlled value to individual inputs
-function syncModelToInputs() {
-  const val = model.value;
-  if (val === undefined) return;
-  const normalized = props.numeric ? val.replace(/\D/g, '') : val;
-  const sliced = normalized.slice(0, props.length);
-  inputs.value.forEach((input, i) => {
-    if (input) input.value = sliced[i] ?? '';
-  });
+function onInput(event: Event): void {
+  const element = event.target as HTMLInputElement;
+  commit(element, element.value);
 }
 
-watch(() => model.value, syncModelToInputs);
-onMounted(syncModelToInputs);
+function onPaste(event: ClipboardEvent): void {
+  const text = event.clipboardData?.getData('text') ?? '';
+  event.preventDefault();
+  commit(event.target as HTMLInputElement, text);
+}
+
+function controlAttrs(): Record<string, unknown> {
+  const { class: _className, id: _id, 'aria-describedby': describedBy, ...rest } = attrs;
+  const id = fieldId();
+  const describedByIds = [
+    hasHint() ? `${id}-hint` : undefined,
+    hasError() ? `${id}-error` : undefined,
+    typeof describedBy === 'string' && describedBy !== '' ? describedBy : undefined,
+  ].filter(Boolean);
+  const numeric = props.type === 'numeric';
+  const own: Record<string, unknown> = {
+    ...part('pin', 'control', props.classes?.control),
+    id,
+    type: props.mask ? 'password' : 'text',
+    inputmode: numeric ? 'numeric' : 'text',
+    pattern: numeric ? '[0-9]*' : undefined,
+    autocomplete: 'one-time-code',
+    autocapitalize: 'off',
+    spellcheck: 'false',
+    maxlength: props.length,
+    disabled: props.disabled || undefined,
+    required: props.required || undefined,
+    'aria-describedby': describedByIds.length ? describedByIds.join(' ') : undefined,
+    onInput,
+    onPaste,
+  };
+  if (isInvalid()) own['aria-invalid'] = 'true';
+  if (props.modelValue !== undefined && props.modelValue !== null) own.value = props.modelValue;
+  return mergeProps(rest, own);
+}
 </script>
 
 <template>
-  <fieldset class="fieldset">
-    <div class="flex gap-2" role="group" aria-label="PIN input">
-      <input
-        v-for="index in length"
-        :key="index - 1"
-        :ref="(el) => setInputRef(el as HTMLInputElement | null, index - 1)"
-        :id="`${pinId}-${index - 1}`"
-        :type="hide ? 'password' : 'text'"
-        :inputmode="numeric ? 'numeric' : 'text'"
-        :pattern="numeric ? '[0-9]*' : undefined"
-        :maxlength="1"
-        :class="
-          cn(
-            'input w-12 h-12 text-center text-lg font-mono',
-            color && colorMap[color],
-            error && 'input-error',
-          )
-        "
-        :disabled="disabled"
-        autocomplete="one-time-code"
-        :aria-label="`PIN digit ${index} of ${length}`"
-        :aria-invalid="error ? true : undefined"
-        :aria-describedby="error ? errorId : undefined"
-        @input="handleInput(index - 1, $event)"
-        @keydown="handleKeyDown(index - 1, $event)"
-        @paste="handlePaste"
-      />
+  <div v-bind="rootAttrs()">
+    <label v-if="label" v-bind="part('pin', 'label', classes?.label)" :for="fieldId()"
+      >{{ label
+      }}<span
+        v-if="required"
+        v-bind="part('pin', 'required', classes?.required, { 'aria-hidden': 'true' })"
+        >*</span
+      ></label
+    >
+    <div v-bind="part('pin', 'cells', classes?.cells)">
+      <input ref="control" v-bind="controlAttrs()" />
+      <template v-for="cell in cells" :key="cell.index">
+        <span
+          v-bind="
+            part('pin', 'cell', classes?.cell, {
+              'aria-hidden': 'true',
+              'data-filled': flag(cell.filled),
+              'data-active': flag(cell.active),
+            })
+          "
+          >{{ cell.text }}</span
+        >
+        <span
+          v-if="cell.separator"
+          v-bind="part('pin', 'separator', classes?.separator, { 'aria-hidden': 'true' })"
+        />
+      </template>
     </div>
-    <p v-if="error" :id="errorId" class="fieldset-label text-error" role="alert">{{ error }}</p>
-  </fieldset>
+    <p v-if="hasHint()" v-bind="part('pin', 'hint', classes?.hint)" :id="`${fieldId()}-hint`">
+      {{ hint }}
+    </p>
+    <p v-if="hasError()" v-bind="part('pin', 'error', classes?.error)" :id="`${fieldId()}-error`">
+      <DsIcon name="circle-alert" />{{ error }}
+    </p>
+  </div>
 </template>

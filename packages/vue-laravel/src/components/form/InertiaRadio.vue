@@ -4,6 +4,9 @@
  *
  * Wraps the ArtisanPack UI Radio component with automatic Inertia validation
  * error binding.
+ *
+ * @deprecated Use InertiaRadioGroup, on the design-system RadioGroup.
+ * InertiaRadio wraps the deprecated Radio and is removed in a later major release.
  */
 import { computed, inject } from 'vue';
 import { usePage } from '@inertiajs/vue3';

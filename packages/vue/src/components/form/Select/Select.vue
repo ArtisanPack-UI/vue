@@ -7,7 +7,7 @@
  */
 import { computed, mergeProps, onMounted, ref, useAttrs, useId, watch } from 'vue';
 import { DsIcon, flag, part } from '../../_shared/design-system';
-import type { SelectProps } from './types';
+import type { SelectOption, SelectOptionGroup, SelectProps } from './types';
 
 defineOptions({ inheritAttrs: false });
 
@@ -34,18 +34,39 @@ const attrs = useAttrs();
 const autoId = useId();
 const control = ref<HTMLSelectElement | null>(null);
 
-const normalizedOptions = computed(() =>
-  props.options.map((option) =>
-    typeof option === 'object' && option !== null
+function normalizeOption(option: SelectOption) {
+  return typeof option === 'object' && option !== null
+    ? {
+        value: String(option.value),
+        original: option.value,
+        label: option.label ?? String(option.value),
+        disabled: !!option.disabled,
+      }
+    : { value: String(option), original: option, label: String(option), disabled: false };
+}
+
+function isGroup(entry: SelectOption | SelectOptionGroup): entry is SelectOptionGroup {
+  return (
+    typeof entry === 'object' &&
+    entry !== null &&
+    Array.isArray((entry as SelectOptionGroup).options)
+  );
+}
+
+/** Options and `{ label, options }` groups (native optgroups, #53), in order. */
+const normalizedEntries = computed(() =>
+  props.options.map((entry) =>
+    isGroup(entry)
       ? {
-          value: String(option.value),
-          original: option.value,
-          label: option.label ?? String(option.value),
-          disabled: !!option.disabled,
+          group: entry.label,
+          key: `group-${entry.label}`,
+          options: entry.options.map(normalizeOption),
         }
-      : { value: String(option), original: option, label: String(option), disabled: false },
+      : { group: undefined, key: undefined, options: [normalizeOption(entry)] },
   ),
 );
+
+const normalizedOptions = computed(() => normalizedEntries.value.flatMap((entry) => entry.options));
 
 function selectedValue(): string | undefined {
   return props.modelValue === undefined || props.modelValue === null
@@ -158,15 +179,27 @@ watch(() => [props.modelValue, props.options], syncSelection, { flush: 'post', d
         >
           {{ placeholder }}
         </option>
-        <option
-          v-for="option in normalizedOptions"
-          :key="option.value"
-          :value="option.value"
-          :selected="option.value === selectedValue() || undefined"
-          :disabled="option.disabled || undefined"
-        >
-          {{ option.label }}
-        </option>
+        <template v-for="entry in normalizedEntries" :key="entry.key ?? entry.options[0]?.value">
+          <optgroup v-if="entry.group !== undefined" :label="entry.group">
+            <option
+              v-for="option in entry.options"
+              :key="option.value"
+              :value="option.value"
+              :selected="option.value === selectedValue() || undefined"
+              :disabled="option.disabled || undefined"
+            >
+              {{ option.label }}
+            </option>
+          </optgroup>
+          <option
+            v-else
+            :value="entry.options[0]!.value"
+            :selected="entry.options[0]!.value === selectedValue() || undefined"
+            :disabled="entry.options[0]!.disabled || undefined"
+          >
+            {{ entry.options[0]!.label }}
+          </option>
+        </template>
         <slot />
       </select>
       <span v-bind="part('select', 'indicator', classes?.indicator, { 'aria-hidden': 'true' })">

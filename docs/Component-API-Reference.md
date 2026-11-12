@@ -4,9 +4,9 @@ Complete API reference for all ArtisanPack UI Vue components, organized by categ
 
 ## Categories
 
-- [[Form Components]] — Button, Input, Select, Checkbox, Toggle, DatePicker, ColorPicker, RichTextEditor, and more
+- [[Form Components]] — Button, Input, Select, Combobox (and tags), Checkbox, CheckboxGroup, RadioGroup (Radio is deprecated), Rating, File (FileUpload is deprecated), Toggle, Textarea, Password, Pin, Range, Fieldset, Form, ValidationSummary, DatePicker, ColorPicker, RichTextEditor, CodeEditor (Editor is deprecated), Signature, and more
 - [[Layout Components]] — Card, Dialog, DropdownMenu, Tabs, Accordion, Drawer, Grid, Stack, Popover (plus the deprecated Modal and Dropdown)
-- [[Navigation Components]] — Menu, Breadcrumbs, Pagination, Steps, Navbar, Sidebar, SpotlightSearch
+- [[Navigation Components]] — Menu, Breadcrumbs, Link, Pagination, Steps, Navbar, Sidebar, Spotlight (SpotlightSearch is deprecated)
 - [[Data Display Components]] — Table, Chart, Calendar, Avatar, Badge, Progress, Stat, Timeline, Carousel, Code, Diff, Sparkline
 - [[Feedback Components]] — Alert, Toast and Toaster, Loading, Skeleton, EmptyState, ErrorDisplay
 - [[Utility Components]] — Icon, ThemeToggle, Tooltip, Clipboard, Markdown
@@ -52,3 +52,5 @@ Components use Vue named slots for flexible content areas. Common slot names:
 - `#trigger` — Popover, Dropdown: the whole trigger element
 - `#trigger` — Dialog: the content of the trigger button (Dialog renders the button itself)
 - `#label` — DropdownMenu: the content of the trigger button (DropdownMenu renders the button itself)
+- `#brand` / `#search` / `#actions` — Navbar regions; its default slot holds `NavbarItem` links
+- Composition children: `Tab` in Tabs (each a trigger and its panel), `MenuItem`, `MenuSub`, `MenuTitle` and `MenuSeparator` in Menu; `tabs` and `items` render the same children from data

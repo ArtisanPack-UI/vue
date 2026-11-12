@@ -2,6 +2,8 @@
  * Props for the Editor component.
  *
  * Provides a monospace-styled textarea suitable for code or structured text editing.
+ *
+ * @deprecated Use CodeEditor, the design-system replacement (#53).
  */
 export interface EditorProps {
   /** Text label displayed above the editor. */

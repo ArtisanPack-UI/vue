@@ -398,25 +398,37 @@ Flexbox layout wrapper with declarative direction, gap, alignment, and wrap.
 
 ## Tabs
 
-Tabbed interface with controlled/uncontrolled modes, keyboard navigation, and ARIA semantics.
+Switches between views of the same content, built on the design system (`.apui-tabs`, design-system #56) and the shared Zag tabs machine. Arrow keys move between tabs and follow the text direction (in RTL, ArrowLeft moves to the next tab), Home and End jump, and only the selected tab is in the Tab order. Automatic activation selects as the arrow keys move; manual waits for Enter or Space.
 
 ```vue
-<Tabs :tabs="[
-  { name: 'overview', label: 'Overview' },
-  { name: 'settings', label: 'Settings' },
-]" v-model:active-tab="currentTab">
-  <template #tab-overview>Overview content</template>
-  <template #tab-settings>Settings content</template>
-</Tabs>
+<script setup lang="ts">
+import { Tab, Tabs } from '@artisanpack-ui/vue';
+import { ref } from 'vue';
+
+const section = ref('profile');
+</script>
+
+<template>
+  <Tabs v-model="section" label="Account">
+    <Tab value="profile" label="Profile" icon="user">Your name, photo and contact details.</Tab>
+    <Tab value="notifications" label="Notifications" :count="4">Choose what we email you about.</Tab>
+    <Tab value="archived" label="Archived" disabled />
+  </Tabs>
+</template>
 ```
+
+Each `Tab` renders its trigger in the tablist and its default slot as the panel. `tabs` renders the same from data (`{ value, label, icon, count, disabled, content }`), before any `Tab` children. Without a value, the first enabled tab is selected.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `tabs` | `TabItem[]` | **required** | Tab definitions |
-| `activeTab` | `string` | -- | Active tab name (`v-model:activeTab`) |
-| `defaultTab` | `string` | -- | Initial active tab (uncontrolled) |
-| `variant` | `'bordered' \| 'lifted' \| 'boxed'` | `'bordered'` | Tab styling variant |
-| `size` | `Size` | -- | Tab size |
-| `color` | `DaisyColor` | -- | Active tab color |
+| `modelValue` | `string` | -- | The selected tab (`v-model`); emits `update:modelValue`. Unbound, the tabs keep their own state |
+| `tabs` | `TabData[]` | -- | Tabs as data |
+| `variant` | `'segmented' \| 'underline'` | `'segmented'` | Segmented for filters and view switches, underline under a page header |
+| `size` | `'sm' \| 'md'` | `'md'` | Trigger size |
+| `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Row or column; picks the arrow keys |
+| `activationMode` | `'automatic' \| 'manual'` | `'automatic'` | Whether the arrow keys select |
+| `label` | `string` | -- | Names the tablist; needed when a page has several |
+| `classes` | `Partial<Record<TabsPart, string>>` | -- | Extra classes for `root`, `list`, `trigger`, `icon`, `count`, `content` |
 
-Dynamic slots named `#tab-{name}` for each tab's content panel.
+`Tab` props: `value` (required), `label`, `icon`, `count`, `disabled`. The old `tabs: { name, label }[]`, `activeTab`, `defaultTab`, DaisyUI variants and `color` are gone; `TabItem` is now an alias of `TabData`.
+

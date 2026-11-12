@@ -1,5 +1,9 @@
 <script setup lang="ts">
-/** @module SpotlightSearch */
+/**
+ * @module SpotlightSearch
+ *
+ * @deprecated Use Spotlight, the design-system replacement (#57).
+ */
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { SpotlightSearchProps, SpotlightItem } from './types';

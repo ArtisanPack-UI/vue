@@ -2,64 +2,73 @@
 import { ref } from 'vue';
 import Range from './Range.vue';
 
-const value = ref(50);
+const radius = ref(20);
+const price = ref<[number, number]>([200, 450]);
+const marks = [
+  { value: 0, label: '0 km' },
+  { value: 25, label: '25 km' },
+  { value: 50, label: '50 km' },
+];
 </script>
 
 <template>
   <Story title="Form/Range" group="form">
     <Variant title="Playground">
       <template #controls="{ state }">
-        <HstText v-model="state.label" title="Label" />
-        <HstText v-model="state.hint" title="Hint" />
-        <HstText v-model="state.error" title="Error" />
-        <HstNumber v-model="state.min" title="Min" />
-        <HstNumber v-model="state.max" title="Max" />
-        <HstNumber v-model="state.step" title="Step" />
+        <HstSelect
+          v-model="state.showValue"
+          title="Show value"
+          :options="['never', 'focus', 'always']"
+        />
         <HstSelect
           v-model="state.color"
           title="Color"
-          :options="['', 'primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info']"
+          :options="[
+            'primary',
+            'secondary',
+            'accent',
+            'neutral',
+            'success',
+            'warning',
+            'error',
+            'info',
+          ]"
         />
         <HstCheckbox v-model="state.disabled" title="Disabled" />
       </template>
 
       <template #default="{ state }">
-        <div style="max-width: 400px">
-          <Range
-            v-model="value"
-            :label="state.label || 'Volume'"
-            :hint="state.hint || undefined"
-            :error="state.error || undefined"
-            :min="state.min ?? 0"
-            :max="state.max ?? 100"
-            :step="state.step ?? 1"
-            :color="state.color || undefined"
-            :disabled="state.disabled"
-          />
-        </div>
+        <Range
+          v-model="radius"
+          label="Search radius"
+          :max="50"
+          format="{value} km"
+          :marks="marks"
+          :show-value="state.showValue || 'focus'"
+          :color="state.color || 'primary'"
+          :disabled="state.disabled"
+        />
       </template>
     </Variant>
 
-    <Variant title="Colors">
-      <div style="display: flex; flex-direction: column; gap: 16px; max-width: 400px">
-        <Range v-model="value" label="Primary" color="primary" />
-        <Range v-model="value" label="Secondary" color="secondary" />
-        <Range v-model="value" label="Accent" color="accent" />
-        <Range v-model="value" label="Success" color="success" />
-      </div>
+    <Variant title="Two thumbs">
+      <Range
+        v-model="price"
+        label="Price"
+        dual
+        :min="100"
+        :max="700"
+        :step="10"
+        format="${value}k"
+        show-value="always"
+      />
     </Variant>
 
-    <Variant title="Custom Range">
-      <div style="max-width: 400px">
-        <Range
-          v-model="value"
-          label="Temperature"
-          :min="-20"
-          :max="50"
-          :step="5"
-          hint="Celsius"
-          color="warning"
-        />
+    <Variant title="Colors, sizes and states">
+      <div style="display: grid; gap: 16px">
+        <Range label="Volume" :model-value="80" color="success" />
+        <Range label="Opacity" :model-value="30" size="sm" />
+        <Range label="Locked" :model-value="50" disabled />
       </div>
     </Variant>
   </Story>
@@ -68,5 +77,12 @@ const value = ref(50);
 <docs lang="md">
 # Range
 
-A range slider with label, hint, min/max/step, and color variants.
+A slider (`.apui-range`): one native `<input type="range">` per thumb over the drawn track.
+`dual` gives a from–to range bound as `[from, to]`. `format` sets the bubble, marks and
+`aria-valuetext`; `thumbLabels` names the two thumbs.
+
+```vue
+<Range v-model="radius" label="Search radius" :max="50" format="{value} km" />
+<Range v-model="price" label="Price" dual :min="100" :max="700" format="${value}k" />
+```
 </docs>
