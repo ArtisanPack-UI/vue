@@ -52,6 +52,19 @@ export function useStreamingText(): UseStreamingTextResult {
     controller?.abort();
     const localController = new AbortController();
     controller = localController;
+    // Only the active, unaborted stream may write state: an aborted read can
+    // still settle after a newer stream has started.
+    const isCurrent = (): boolean =>
+      controller === localController && !localController.signal.aborted;
+
+    // Honor the caller's own signal (timeouts, cancellation) alongside ours.
+    const callerSignal = init?.signal ?? null;
+    const abortFromCaller = (): void => localController.abort(callerSignal?.reason);
+    if (callerSignal?.aborted) {
+      localController.abort(callerSignal.reason);
+    } else {
+      callerSignal?.addEventListener('abort', abortFromCaller, { once: true });
+    }
 
     text.value = '';
     error.value = null;
@@ -66,15 +79,20 @@ export function useStreamingText(): UseStreamingTextResult {
       const decoder = new TextDecoder();
       while (true) {
         const { value, done } = await reader.read();
+        if (!isCurrent()) {
+          reader.cancel().catch(() => {});
+          return;
+        }
         if (done) break;
         text.value += decoder.decode(value, { stream: true });
       }
       text.value += decoder.decode();
     } catch (err) {
-      if ((err as Error).name !== 'AbortError') {
+      if (isCurrent() && (err as Error).name !== 'AbortError') {
         error.value = err as Error;
       }
     } finally {
+      callerSignal?.removeEventListener('abort', abortFromCaller);
       // Only flip streaming off if we're still the active stream. Otherwise
       // a rapid second start() would race: this stream's finally would clear
       // the flag while the newer stream is still reading, and consumers gating

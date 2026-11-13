@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** @module ai/SettingsPage */
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, onScopeDispose, reactive, ref, watch } from 'vue';
 import type {
   AiApiClient,
   AiConnectionTestResult,
@@ -56,12 +56,18 @@ const emptyForm: FormState = {
 const initial = ref<AiSettingsResponse | null>(null);
 const form = reactive<FormState>({ ...emptyForm });
 const loading = ref(true);
+const loadError = ref<string | null>(null);
 const saving = ref(false);
 const testing = ref(false);
 const errors = ref<Record<string, string[]>>({});
 const status = ref<string | null>(null);
 const statusVariant = ref<'success' | 'error'>('success');
 const testResult = ref<AiConnectionTestResult | null>(null);
+// Bumped on every load, so a slower earlier load can't overwrite a newer one.
+let loadSeq = 0;
+// Bumped whenever the credentials change, so a probe only reports on the
+// credentials it actually tested.
+let testSeq = 0;
 
 function toFormState(response: AiSettingsResponse): void {
   form.provider = response.credentials.provider;
@@ -71,12 +77,22 @@ function toFormState(response: AiSettingsResponse): void {
   form.overrides = response.feature_overrides.map((o) => ({ ...o }));
 }
 
-function toUpdatePayload(): AiSettingsUpdate {
+/**
+ * The credential fields shared by save and test-connection. A blank API key is
+ * omitted, which the API reads as "keep the stored key".
+ */
+function toCredentials(): Omit<AiSettingsUpdate, 'feature_overrides'> {
   return {
     provider: form.provider,
-    api_key: form.api_key === '' ? null : form.api_key,
+    ...(form.api_key === '' ? {} : { api_key: form.api_key }),
     base_url: form.base_url === '' ? null : form.base_url,
     default_model: form.default_model === '' ? null : form.default_model,
+  };
+}
+
+function toUpdatePayload(): AiSettingsUpdate {
+  return {
+    ...toCredentials(),
     feature_overrides: form.overrides.map((override) => ({
       feature_key: override.feature_key,
       model: override.model,
@@ -88,26 +104,45 @@ function toUpdatePayload(): AiSettingsUpdate {
 const apiKeyPresent = computed(() => initial.value?.credentials.api_key_present ?? false);
 const isOllama = computed(() => form.provider === 'ollama');
 
-onMounted(async () => {
+async function loadSettings(): Promise<void> {
+  const seq = ++loadSeq;
   loading.value = true;
+  loadError.value = null;
   try {
     const response = await props.client.getSettings();
+    if (seq !== loadSeq) return;
     initial.value = response;
     toFormState(response);
   } catch (err) {
-    status.value = (err as Error).message;
-    statusVariant.value = 'error';
+    if (seq !== loadSeq) return;
+    loadError.value = (err as Error).message;
   } finally {
-    loading.value = false;
+    if (seq === loadSeq) loading.value = false;
   }
+}
+
+watch(() => props.client, loadSettings, { immediate: true });
+
+onScopeDispose(() => {
+  loadSeq++;
+  testSeq++;
 });
+
+/** Clears any probe result, and retires an in-flight probe, when credentials change. */
+function invalidateTest(): void {
+  testSeq++;
+  testResult.value = null;
+  testing.value = false;
+}
+
+watch(() => [form.provider, form.api_key, form.base_url, form.default_model], invalidateTest);
 
 function handleProviderChange(provider: string): void {
   // Reset the typed key + last probe result so we don't silently ship
   // an OpenAI key to an Ollama base URL (or the other way around).
   form.provider = provider;
   form.api_key = '';
-  testResult.value = null;
+  invalidateTest();
 }
 
 async function handleSubmit(): Promise<void> {
@@ -140,32 +175,41 @@ function fieldError(field: string): string | undefined {
 }
 
 async function handleTest(): Promise<void> {
+  const seq = ++testSeq;
   testing.value = true;
   testResult.value = null;
+  let result: AiConnectionTestResult;
   try {
-    testResult.value = await props.client.testConnection({
-      provider: form.provider,
-      api_key: form.api_key === '' ? null : form.api_key,
-      base_url: form.base_url === '' ? null : form.base_url,
-      default_model: form.default_model === '' ? null : form.default_model,
-    });
+    result = await props.client.testConnection(toCredentials());
   } catch (err) {
     if (err instanceof AiApiError) {
-      testResult.value = (err.body as AiConnectionTestResult | null) ?? {
+      result = (err.body as AiConnectionTestResult | null) ?? {
         result: 'error',
         message: err.message,
       };
     } else {
-      testResult.value = { result: 'error', message: (err as Error).message };
+      result = { result: 'error', message: (err as Error).message };
     }
-  } finally {
-    testing.value = false;
   }
+  if (seq !== testSeq) return;
+  testResult.value = result;
+  testing.value = false;
 }
 </script>
 
 <template>
   <Loading v-if="loading" size="sm"> Loading AI settings… </Loading>
+
+  <Alert
+    v-else-if="loadError !== null"
+    color="error"
+    title="The AI settings couldn't be loaded."
+    :description="loadError"
+  >
+    <template #actions>
+      <Button variant="outline" color="neutral" size="sm" @click="loadSettings"> Retry </Button>
+    </template>
+  </Alert>
 
   <Form v-else data-testid="ai-settings-page" novalidate @submit.prevent="handleSubmit">
     <Heading v-if="heading" :level="2">
@@ -178,7 +222,7 @@ async function handleTest(): Promise<void> {
       :description="status"
     />
 
-    <Fieldset title="Credentials">
+    <Fieldset title="Credentials" :disabled="saving">
       <Select
         label="Provider"
         :options="props.providers"
@@ -230,7 +274,7 @@ async function handleTest(): Promise<void> {
       </Stack>
     </Fieldset>
 
-    <Fieldset v-if="form.overrides.length > 0" title="Per-feature overrides">
+    <Fieldset v-if="form.overrides.length > 0" title="Per-feature overrides" :disabled="saving">
       <Card
         v-for="override in form.overrides"
         :key="override.feature_key"

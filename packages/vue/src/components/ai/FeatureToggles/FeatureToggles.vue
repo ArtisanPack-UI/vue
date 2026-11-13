@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** @module ai/FeatureToggles */
-import { onMounted, reactive, ref } from 'vue';
+import { onScopeDispose, ref, watch } from 'vue';
 import Alert from '../../feedback/Alert/Alert.vue';
 import EmptyState from '../../feedback/EmptyState/EmptyState.vue';
 import Loading from '../../feedback/Loading/Loading.vue';
@@ -25,41 +25,69 @@ const emit = defineEmits<{
 
 const features = ref<AiFeature[] | null>(null);
 const error = ref<string | null>(null);
-const pending = reactive<Record<string, boolean>>({});
+const pending = ref<Record<string, boolean>>({});
+// Bumped whenever `client` changes or the scope is disposed, so a request
+// started against an earlier client can never write into the current state.
+let generation = 0;
 
-onMounted(async () => {
+async function loadFeatures(): Promise<void> {
+  const current = ++generation;
+  features.value = null;
+  error.value = null;
+  pending.value = {};
   try {
     const response = await props.client.getFeatures();
-    features.value = response.features;
+    if (current === generation) features.value = response.features;
   } catch (err) {
-    error.value = (err as Error).message;
+    if (current === generation) error.value = (err as Error).message;
   }
+}
+
+watch(() => props.client, loadFeatures, { immediate: true });
+
+onScopeDispose(() => {
+  generation++;
 });
 
-async function handleToggle(feature: AiFeature): Promise<void> {
-  const target = !feature.enabled;
-  pending[feature.key] = true;
-  // Optimistic flip
+function setEnabled(key: string, enabled: boolean): void {
   if (features.value) {
-    features.value = features.value.map((f) =>
-      f.key === feature.key ? { ...f, enabled: target } : f,
-    );
+    features.value = features.value.map((f) => (f.key === key ? { ...f, enabled } : f));
+  }
+}
+
+async function handleToggle(feature: AiFeature): Promise<void> {
+  const current = generation;
+  const target = !feature.enabled;
+  pending.value = { ...pending.value, [feature.key]: true };
+  // Optimistic flip
+  setEnabled(feature.key, target);
+
+  let response: Awaited<ReturnType<AiApiClient['toggleFeature']>>;
+  try {
+    response = await props.client.toggleFeature(feature.key, target);
+  } catch (err) {
+    if (current === generation) {
+      // Roll back on failure
+      setEnabled(feature.key, feature.enabled);
+      error.value = (err as Error).message;
+    }
+    return;
+  } finally {
+    if (current === generation) {
+      const next = { ...pending.value };
+      delete next[feature.key];
+      pending.value = next;
+    }
   }
 
+  if (current !== generation) return;
+  error.value = null;
+  // Outside the request's try: the server has saved the change, so a
+  // throwing listener must not roll the switch back or show as a failure.
   try {
-    const response = await props.client.toggleFeature(feature.key, target);
-    error.value = null;
     emit('toggle', response.feature);
-  } catch (err) {
-    // Roll back on failure
-    if (features.value) {
-      features.value = features.value.map((f) =>
-        f.key === feature.key ? { ...f, enabled: feature.enabled } : f,
-      );
-    }
-    error.value = (err as Error).message;
-  } finally {
-    delete pending[feature.key];
+  } catch (listenerError) {
+    console.error('FeatureToggles: toggle listener threw', listenerError);
   }
 }
 </script>

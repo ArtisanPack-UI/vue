@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** @module ai/UsageDashboard */
-import { onMounted, onScopeDispose, ref, watch } from 'vue';
+import { onScopeDispose, ref, watch } from 'vue';
 import Table from '../../data/Table/Table.vue';
 import type { TableColumn } from '../../data/Table/types';
 import Stat from '../../display/Stat/Stat.vue';
@@ -36,8 +36,10 @@ const props = withDefaults(defineProps<Props>(), {
 const usage = ref<AiUsageResponse | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
-let intervalId: ReturnType<typeof setInterval> | null = null;
-let requestSeq = 0;
+// Each polling run gets its own token: a change to the client, range or
+// interval starts a new run and retires the previous run's responses.
+let run = 0;
+let timer: ReturnType<typeof setTimeout> | undefined;
 
 const formatNumber = (value: number): string => new Intl.NumberFormat().format(value);
 const formatCost = (value: number): string =>
@@ -63,59 +65,54 @@ const dailyColumns: TableColumn[] = [
   { key: 'cost', label: 'Cost', numeric: true },
 ];
 
-async function load(): Promise<void> {
-  const seq = ++requestSeq;
-  try {
-    const response = await props.client.getUsage({ from: props.from, to: props.to });
-    // Discard responses that lost the race to a newer request — otherwise
-    // a slow-poll response can clobber a fresher one under high latency.
-    if (seq !== requestSeq) return;
-    usage.value = response;
-    error.value = null;
-  } catch (err) {
-    if (seq !== requestSeq) return;
-    error.value = (err as Error).message;
-  } finally {
-    if (seq === requestSeq) {
-      loading.value = false;
-    }
-  }
+function stopPolling(): void {
+  run++;
+  clearTimeout(timer);
+  timer = undefined;
 }
 
-onMounted(() => {
-  load();
-});
+function startPolling(): void {
+  stopPolling();
+  const current = run;
 
-// Reload when the date range changes so callers driving a date picker see
-// fresh data on every prop update, not just at mount / poll tick.
+  const poll = async (): Promise<void> => {
+    try {
+      const response = await props.client.getUsage({ from: props.from, to: props.to });
+      if (current !== run) return;
+      usage.value = response;
+      error.value = null;
+    } catch (err) {
+      if (current !== run) return;
+      error.value = (err as Error).message;
+    } finally {
+      if (current === run) {
+        loading.value = false;
+        // Schedule the next poll only once this one has settled, so a slow
+        // response is never superseded by the poll after it.
+        if (props.refreshInterval > 0) timer = setTimeout(poll, props.refreshInterval);
+      }
+    }
+  };
+
+  void poll();
+}
+
+// A new client or date range makes the current figures wrong, so drop them
+// rather than show the previous range's totals under a failed reload.
 watch(
-  () => [props.from, props.to],
+  () => [props.client, props.from, props.to],
   () => {
+    usage.value = null;
+    error.value = null;
     loading.value = true;
-    load();
-  },
-);
-
-watch(
-  () => props.refreshInterval,
-  (interval) => {
-    if (intervalId !== null) {
-      clearInterval(intervalId);
-      intervalId = null;
-    }
-    if (interval > 0) {
-      intervalId = setInterval(load, interval);
-    }
+    startPolling();
   },
   { immediate: true },
 );
 
-onScopeDispose(() => {
-  if (intervalId !== null) {
-    clearInterval(intervalId);
-    intervalId = null;
-  }
-});
+watch(() => props.refreshInterval, startPolling);
+
+onScopeDispose(stopPolling);
 </script>
 
 <template>
@@ -127,6 +124,13 @@ onScopeDispose(() => {
     <Heading v-if="heading" :level="2">
       {{ heading }}
     </Heading>
+
+    <Alert
+      v-if="error"
+      color="warning"
+      title="Couldn't refresh usage. Showing the last figures loaded."
+      :description="error"
+    />
 
     <Stack orientation="horizontal" gap="4" wrap>
       <Stat label="Requests" :value="formatNumber(usage.totals.requests)" />

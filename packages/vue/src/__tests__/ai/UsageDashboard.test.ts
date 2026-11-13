@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/vue';
 import UsageDashboard from '../../components/ai/UsageDashboard/UsageDashboard.vue';
 import { createMockClient } from './testClient';
@@ -30,6 +30,10 @@ const usage: AiUsageResponse = {
 };
 
 describe('UsageDashboard', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('renders totals, by_feature, and daily buckets from GET /usage', async () => {
     const client = createMockClient({ getUsage: vi.fn().mockResolvedValue(usage) });
 
@@ -87,5 +91,53 @@ describe('UsageDashboard', () => {
 
     const alert = await screen.findByRole('alert');
     expect(alert.textContent).toContain('Nope');
+  });
+
+  it('keeps updating when each poll takes longer than the interval', async () => {
+    vi.useFakeTimers();
+    const getUsage = vi.fn(
+      () => new Promise<AiUsageResponse>((resolve) => setTimeout(() => resolve(usage), 1500)),
+    );
+    const client = createMockClient({ getUsage });
+
+    render(UsageDashboard, { props: { client, refreshInterval: 1000 } });
+
+    await vi.advanceTimersByTimeAsync(1500);
+    expect(screen.getByText('12')).toBeTruthy();
+
+    // Each poll waits for the previous one: request, then 1000 ms, then request.
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(getUsage).toHaveBeenCalledTimes(3);
+  });
+
+  it("drops the previous range's figures when a new range fails to load", async () => {
+    const getUsage = vi
+      .fn()
+      .mockResolvedValueOnce(usage)
+      .mockRejectedValueOnce(new Error('Range failed'));
+    const client = createMockClient({ getUsage });
+
+    const { rerender } = render(UsageDashboard, { props: { client, from: '2026-07-01' } });
+    await screen.findByText('12');
+
+    await rerender({ client, from: '2026-08-01' });
+
+    const alert = await screen.findByRole('alert');
+    expect(alert.textContent).toContain('Range failed');
+    expect(screen.queryByText('12')).toBeNull();
+  });
+
+  it('keeps the last figures with a warning when a poll fails', async () => {
+    vi.useFakeTimers();
+    const getUsage = vi.fn().mockResolvedValueOnce(usage).mockRejectedValueOnce(new Error('Blip'));
+    const client = createMockClient({ getUsage });
+
+    render(UsageDashboard, { props: { client, refreshInterval: 1000 } });
+    await vi.advanceTimersByTimeAsync(0);
+    expect(screen.getByText('12')).toBeTruthy();
+
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(screen.getByText(/Couldn't refresh usage/)).toBeTruthy();
+    expect(screen.getByText('12')).toBeTruthy();
   });
 });
