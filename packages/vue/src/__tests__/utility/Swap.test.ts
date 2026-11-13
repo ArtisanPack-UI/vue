@@ -60,6 +60,22 @@ describe('Swap', () => {
     }
   });
 
+  it('stays as it is when a later listener cancels the form reset', async () => {
+    const Host = defineComponent({
+      setup: () => () => h('form', [h(Swap, { label: 'Dark mode' })]),
+    });
+    const { container } = render(Host);
+    const box = screen.getByRole('checkbox') as HTMLInputElement;
+    const form = container.querySelector('form')!;
+    // Added after Swap's own listener, so it runs after it.
+    form.addEventListener('reset', (event) => event.preventDefault());
+    await fireEvent.click(box);
+    form.reset();
+    await afterReset();
+    expect(box.checked).toBe(true);
+    expect(container.querySelector('.apui-swap')!.getAttribute('data-state')).toBe('checked');
+  });
+
   it('puts attributes on the checkbox and class on the root', () => {
     const { container } = render(Swap, {
       props: { label: 'Dark mode', disabled: true, size: 'lg', transition: 'rotate' },

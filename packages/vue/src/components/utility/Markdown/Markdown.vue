@@ -11,7 +11,7 @@
  * `"split"` adds Write, Preview and Split tabs over a Textarea.
  */
 import { MARKDOWN_LABELS, renderMarkdown, type MarkdownMode } from '@artisanpack-ui/behavior';
-import { computed, getCurrentInstance, ref, watch } from 'vue';
+import { computed, getCurrentInstance, nextTick, ref, watch } from 'vue';
 import { part } from '../../_shared/design-system';
 import Textarea from '../../form/Textarea/Textarea.vue';
 import Tab from '../../layout/Tabs/Tab.vue';
@@ -55,15 +55,15 @@ watch(
 /**
  * Whether the parent owns the source: it passes `source` and listens for the
  * edit (`v-model:source` or `@source-change`), so an edit it rejects never
- * shows. Otherwise the editor keeps its own draft.
+ * shows. Otherwise the editor keeps its own draft. A listener bound to
+ * nothing (`@source-change="undefined"`) is no listener.
  */
 const instance = getCurrentInstance();
 function isControlled(): boolean {
   const raw = instance?.vnode.props;
-  return (
-    !!raw &&
-    'source' in raw &&
-    ('onUpdate:source' in raw || 'onSourceChange' in raw || 'onSource-change' in raw)
+  if (!raw || !('source' in raw)) return false;
+  return [raw['onUpdate:source'], raw.onSourceChange, raw['onSource-change']].some(
+    (listener) => typeof listener === 'function' || Array.isArray(listener),
   );
 }
 
@@ -76,10 +76,24 @@ function isControlled(): boolean {
 const text = computed(() => (isControlled() ? given.value : draft.value));
 const html = computed(() => renderMarkdown(text.value, { sanitize: props.sanitize }));
 
+/**
+ * The Textarea's value. It follows `text`, and takes each edit as typed: the
+ * Textarea keeps what was typed until its value changes, so an edit the
+ * parent rejects is put back by moving this to the edit and back again.
+ */
+const editorValue = ref(text.value);
+watch(text, (value) => {
+  editorValue.value = value;
+});
+
 function change(value: string): void {
   draft.value = value;
+  editorValue.value = value;
   emit('source-change', value);
   emit('update:source', value);
+  void nextTick(() => {
+    editorValue.value = text.value;
+  });
 }
 
 function select(value: string): void {
@@ -110,7 +124,7 @@ function select(value: string): void {
               <Textarea
                 :aria-label="editorLabel"
                 dir="auto"
-                :model-value="text"
+                :model-value="editorValue"
                 :rows="12"
                 @update:model-value="change"
               />
@@ -131,7 +145,7 @@ function select(value: string): void {
             <Textarea
               :aria-label="editorLabel"
               dir="auto"
-              :model-value="text"
+              :model-value="editorValue"
               :rows="12"
               @update:model-value="change"
             />

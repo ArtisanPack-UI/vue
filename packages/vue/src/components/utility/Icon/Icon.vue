@@ -58,6 +58,8 @@ function rootAttrs(): Record<string, unknown> {
     'data-mirror': flag(mirrored),
     role: named() ? (attrs.role ?? 'img') : undefined,
     'aria-label': labeled() ? props.label : attrs['aria-label'],
+    // aria-labelledby outranks aria-label in the accessible name, so `label` drops it.
+    'aria-labelledby': labeled() ? undefined : attrs['aria-labelledby'],
     'aria-hidden': named() ? attrs['aria-hidden'] : 'true',
   });
 }

@@ -52,6 +52,9 @@ describe('Icon', () => {
     expect(
       named({ 'aria-label': 'Error' }, { label: 'Payment failed' }).getAttribute('aria-label'),
     ).toBe('Payment failed');
+    const both = named({ 'aria-labelledby': 'msg' }, { label: 'Payment failed' });
+    expect(both.getAttribute('aria-label')).toBe('Payment failed');
+    expect(both.hasAttribute('aria-labelledby')).toBe(false);
     const unnamed = named({ title: 'x' });
     expect(unnamed.getAttribute('aria-hidden')).toBe('true');
     expect(unnamed.hasAttribute('role')).toBe(false);

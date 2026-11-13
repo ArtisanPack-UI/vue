@@ -201,6 +201,32 @@ describe('Carousel', () => {
     expect(container.querySelector('input')!.value).toBe('first');
   });
 
+  it('never matches a position key to an id when slides gain ids', async () => {
+    const list = ref<{ id?: number; title: string }[]>([{ title: 'A' }, { title: 'B' }]);
+    const Host = defineComponent({
+      setup: () => () =>
+        h(
+          Carousel,
+          { slides: list.value },
+          {
+            slide: ({ slide }: { slide: { title: string } }) =>
+              h('input', { 'aria-label': slide.title }),
+          },
+        ),
+    });
+    const { container } = render(Host);
+    const inputs = () => Array.from(container.querySelectorAll('input'));
+    inputs()[0]!.value = 'typed in A';
+    // B takes id 0 and A id 1: the numbers A and B had as positions.
+    list.value = [
+      { id: 0, title: 'B' },
+      { id: 1, title: 'A' },
+    ];
+    await nextTick();
+    expect(inputs()[0]!.getAttribute('aria-label')).toBe('B');
+    expect(inputs()[0]!.value).toBe('');
+  });
+
   /**
    * jsdom has no layout, so the machine would measure one position. Lay the
    * track out as 100px slides in a 100px view, enough for its snap points.

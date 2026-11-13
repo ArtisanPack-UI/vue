@@ -105,13 +105,17 @@ const text = (value: unknown): string | undefined =>
 /**
  * Each slide's key: its `id` when every slide has a distinct string or number
  * one, so reordered slides keep their own `#slide` state; else its position.
+ * Ids and positions are prefixed apart, so a position never matches an id
+ * when slides gain or lose their ids.
  */
-const slideKeys = computed<(string | number)[]>(() => {
+const slideKeys = computed<string[]>(() => {
   const ids = props.slides.map((slide) => slide?.id);
   const usable =
     ids.every((id) => (typeof id === 'string' && id !== '') || typeof id === 'number') &&
     new Set(ids).size === ids.length;
-  return usable ? (ids as (string | number)[]) : props.slides.map((_, i) => i);
+  return usable
+    ? ids.map((id) => `${typeof id === 'number' ? 'number' : 'string'}:${id}`)
+    : props.slides.map((_, i) => `position:${i}`);
 });
 
 function rootAttrs(): Record<string, unknown> {

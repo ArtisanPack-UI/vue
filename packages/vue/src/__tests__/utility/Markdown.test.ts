@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/vue';
 import { renderMarkdown } from '@artisanpack-ui/behavior';
-import { nextTick } from 'vue';
+import { defineComponent, h, nextTick, ref } from 'vue';
 import { Markdown } from '../../components/utility';
 
 const SOURCE = `## Viewing checklist
@@ -110,6 +110,54 @@ describe('Markdown', () => {
     await fireEvent.update(screen.getByRole('textbox'), 'rejected');
     await nextTick();
     expect(screen.getByRole('region').innerHTML).toBe('<p>kept</p>\n');
+  });
+
+  it('puts the editor back after a rejected controlled edit', async () => {
+    for (const mode of ['split', 'write'] as const) {
+      const { unmount } = render(Markdown, {
+        props: { source: 'kept', mode, 'onUpdate:source': () => undefined },
+      });
+      const editor = screen.getByRole('textbox') as HTMLTextAreaElement;
+      await fireEvent.update(editor, 'rejected');
+      await nextTick();
+      expect(editor.value).toBe('kept');
+      // The same edit, rejected again, is put back again.
+      await fireEvent.update(editor, 'rejected');
+      await nextTick();
+      expect(editor.value).toBe('kept');
+      unmount();
+    }
+  });
+
+  it('keeps an accepted controlled edit in the editor', async () => {
+    const source = ref('a');
+    const Host = defineComponent({
+      setup: () => () =>
+        h(Markdown, {
+          source: source.value,
+          mode: 'split',
+          'onUpdate:source': (value: string) => {
+            source.value = value;
+          },
+        }),
+    });
+    render(Host);
+    const editor = screen.getByRole('textbox') as HTMLTextAreaElement;
+    await fireEvent.update(editor, 'b');
+    await nextTick();
+    expect(editor.value).toBe('b');
+    expect(screen.getByRole('region').innerHTML).toBe('<p>b</p>\n');
+  });
+
+  it('keeps its own draft when the listener is bound to nothing', async () => {
+    render(Markdown, {
+      props: { source: 'a', mode: 'split', 'onSource-change': undefined },
+    });
+    const editor = screen.getByRole('textbox') as HTMLTextAreaElement;
+    await fireEvent.update(editor, 'typed');
+    await nextTick();
+    expect(editor.value).toBe('typed');
+    expect(screen.getByRole('region').innerHTML).toBe('<p>typed</p>\n');
   });
 
   it('follows a v-model:source that the parent changes', async () => {

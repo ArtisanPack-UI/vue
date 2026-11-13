@@ -43,9 +43,11 @@ const control = ref<HTMLInputElement | null>(null);
 // A form reset restores the checkbox without a change event: put it (and
 // data-state) back to the `checked` prop, the initial state when unbound.
 let resetTimer: ReturnType<typeof setTimeout> | undefined;
-function onFormReset(): void {
-  // The reset event fires before the form resets its controls.
+function onFormReset(event: Event): void {
+  // The reset event fires before the form resets its controls. A later
+  // listener can still cancel it, so that is checked once they have all run.
   resetTimer = setTimeout(() => {
+    if (event.defaultPrevented) return;
     isChecked.value = props.checked;
     if (control.value) control.value.checked = props.checked;
   });
