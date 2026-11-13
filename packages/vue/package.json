@@ -41,6 +41,10 @@
     "./composables": {
       "import": "./dist/composables.mjs",
       "types": "./dist/composables.d.ts"
+    },
+    "./ai": {
+      "import": "./dist/ai.mjs",
+      "types": "./dist/ai.d.ts"
     }
   },
   "files": [
@@ -67,7 +71,7 @@
     "artisanpack"
   ],
   "scripts": {
-    "build": "tsup && vue-tsc --project tsconfig.build.json",
+    "build": "tsup && vue-tsc --project tsconfig.build.json && node scripts/write-subpath-types.mjs",
     "type-check": "vue-tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
