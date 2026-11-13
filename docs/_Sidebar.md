@@ -20,3 +20,4 @@
 - [[Data Display Components]]
 - [[Feedback Components]]
 - [[Utility Components]]
+- [[AI Components]]

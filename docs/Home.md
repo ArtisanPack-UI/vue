@@ -29,3 +29,4 @@ Both packages depend on `@artisanpack-ui/tokens` for shared design tokens (color
 - [[Data Display Components]] — Table, Chart, Calendar, Avatar, Badge, Progress, Stat, Timeline, Carousel, Code, Diff, Sparkline
 - [[Feedback Components]] — Alert, Toast, Loading, Skeleton, EmptyState, ErrorDisplay
 - [[Utility Components]] — Icon, ThemeToggle, Tooltip, Clipboard, Markdown
+- [[AI Components]] — SettingsPage, UsageDashboard, FeatureToggles, `createAiApiClient`, `useStreamingText` (`@artisanpack-ui/vue/ai` subpath)
