@@ -11,7 +11,7 @@
  * `"split"` adds Write, Preview and Split tabs over a Textarea.
  */
 import { MARKDOWN_LABELS, renderMarkdown, type MarkdownMode } from '@artisanpack-ui/behavior';
-import { computed, ref, watch } from 'vue';
+import { computed, getCurrentInstance, ref, watch } from 'vue';
 import { part } from '../../_shared/design-system';
 import Textarea from '../../form/Textarea/Textarea.vue';
 import Tab from '../../layout/Tabs/Tab.vue';
@@ -52,9 +52,29 @@ watch(
   },
 );
 
-const html = computed(() =>
-  renderMarkdown(editing.value ? draft.value : given.value, { sanitize: props.sanitize }),
-);
+/**
+ * Whether the parent owns the source: it passes `source` and listens for the
+ * edit (`v-model:source` or `@source-change`), so an edit it rejects never
+ * shows. Otherwise the editor keeps its own draft.
+ */
+const instance = getCurrentInstance();
+function isControlled(): boolean {
+  const raw = instance?.vnode.props;
+  return (
+    !!raw &&
+    'source' in raw &&
+    ('onUpdate:source' in raw || 'onSourceChange' in raw || 'onSource-change' in raw)
+  );
+}
+
+/**
+ * The source every mode shows: the parent's when it owns it, else the draft,
+ * which follows a new source, so an edit made in write mode still shows when
+ * the parent switches to preview. Read lazily: nothing renders the HTML while
+ * only the Write tab shows.
+ */
+const text = computed(() => (isControlled() ? given.value : draft.value));
+const html = computed(() => renderMarkdown(text.value, { sanitize: props.sanitize }));
 
 function change(value: string): void {
   draft.value = value;
@@ -90,7 +110,7 @@ function select(value: string): void {
               <Textarea
                 :aria-label="editorLabel"
                 dir="auto"
-                :model-value="draft"
+                :model-value="text"
                 :rows="12"
                 @update:model-value="change"
               />
@@ -111,7 +131,7 @@ function select(value: string): void {
             <Textarea
               :aria-label="editorLabel"
               dir="auto"
-              :model-value="draft"
+              :model-value="text"
               :rows="12"
               @update:model-value="change"
             />

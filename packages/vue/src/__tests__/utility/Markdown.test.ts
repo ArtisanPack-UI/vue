@@ -93,6 +93,34 @@ describe('Markdown', () => {
     );
   });
 
+  it('shows the draft when the parent switches from write to preview', async () => {
+    const { rerender, container } = render(Markdown, { props: { source: '# One', mode: 'write' } });
+    await fireEvent.update(screen.getByRole('textbox'), '# Draft');
+    await rerender({ source: '# One', mode: 'preview' });
+    expect(container.querySelector('.apui-markdown')!.innerHTML).toBe('<h1>Draft</h1>\n');
+    // A new source still replaces the draft.
+    await rerender({ source: '# New', mode: 'preview' });
+    expect(container.querySelector('.apui-markdown')!.innerHTML).toBe('<h1>New</h1>\n');
+  });
+
+  it('keeps a rejected controlled edit out of the preview', async () => {
+    render(Markdown, {
+      props: { source: 'kept', mode: 'split', 'onUpdate:source': () => undefined },
+    });
+    await fireEvent.update(screen.getByRole('textbox'), 'rejected');
+    await nextTick();
+    expect(screen.getByRole('region').innerHTML).toBe('<p>kept</p>\n');
+  });
+
+  it('follows a v-model:source that the parent changes', async () => {
+    const { rerender } = render(Markdown, {
+      props: { source: 'a', mode: 'split', 'onUpdate:source': () => undefined },
+    });
+    await fireEvent.update(screen.getByRole('textbox'), 'b');
+    await rerender({ source: 'B', mode: 'split' });
+    expect(screen.getByRole('region').innerHTML).toBe('<p>B</p>\n');
+  });
+
   it('takes translated labels and per-part classes', () => {
     const { container } = render(Markdown, {
       props: {

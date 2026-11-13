@@ -45,7 +45,7 @@ describe('Clipboard', () => {
     await vi.advanceTimersByTimeAsync(0);
     await nextTick();
     expect(writeText).toHaveBeenCalledWith(URL);
-    expect(emitted().copy).toEqual([[URL]]);
+    expect(emitted().copied).toEqual([[URL]]);
     const root = container.firstElementChild!;
     expect(root.getAttribute('data-state')).toBe('copied');
     expect(screen.getByRole('button').textContent).toContain('Copied');
@@ -53,6 +53,70 @@ describe('Clipboard', () => {
     await vi.advanceTimersByTimeAsync(1000);
     await nextTick();
     expect(root.getAttribute('data-state')).toBe('idle');
+  });
+
+  it('emits the deprecated copy with copied, never for a native copy event', async () => {
+    const onCopy = vi.fn();
+    const { container } = render(Clipboard, {
+      props: { value: URL, variant: 'field' },
+      attrs: { onCopy },
+    });
+    await fireEvent.copy(container.querySelector('[data-part="value"]')!);
+    expect(onCopy).not.toHaveBeenCalled();
+    await fireEvent.click(screen.getByRole('button'));
+    await flush();
+    expect(onCopy).toHaveBeenCalledWith(URL);
+  });
+
+  it('clears a stale "Copied" when the value changes, even mid-copy', async () => {
+    let release: () => void = () => {};
+    writeText
+      .mockResolvedValueOnce(undefined)
+      .mockReturnValueOnce(new Promise<void>((resolve) => (release = resolve)));
+    const { container, emitted, rerender } = render(Clipboard, { props: { value: 'A' } });
+    const root = container.firstElementChild!;
+    await fireEvent.click(screen.getByRole('button'));
+    await flush();
+    expect(root.getAttribute('data-state')).toBe('copied');
+    await rerender({ value: 'B' });
+    await flush();
+    expect(root.getAttribute('data-state')).toBe('idle');
+    expect(screen.getByRole('button').textContent).toContain('Copy');
+
+    await fireEvent.click(screen.getByRole('button'));
+    await rerender({ value: 'C' });
+    release();
+    await flush();
+    expect(root.getAttribute('data-state')).toBe('idle');
+    expect(emitted().copied).toHaveLength(1);
+  });
+
+  it('shows and selects the value after a failure, so the button and icon variants can copy by hand', async () => {
+    (document as unknown as { execCommand: unknown }).execCommand = () => false;
+    for (const variant of ['button', 'icon'] as const) {
+      writeText.mockRejectedValueOnce(new Error('denied'));
+      const { container, rerender, unmount } = render(Clipboard, {
+        props: { value: 'LST-4127', variant, label: 'Copy reference' },
+      });
+      expect(container.querySelector('[data-part="field"]')).toBeNull();
+      await fireEvent.click(screen.getByRole('button'));
+      await flush();
+      const value = container.querySelector('[data-part="field"] > [data-part="value"]');
+      expect(value!.textContent).toBe('LST-4127');
+      expect(window.getSelection()?.toString()).toBe('LST-4127');
+      // A copy that works hides it again; so does a new value.
+      await fireEvent.click(screen.getByRole('button'));
+      await flush();
+      expect(container.querySelector('[data-part="field"]')).toBeNull();
+      writeText.mockRejectedValueOnce(new Error('denied'));
+      await fireEvent.click(screen.getByRole('button'));
+      await flush();
+      expect(container.querySelector('[data-part="field"]')).not.toBeNull();
+      await rerender({ value: 'LST-9' });
+      await flush();
+      expect(container.querySelector('[data-part="field"]')).toBeNull();
+      unmount();
+    }
   });
 
   it('still copies the deprecated 2.x text prop, after value and modelValue', async () => {

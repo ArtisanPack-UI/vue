@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/vue';
-import { defineComponent, h, ref } from 'vue';
+import { defineComponent, h, nextTick, ref } from 'vue';
 import { Calendar } from '../../components/data';
 import type { CalendarEvent } from '../../components/data';
 
@@ -79,6 +79,36 @@ describe('Calendar', () => {
     await fireEvent.click(q(container, '[data-date="2026-11-12"] [data-part="more"]'));
     expect(q(container, '.apui-calendar').getAttribute('data-view')).toBe('day');
     expect(container.querySelectorAll('[data-part="event"]')).toHaveLength(3);
+  });
+
+  it('moves focus to the day +N more opens', async () => {
+    const { container } = render(Calendar, { props: base, attrs });
+    const more = q(container, '[data-date="2026-11-12"] [data-part="more"]');
+    more.focus();
+    await fireEvent.click(more);
+    await nextTick();
+    const cell = q(container, '[role="gridcell"][data-date="2026-11-12"]');
+    expect(document.activeElement).toBe(cell);
+    expect(cell.tabIndex).toBe(0);
+  });
+
+  it('gives a 2.x v-model that starts empty its first date', async () => {
+    const value = ref<string | undefined>(undefined);
+    const Host = defineComponent({
+      setup: () => () =>
+        h(Calendar, {
+          ...base,
+          ...attrs,
+          date: '2026-11-07',
+          modelValue: value.value,
+          'onUpdate:modelValue': (next: string) => {
+            value.value = next;
+          },
+        }),
+    });
+    const { container } = render(Host);
+    await fireEvent.click(q(container, '[data-part="next-trigger"]'));
+    expect(value.value).toBe('2026-12-07');
   });
 
   it('emits event-click and opens the details Dialog', async () => {

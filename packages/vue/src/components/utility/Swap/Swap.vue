@@ -8,7 +8,7 @@
  * the platform handles the keyboard and screen readers. No Claude Design
  * spec: token-driven like Grid.
  */
-import { mergeProps, ref, useAttrs, useSlots, watch } from 'vue';
+import { mergeProps, onBeforeUnmount, onMounted, ref, useAttrs, useSlots, watch } from 'vue';
 import { DsIcon, flag, hasContent, part } from '../../_shared/design-system';
 import type { SwapEmits, SwapProps } from './types';
 
@@ -37,6 +37,28 @@ watch(
     isChecked.value = checked;
   },
 );
+
+const control = ref<HTMLInputElement | null>(null);
+
+// A form reset restores the checkbox without a change event: put it (and
+// data-state) back to the `checked` prop, the initial state when unbound.
+let resetTimer: ReturnType<typeof setTimeout> | undefined;
+function onFormReset(): void {
+  // The reset event fires before the form resets its controls.
+  resetTimer = setTimeout(() => {
+    isChecked.value = props.checked;
+    if (control.value) control.value.checked = props.checked;
+  });
+}
+let resetForm: HTMLFormElement | null = null;
+onMounted(() => {
+  resetForm = control.value?.form ?? null;
+  resetForm?.addEventListener('reset', onFormReset);
+});
+onBeforeUnmount(() => {
+  resetForm?.removeEventListener('reset', onFormReset);
+  if (resetTimer !== undefined) clearTimeout(resetTimer);
+});
 
 function rootAttrs(): Record<string, unknown> {
   return {
@@ -74,7 +96,7 @@ const hasOff = () => hasContent(slots.off?.());
 
 <template>
   <label v-bind="rootAttrs()">
-    <input v-bind="controlAttrs()" />
+    <input ref="control" v-bind="controlAttrs()" />
     <span v-bind="part('swap', 'on', classes?.on, { 'aria-hidden': 'true' })">
       <slot v-if="hasOn()" name="on" />
       <DsIcon v-else :name="onIcon" />

@@ -37,6 +37,26 @@ describe('Icon', () => {
     expect(icon.hasAttribute('aria-hidden')).toBe(false);
   });
 
+  it('keeps a caller aria-label or aria-labelledby and stays exposed', () => {
+    const named = (attrs: Record<string, string>, props: Record<string, unknown> = {}) =>
+      root(render(Icon, { props: { name: 'circle-alert', ...props }, attrs }).container);
+    const byLabel = named({ 'aria-label': 'Error' });
+    expect(byLabel.getAttribute('aria-label')).toBe('Error');
+    expect(byLabel.getAttribute('role')).toBe('img');
+    expect(byLabel.hasAttribute('aria-hidden')).toBe(false);
+    const byId = named({ 'aria-labelledby': 'msg' });
+    expect(byId.getAttribute('aria-labelledby')).toBe('msg');
+    expect(byId.getAttribute('role')).toBe('img');
+    expect(byId.hasAttribute('aria-hidden')).toBe(false);
+    // label still wins, and an unnamed icon is still hidden.
+    expect(
+      named({ 'aria-label': 'Error' }, { label: 'Payment failed' }).getAttribute('aria-label'),
+    ).toBe('Payment failed');
+    const unnamed = named({ title: 'x' });
+    expect(unnamed.getAttribute('aria-hidden')).toBe('true');
+    expect(unnamed.hasAttribute('role')).toBe(false);
+  });
+
   it('writes size, color and the tile variant', () => {
     const icon = root(
       render(Icon, { props: { name: 'wallet', variant: 'tile', color: 'success', size: 'xl' } })

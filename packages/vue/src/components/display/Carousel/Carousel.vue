@@ -7,7 +7,9 @@
  * Carousel markup contract (`.apui-carousel`, #65) on the shared carousel
  * machine (`useCarousel`, scoped `carousel`, the one ImageSlider runs on,
  * D-041). `perView` shows several slides at once with the next one peeking.
- * Each slide is a Card unless the `#slide="{ slide, index }"` slot draws it.
+ * Each slide is a Card unless the `#slide="{ slide, index }"` slot draws it;
+ * a slide's `id` keys it, so reordered slides keep their own state. The
+ * autoplay button comes first in the Tab order.
  */
 import { computed, getCurrentInstance, mergeProps, ref, useAttrs } from 'vue';
 import { carouselPageCount, useCarousel } from '@artisanpack-ui/behavior/vue';
@@ -97,16 +99,29 @@ function withClass(own: unknown, name: CarouselPart): Record<string, unknown> {
   return className ? mergeProps(attributes, { class: className }) : attributes;
 }
 
+const text = (value: unknown): string | undefined =>
+  typeof value === 'string' && value !== '' ? value : undefined;
+
+/**
+ * Each slide's key: its `id` when every slide has a distinct string or number
+ * one, so reordered slides keep their own `#slide` state; else its position.
+ */
+const slideKeys = computed<(string | number)[]>(() => {
+  const ids = props.slides.map((slide) => slide?.id);
+  const usable =
+    ids.every((id) => (typeof id === 'string' && id !== '') || typeof id === 'number') &&
+    new Set(ids).size === ids.length;
+  return usable ? (ids as (string | number)[]) : props.slides.map((_, i) => i);
+});
+
 function rootAttrs(): Record<string, unknown> {
   const own = carousel.value.getRootProps() as Record<string, unknown>;
   return mergeProps(attrs, own, {
     class: ['apui-carousel', props.classes?.root],
-    'aria-label': props.label || props.title || 'Carousel',
+    // A caller's own aria-label wins over the title and the generic name.
+    'aria-label': props.label || text(attrs['aria-label']) || props.title || 'Carousel',
   });
 }
-
-const text = (value: unknown): string | undefined =>
-  typeof value === 'string' && value !== '' ? value : undefined;
 
 /** The default Card's props for a slide; the 2.x `src` and `caption` still work. */
 function card(slide: CarouselSlide): Record<string, unknown> {
@@ -122,6 +137,13 @@ function card(slide: CarouselSlide): Record<string, unknown> {
 
 <template>
   <div v-bind="rootAttrs()">
+    <!-- First in the Tab order, before the rotating slides; CSS places it over the viewport. -->
+    <button
+      v-if="autoplay"
+      v-bind="withClass(carousel.getAutoplayTriggerProps(), 'autoplayTrigger')"
+    >
+      <DsIcon :name="carousel.isPlaying ? 'pause' : 'play'" />
+    </button>
     <div v-if="hasTitle" v-bind="part('carousel', 'header', classOf('header'))">
       <component :is="headingTag" v-bind="part('carousel', 'title', classOf('title'))">
         {{ title }}
@@ -147,7 +169,7 @@ function card(slide: CarouselSlide): Record<string, unknown> {
       <div v-bind="withClass(carousel.getItemGroupProps(), 'itemGroup')" tabindex="0">
         <div
           v-for="(slide, i) in slides"
-          :key="i"
+          :key="slideKeys[i]"
           v-bind="withClass(carousel.getItemProps({ index: i }), 'item')"
         >
           <slot name="slide" :slide="slide" :index="i">
@@ -173,12 +195,6 @@ function card(slide: CarouselSlide): Record<string, unknown> {
           v-bind="withClass(carousel.getNextTriggerProps(), 'nextTrigger')"
         />
       </template>
-      <button
-        v-if="autoplay"
-        v-bind="withClass(carousel.getAutoplayTriggerProps(), 'autoplayTrigger')"
-      >
-        <DsIcon :name="carousel.isPlaying ? 'pause' : 'play'" />
-      </button>
     </div>
     <div v-if="pages > 1" v-bind="withClass(carousel.getIndicatorGroupProps(), 'indicatorGroup')">
       <button

@@ -6,8 +6,9 @@
  * optional line numbers and highlighted lines, or inline. Renders the
  * design-system Code markup contract (`.apui-code`, #65) with the lines from
  * the behavior package's `codeLines`, the same ones Blade and React render.
- * No syntax highlighting. The copy button runs on `useClipboard`, as
- * Clipboard does. The code stays LTR (D-004).
+ * No syntax highlighting. Newlines separate the line parts, so the pre's
+ * text reads line by line. The copy button runs on `useClipboard`, as
+ * Clipboard does, and copies the exact source. The code stays LTR (D-004).
  */
 import {
   CLIPBOARD_LABELS,
@@ -18,7 +19,7 @@ import {
   codeLines,
 } from '@artisanpack-ui/behavior';
 import { useClipboard } from '@artisanpack-ui/behavior/vue';
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { DsIcon, flag, part } from '../../_shared/design-system';
 import type { CodeProps } from './types';
 
@@ -54,8 +55,15 @@ const labels = computed(() => ({
 }));
 const regionLabel = computed(() => codeLabel(props.label, props.fileName, props.language));
 
+// A new code clears a stale "Copied", even from a copy still in flight.
+watch(
+  () => props.code,
+  () => clipboard.reset(),
+);
+
+/** Copies the exact source: a final newline stays, the line numbers don't come along. */
 function copy() {
-  void clipboard.copy(lines.value.join('\n'));
+  void clipboard.copy(props.code ?? '');
 }
 </script>
 
@@ -120,10 +128,8 @@ function copy() {
       role="region"
       :aria-label="regionLabel"
       tabindex="0"
-    ><code><span
-      v-for="(line, index) in lines"
-      :key="index"
+    ><code><template v-for="(line, index) in lines" :key="index"><span
       v-bind="part('code', 'line', classes?.line, { 'data-n': index + 1, 'data-highlight': flag(highlighted.has(index + 1)) })"
-    >{{ line }}</span></code></pre>
+    >{{ line }}</span>{{ index < lines.length - 1 ? '\n' : '' }}</template></code></pre>
   </div>
 </template>

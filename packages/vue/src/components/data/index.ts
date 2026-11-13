@@ -21,13 +21,7 @@ export type {
 } from './Table/types';
 
 export { default as Chart } from './Chart/Chart.vue';
-export type {
-  ChartProps,
-  ChartSeries,
-  ChartType,
-  ChartPart,
-  ChartNotation,
-} from './Chart/types';
+export type { ChartProps, ChartSeries, ChartType, ChartPart, ChartNotation } from './Chart/types';
 
 export { default as Calendar } from './Calendar/Calendar.vue';
 export type {

@@ -28,6 +28,7 @@ beforeEach(() => {
   listeners.clear();
   localStorage.clear();
   document.documentElement.removeAttribute('data-theme');
+  document.documentElement.removeAttribute('data-theme-choice');
   vi.stubGlobal(
     'matchMedia',
     vi.fn(() => ({
@@ -118,7 +119,110 @@ describe('ThemeToggle', () => {
     await fireEvent.click(screen.getByRole('radio', { name: 'Dark' }));
     expect(theme.value).toBe('dark');
     expect(checked()?.getAttribute('data-value')).toBe('dark');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
     expect(localStorage.getItem('apui-theme')).toBeNull();
+  });
+
+  it('only emits a bound pick; the parent accepting it applies it', async () => {
+    localStorage.setItem('apui-theme', 'high-contrast');
+    let theme: ThemeContextValue | undefined;
+    const accept = ref(false);
+    const value = ref<ThemeChoice>('light');
+    render(
+      defineComponent({
+        setup() {
+          theme = provideTheme('light');
+          return () =>
+            h(ThemeToggle, {
+              modelValue: value.value,
+              'onUpdate:modelValue': (next: ThemeChoice) => {
+                if (accept.value) value.value = next;
+              },
+            });
+        },
+      }),
+    );
+    await nextTick();
+    // The value it mounts with isn't applied, so the stored choice stays.
+    expect(document.documentElement.getAttribute('data-theme')).toBeNull();
+    await fireEvent.click(screen.getByRole('radio', { name: 'Dark' }));
+    expect(checked()?.getAttribute('data-value')).toBe('light');
+    expect(document.documentElement.getAttribute('data-theme')).toBeNull();
+    expect(localStorage.getItem('apui-theme')).toBe('high-contrast');
+    expect(theme!.colorScheme.value).toBe('light');
+
+    accept.value = true;
+    await fireEvent.click(screen.getByRole('radio', { name: 'Dark' }));
+    expect(checked()?.getAttribute('data-value')).toBe('dark');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+    expect(localStorage.getItem('apui-theme')).toBe('dark');
+    expect(theme!.colorScheme.value).toBe('dark');
+  });
+
+  it('applies a bound value the parent changes on its own', async () => {
+    const value = ref<ThemeChoice>('light');
+    render(defineComponent({ render: () => h(ThemeToggle, { modelValue: value.value }) }));
+    await nextTick();
+    expect(document.documentElement.getAttribute('data-theme')).toBeNull();
+    value.value = 'high-contrast';
+    await nextTick();
+    expect(document.documentElement.getAttribute('data-theme')).toBe('high-contrast');
+    expect(localStorage.getItem('apui-theme')).toBe('high-contrast');
+  });
+
+  it('starts on the choice ThemeScript applied when nothing is stored', async () => {
+    // What `themeScript({ defaultValue: 'dark' })` leaves on <html>.
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.documentElement.setAttribute('data-theme-choice', 'dark');
+    render(ThemeToggle);
+    await nextTick();
+    expect(checked()?.getAttribute('data-value')).toBe('dark');
+  });
+
+  it('applies system to a page without a theme, but never over one', async () => {
+    dark = true;
+    const { unmount } = render(ThemeToggle);
+    await nextTick();
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+    expect(localStorage.getItem('apui-theme')).toBeNull();
+    unmount();
+
+    document.documentElement.removeAttribute('data-theme-choice');
+    document.documentElement.setAttribute('data-theme', 'light');
+    render(ThemeToggle);
+    await nextTick();
+    expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+  });
+
+  it("ignores another tab's stored choice when bound or unpersisted", async () => {
+    const storageEvent = () =>
+      window.dispatchEvent(new StorageEvent('storage', { key: 'apui-theme', newValue: 'dark' }));
+    const { unmount } = render(
+      defineComponent({
+        render: () => [
+          h(ThemeToggle, { modelValue: 'light' }),
+          h(ThemeToggle, { persist: false, choices: ['light', 'dark'] }),
+        ],
+      }),
+    );
+    await nextTick();
+    // Pick light on the unbound, unpersisted one.
+    await fireEvent.click(screen.getAllByRole('radio', { name: 'Light' })[1]!);
+    storageEvent();
+    await nextTick();
+    expect(
+      screen.getAllByRole('radiogroup').map((group) => group.parentElement!.dataset.value),
+    ).toEqual(['light', 'light']);
+    expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+    unmount();
+
+    // A toggle that reads storage follows it, and the page with it.
+    render(ThemeToggle);
+    await nextTick();
+    storageEvent();
+    await nextTick();
+    expect(checked()?.getAttribute('data-value')).toBe('dark');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
   });
 
   it('moves, checks and focuses with the arrow keys, following the text direction', async () => {
@@ -143,11 +247,22 @@ describe('ThemeToggle', () => {
   });
 
   it('is an icon button that switches light and dark', async () => {
-    render(ThemeToggle, { props: { variant: 'icon', persist: false, modelValue: 'light' } });
+    const { emitted } = render(ThemeToggle, {
+      props: { variant: 'icon', persist: false, modelValue: 'light' },
+    });
     const button = screen.getByRole('button', { name: 'Switch to dark theme' });
     expect(button.getAttribute('data-variant')).toBe('ghost');
     expect(button.getAttribute('data-icon-only')).toBe('');
     await fireEvent.click(button);
+    // A fixed modelValue: the pick is only reported.
+    expect(emitted()['update:modelValue']).toEqual([['dark']]);
+    expect(document.documentElement.getAttribute('data-theme')).toBeNull();
+
+    render(ThemeToggle, { props: { variant: 'icon', persist: false } });
+    await nextTick();
+    await fireEvent.click(
+      screen.getAllByRole('button', { name: /Switch to (dark|light) theme/ })[1]!,
+    );
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
   });
 
@@ -234,5 +349,16 @@ describe('ThemeScript', () => {
     localStorage.setItem('site-theme', 'high-contrast');
     render(ThemeScript, { props: { storageKey: 'site-theme' } });
     expect(document.documentElement.getAttribute('data-theme')).toBe('high-contrast');
+  });
+
+  it('hands its default to the toggles', async () => {
+    render(
+      defineComponent({
+        render: () => [h(ThemeScript, { defaultValue: 'dark' }), h(ThemeToggle)],
+      }),
+    );
+    await nextTick();
+    expect(document.documentElement.getAttribute('data-theme-choice')).toBe('dark');
+    expect(checked()?.getAttribute('data-value')).toBe('dark');
   });
 });

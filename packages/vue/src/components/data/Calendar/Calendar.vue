@@ -15,12 +15,13 @@ import {
   CALENDAR_MAX_EVENTS,
   calendarGridKeydown,
   calendarModel,
+  focusCalendarCell,
   rovingKeydown,
   type CalendarEvent,
   type CalendarItem,
   type CalendarView,
 } from '@artisanpack-ui/behavior';
-import { computed, ref, useAttrs, useId, watch } from 'vue';
+import { computed, nextTick, ref, useAttrs, useId, watch } from 'vue';
 import { safeHref } from '../../_shared/design-system';
 import Button from '../../form/Button/Button.vue';
 import EmptyState from '../../feedback/EmptyState/EmptyState.vue';
@@ -153,7 +154,7 @@ function changeDate(next: string) {
   if (props.date === undefined) ownDate.value = next;
   emit('update:date', next);
   emit('date-change', next);
-  if (props.modelValue !== undefined) emit('update:modelValue', next);
+  emit('update:modelValue', next);
   if (next.slice(0, 7) !== shown.slice(0, 7)) {
     const [year, month] = next.split('-').map(Number);
     emit('month-change', { month: month!, year: year! });
@@ -165,9 +166,21 @@ function chooseEvent(item: CalendarItem) {
   if (props.details) selected.value = item;
 }
 
+/**
+ * "+N more": opens the day, then focuses its cell once the day view has
+ * rendered, since the button focus was on is gone (unless focus is still in
+ * the calendar).
+ */
 function openDay(date: string) {
   changeDate(date);
   changeView('day');
+  void nextTick(() => {
+    const root = document.getElementById(id.value);
+    const active = document.activeElement;
+    if (!active || active === document.body || !root?.contains(active)) {
+      focusCalendarCell(root, date);
+    }
+  });
 }
 
 function onDialogOpen(open: boolean) {

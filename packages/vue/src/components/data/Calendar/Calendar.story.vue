@@ -89,40 +89,59 @@ const events: CalendarEvent[] = [
   { id: 13, start: '2026-11-26', title: 'Thanksgiving', color: 'neutral', category: 'Holidays' },
 ];
 
-const view = ref<CalendarView>('month');
-const date = ref('2026-11-07');
+/** Every variant binds its view and date, so previous, next, the tabs and "+N more" work. */
+const variant = (view: CalendarView, date: string) => ({ view: ref(view), date: ref(date) });
+const month = variant('month', '2026-11-07');
+const week = variant('week', '2026-11-12');
+const day = variant('day', '2026-11-12');
+const agenda = variant('agenda', '2026-11-07');
+const controlled = variant('month', '2026-11-07');
+const rtl = variant('month', '2026-11-07');
 </script>
 
 <template>
   <Story title="Data/Calendar" group="data">
     <Variant title="Month">
-      <Calendar :events="events" today="2026-11-07" :week-starts-on="1" creatable />
+      <Calendar
+        v-model:view="month.view.value"
+        v-model:date="month.date.value"
+        :events="events"
+        today="2026-11-07"
+        :week-starts-on="1"
+        creatable
+      />
     </Variant>
     <Variant title="Week">
       <Calendar
+        v-model:view="week.view.value"
+        v-model:date="week.date.value"
         :events="events"
-        view="week"
-        date="2026-11-12"
         today="2026-11-07"
         :week-starts-on="1"
       />
     </Variant>
     <Variant title="Day">
       <Calendar
+        v-model:view="day.view.value"
+        v-model:date="day.date.value"
         :events="events"
-        view="day"
-        date="2026-11-12"
         today="2026-11-07"
         :week-starts-on="1"
       />
     </Variant>
     <Variant title="Agenda">
-      <Calendar :events="events" view="agenda" today="2026-11-07" :week-starts-on="1" />
+      <Calendar
+        v-model:view="agenda.view.value"
+        v-model:date="agenda.date.value"
+        :events="events"
+        today="2026-11-07"
+        :week-starts-on="1"
+      />
     </Variant>
     <Variant title="Controlled (v-model)">
       <Calendar
-        v-model:view="view"
-        v-model:date="date"
+        v-model:view="controlled.view.value"
+        v-model:date="controlled.date.value"
         :events="events"
         today="2026-11-07"
         :week-starts-on="1"
@@ -130,7 +149,13 @@ const date = ref('2026-11-07');
     </Variant>
     <Variant title="Right to left">
       <div dir="rtl">
-        <Calendar :events="events" today="2026-11-07" :week-starts-on="1" />
+        <Calendar
+          v-model:view="rtl.view.value"
+          v-model:date="rtl.date.value"
+          :events="events"
+          today="2026-11-07"
+          :week-starts-on="1"
+        />
       </div>
     </Variant>
   </Story>

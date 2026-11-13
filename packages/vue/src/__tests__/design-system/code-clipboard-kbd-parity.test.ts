@@ -26,11 +26,11 @@ describe('design-system parity: code, clipboard and kbd', () => {
 
   // The kit spells value as modelValue in Vue; Clipboard takes both, value
   // first, so value isn't extra API. text is the deprecated 2.x name of
-  // value. The timeout and the copied and error strings only show after a
-  // click.
+  // value, and the copy event the deprecated 2.x name of copied. The timeout
+  // and the copied and error strings only show after a click.
   it('Clipboard matches its manifest', () =>
     expectVueParity(Clipboard, 'Clipboard', {
-      ignoreDeclared: ['value', 'text'],
+      ignoreDeclared: ['value', 'text', 'copy'],
       ignoreEffects: ['timeout', 'copiedLabel', 'copiedMessage', 'errorMessage'],
     }));
 

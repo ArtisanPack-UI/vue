@@ -10,7 +10,9 @@
  * Client-rendered (a Vite SPA), Vue creates the `<script>` element and
  * inserts it, which runs it, but only once the app mounts, after the first
  * paint. For no flash in an SPA, put `<script>${themeScript()}</script>` in
- * index.html's `<head>` instead.
+ * index.html's `<head>` instead. The script records the choice it applied as
+ * `<html data-theme-choice>`, so toggles with nothing stored start on
+ * `defaultValue`.
  */
 import { defineComponent, h, type PropType } from 'vue';
 import { themeScript, type ThemeChoice } from '@artisanpack-ui/behavior';

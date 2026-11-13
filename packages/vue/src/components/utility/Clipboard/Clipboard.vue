@@ -7,6 +7,8 @@
  * package's `useClipboard`, as Code's copy button and the Blade and React
  * components do: `navigator.clipboard` with a fallback, "Copied" for the
  * timeout, and the result (or the failure) announced in a live region.
+ * After a failure the value shows (in every variant) and is selected, to copy
+ * by hand; a new value clears a stale "Copied".
  */
 import {
   CLIPBOARD_LABELS,
@@ -15,7 +17,7 @@ import {
   clipboardMessage,
 } from '@artisanpack-ui/behavior';
 import { useClipboard } from '@artisanpack-ui/behavior/vue';
-import { computed } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { DsIcon, flag, part } from '../../_shared/design-system';
 import type { ClipboardProps } from './types';
 
@@ -34,7 +36,14 @@ const props = withDefaults(defineProps<ClipboardProps>(), {
 });
 
 const emit = defineEmits<{
-  /** The value reached the clipboard. */
+  /** The value reached the clipboard. Named apart from the native `copy` event. */
+  copied: [value: string];
+  /**
+   * The 2.x name of `copied`, emitted with it. Declared, so a `@copy`
+   * listener never catches a native copy event.
+   *
+   * @deprecated Listen for `copied`. Removed in a later major release.
+   */
   copy: [value: string];
   /** The copy failed. */
   error: [error: unknown];
@@ -57,10 +66,34 @@ const iconOnly = computed(() => shown.value === 'icon');
 /** `value`, else `modelValue`, else the deprecated 2.x `text`. */
 const copied = computed(() => props.value ?? props.modelValue ?? props.text ?? '');
 
+/** The value to copy by hand after a failed copy, shown in the field's box. */
+const manual = ref<string | null>(null);
+const valueEl = ref<HTMLElement | null>(null);
+const showField = computed(() => shown.value === 'field' || manual.value !== null);
+
+// A new value clears a stale "Copied" (even from a copy still in flight)
+// and the manual-copy box.
+watch(copied, () => {
+  clipboard.reset();
+  manual.value = null;
+});
+
 async function copy() {
   const value = copied.value;
-  if (await clipboard.copy(value)) emit('copy', value);
-  else emit('error', new Error('The value could not be copied to the clipboard.'));
+  const ok = await clipboard.copy(value);
+  // The value changed meanwhile: the result belongs to the old one.
+  if (copied.value !== value) return;
+  manual.value = ok ? null : value;
+  if (ok) {
+    emit('copied', value);
+    emit('copy', value);
+    return;
+  }
+  emit('error', new Error('The value could not be copied to the clipboard.'));
+  // Select the value, ready for the platform's copy keys.
+  await nextTick();
+  const selection = typeof window === 'undefined' ? null : window.getSelection();
+  if (valueEl.value && selection) selection.selectAllChildren(valueEl.value);
 }
 </script>
 
@@ -74,8 +107,10 @@ async function copy() {
     :data-size="size"
     :data-state="status"
   >
-    <span v-if="shown === 'field'" v-bind="part('clipboard', 'field', classes?.field)"
-      ><span v-bind="part('clipboard', 'value', classes?.value)">{{ copied }}</span></span
+    <span v-if="showField" v-bind="part('clipboard', 'field', classes?.field)"
+      ><span ref="valueEl" v-bind="part('clipboard', 'value', classes?.value)">{{
+        copied
+      }}</span></span
     >
     <button
       type="button"

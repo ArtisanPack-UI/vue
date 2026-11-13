@@ -4,6 +4,12 @@
  * `image` and `title`.
  */
 export interface CarouselSlide {
+  /**
+   * A stable id. When every slide has a distinct one it keys the slide, so a
+   * reordered list keeps each `#slide` slot's own state; else slides are
+   * keyed by position.
+   */
+  id?: string | number;
   /** The Card's image URL. */
   image?: string;
   /** Describes the image. */
@@ -52,7 +58,7 @@ export interface CarouselProps {
   title?: string;
   /** The title's heading level, 2 to 6. @defaultValue `3` */
   headingLevel?: number;
-  /** Names the region. Defaults to the title, else `'Carousel'`. */
+  /** Names the region. Defaults to a passed `aria-label`, then the title, else `'Carousel'`. */
   label?: string;
   /** The previous button's accessible name. @defaultValue `'Previous slide'` */
   previousLabel?: string;

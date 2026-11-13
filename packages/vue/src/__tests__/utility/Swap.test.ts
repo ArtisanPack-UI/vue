@@ -1,6 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/vue';
+import { defineComponent, h, nextTick } from 'vue';
 import { Swap } from '../../components/utility';
+
+const afterReset = async () => {
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  await nextTick();
+};
 
 const part = (root: ParentNode, name: string) =>
   root.querySelector<HTMLElement>(`[data-scope="swap"][data-part="${name}"]`);
@@ -33,6 +39,25 @@ describe('Swap', () => {
     expect((screen.getByRole('checkbox') as HTMLInputElement).checked).toBe(true);
     await rerender({ label: 'Dark mode', checked: false });
     expect((screen.getByRole('checkbox') as HTMLInputElement).checked).toBe(false);
+  });
+
+  it('goes back to its initial state when its form resets', async () => {
+    for (const initial of [false, true]) {
+      const Host = defineComponent({
+        setup: () => () => h('form', [h(Swap, { label: 'Dark mode', checked: initial })]),
+      });
+      const { container, unmount } = render(Host);
+      const box = screen.getByRole('checkbox') as HTMLInputElement;
+      const root = container.querySelector('.apui-swap')!;
+      await fireEvent.click(box);
+      expect(box.checked).toBe(!initial);
+      expect(root.getAttribute('data-state')).toBe(initial ? 'unchecked' : 'checked');
+      container.querySelector('form')!.reset();
+      await afterReset();
+      expect(box.checked).toBe(initial);
+      expect(root.getAttribute('data-state')).toBe(initial ? 'checked' : 'unchecked');
+      unmount();
+    }
   });
 
   it('puts attributes on the checkbox and class on the root', () => {

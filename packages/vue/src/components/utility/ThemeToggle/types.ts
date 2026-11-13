@@ -16,7 +16,11 @@ export type ThemeTogglePart = 'root' | 'list' | 'option' | 'button' | 'trigger' 
  * system. Bind the choice with `v-model`; without it the stored choice shows.
  */
 export interface ThemeToggleProps {
-  /** The choice (`v-model`). Without it, the stored choice, else `system`. */
+  /**
+   * The choice (`v-model`): a pick only emits it, and the toggle applies it once
+   * `modelValue` changes to it. Without it, the stored choice, else the one
+   * ThemeScript applied, else `system`.
+   */
   modelValue?: ThemeChoice;
   /** Emitted as `data-variant`. @defaultValue `'segmented'` */
   variant?: ThemeToggleVariant;

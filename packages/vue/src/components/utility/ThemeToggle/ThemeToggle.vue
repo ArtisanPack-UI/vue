@@ -11,7 +11,11 @@
  *
  * Segmented is a radio group on the segmented Tabs track; icon is one ghost
  * button that switches light and dark; menu is a DropdownMenu of radio items.
- * Bind the choice with `v-model`.
+ * Bind the choice with `v-model`: a pick only emits `update:modelValue`, and
+ * the toggle applies, stores and passes on a value when the parent changes
+ * `modelValue` to it, never the one it mounts with. Unbound, it starts on the
+ * stored choice, else the one ThemeScript applied, else `system`, which it
+ * applies only while `<html>` has no `data-theme`.
  *
  * Under a 2.x `provideTheme()` the toggle keeps driving it: it starts from the
  * provider's `colorScheme`, calls `setColorScheme` on every pick and follows
@@ -37,6 +41,7 @@ import {
   nextIconTheme,
   readThemeChoice,
   resolveTheme,
+  startThemeChoice,
   THEME_ICONS,
   THEME_STORAGE_KEY,
   themeChoiceLabel,
@@ -137,10 +142,16 @@ onMounted(() => {
     } else if (provider) {
       // Nothing stored: the provider's scheme is the choice, so show it.
       applyTheme(own.value, { persist: false, broadcast: false });
+    } else {
+      // Nothing stored: what ThemeScript applied, else the default.
+      own.value = startThemeChoice(own.value);
     }
   }
   unwatch = watchTheme(
     ({ value, source }) => {
+      // A bound toggle shows its parent's value and an unpersisted one ignores
+      // storage, so neither follows (or applies) another tab's choice.
+      if (source === 'storage' && (!props.persist || isBound())) return;
       if (value) {
         if (!isBound()) {
           own.value = value;
@@ -168,11 +179,29 @@ if (provider) {
   });
 }
 
-/** Applies a choice, stores it and reports it when it changed. */
+// The parent changed a bound value: apply, store and pass it on. The value it
+// mounts with isn't applied (ThemeScript did, or docs pages show fixed values).
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (!isBound() || !isThemeChoice(value)) return;
+    applyTheme(value, { persist: props.persist, storageKey: props.storageKey });
+    provider?.setColorScheme(toColorScheme(value));
+  },
+);
+
+/**
+ * Applies a choice, stores it and reports it when it changed. Bound, it only
+ * reports it; the parent accepting it applies it.
+ */
 function choose(choice: unknown): void {
   if (!isThemeChoice(choice)) return;
   const changed = choice !== current.value;
-  if (!isBound()) own.value = choice;
+  if (isBound()) {
+    if (changed) emit('update:modelValue', choice);
+    return;
+  }
+  own.value = choice;
   applyTheme(choice, { persist: props.persist, storageKey: props.storageKey });
   provider?.setColorScheme(toColorScheme(choice));
   if (changed) emit('update:modelValue', choice);
