@@ -9,6 +9,7 @@ import type {
   AiSettingsUpdate,
 } from '../types';
 import { AiApiError } from '../createAiApiClient';
+import { errorMessage } from '../errorMessage';
 import Alert from '../../feedback/Alert/Alert.vue';
 import Loading from '../../feedback/Loading/Loading.vue';
 import Button from '../../form/Button/Button.vue';
@@ -106,16 +107,19 @@ const isOllama = computed(() => form.provider === 'ollama');
 
 async function loadSettings(): Promise<void> {
   const seq = ++loadSeq;
+  invalidateTest();
   loading.value = true;
   loadError.value = null;
+  initial.value = null;
   try {
     const response = await props.client.getSettings();
     if (seq !== loadSeq) return;
+    invalidateTest();
     initial.value = response;
     toFormState(response);
   } catch (err) {
     if (seq !== loadSeq) return;
-    loadError.value = (err as Error).message;
+    loadError.value = errorMessage(err);
   } finally {
     if (seq === loadSeq) loading.value = false;
   }
@@ -151,6 +155,7 @@ async function handleSubmit(): Promise<void> {
   status.value = null;
   try {
     const response = await props.client.updateSettings(toUpdatePayload());
+    invalidateTest();
     initial.value = response;
     toFormState(response);
     status.value = 'Settings saved.';
@@ -162,7 +167,7 @@ async function handleSubmit(): Promise<void> {
       errors.value = body?.errors ?? {};
       status.value = body?.message ?? err.message;
     } else {
-      status.value = (err as Error).message;
+      status.value = errorMessage(err);
     }
   } finally {
     saving.value = false;
@@ -188,7 +193,7 @@ async function handleTest(): Promise<void> {
         message: err.message,
       };
     } else {
-      result = { result: 'error', message: (err as Error).message };
+      result = { result: 'error', message: errorMessage(err) };
     }
   }
   if (seq !== testSeq) return;
@@ -201,10 +206,10 @@ async function handleTest(): Promise<void> {
   <Loading v-if="loading" size="sm"> Loading AI settings… </Loading>
 
   <Alert
-    v-else-if="loadError !== null"
+    v-else-if="loadError !== null || initial === null"
     color="error"
     title="The AI settings couldn't be loaded."
-    :description="loadError"
+    :description="loadError ?? undefined"
   >
     <template #actions>
       <Button variant="outline" color="neutral" size="sm" @click="loadSettings"> Retry </Button>

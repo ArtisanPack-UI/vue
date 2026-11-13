@@ -10,6 +10,7 @@ import Heading from '../../layout/Heading/Heading.vue';
 import Stack from '../../layout/Stack/Stack.vue';
 import Text from '../../layout/Text/Text.vue';
 import type { AiApiClient, AiFeature } from '../types';
+import { errorMessage } from '../errorMessage';
 
 interface Props {
   /** API client wrapping the artisanpack-ui/ai JSON endpoints. */
@@ -39,7 +40,7 @@ async function loadFeatures(): Promise<void> {
     const response = await props.client.getFeatures();
     if (current === generation) features.value = response.features;
   } catch (err) {
-    if (current === generation) error.value = (err as Error).message;
+    if (current === generation) error.value = errorMessage(err);
   }
 }
 
@@ -69,7 +70,7 @@ async function handleToggle(feature: AiFeature): Promise<void> {
     if (current === generation) {
       // Roll back on failure
       setEnabled(feature.key, feature.enabled);
-      error.value = (err as Error).message;
+      error.value = errorMessage(err);
     }
     return;
   } finally {

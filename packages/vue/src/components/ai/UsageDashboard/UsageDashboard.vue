@@ -10,6 +10,7 @@ import Heading from '../../layout/Heading/Heading.vue';
 import Stack from '../../layout/Stack/Stack.vue';
 import Text from '../../layout/Text/Text.vue';
 import type { AiApiClient, AiUsageResponse } from '../types';
+import { errorMessage } from '../errorMessage';
 
 interface Props {
   /** API client wrapping the artisanpack-ui/ai JSON endpoints. */
@@ -83,7 +84,7 @@ function startPolling(): void {
       error.value = null;
     } catch (err) {
       if (current !== run) return;
-      error.value = (err as Error).message;
+      error.value = errorMessage(err);
     } finally {
       if (current === run) {
         loading.value = false;
