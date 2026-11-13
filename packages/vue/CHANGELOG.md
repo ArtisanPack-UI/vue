@@ -1,5 +1,11 @@
 # @artisanpack-ui/vue
 
+## 1.0.1
+
+### Patch Changes
+
+- [#50](https://github.com/ArtisanPack-UI/vue/pull/50) [`f8fd82a`](https://github.com/ArtisanPack-UI/vue/commit/f8fd82ad6e2e78f0ddc6e7f3f5ece0adfb18f91e) Thanks [@ViewFromTheBox](https://github.com/ViewFromTheBox)! - Depend on `@artisanpack-ui/tokens` `^1.0.1` instead of `*`. The tokens package moved to the design-system repo, and its next release is a breaking 2.0.0, so this keeps installs on 1.x.
+
 ## 1.0.0
 
 ### Major Changes
