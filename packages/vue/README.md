@@ -18,12 +18,6 @@ npm install @artisanpack-ui/vue @artisanpack-ui/tokens
 npm install vue
 ```
 
-Optional peers for chart components:
-
-```bash
-npm install apexcharts vue3-apexcharts
-```
-
 ## Setup
 
 Import the tokens CSS in your Tailwind entry file:

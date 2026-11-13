@@ -39,7 +39,7 @@ function withThemeProvider(
 describe('Utility components accessibility', () => {
   it('Clipboard has no a11y violations', async () => {
     const { container } = render(Clipboard, {
-      props: { text: 'Copy me' },
+      props: { value: 'Copy me' },
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -47,7 +47,7 @@ describe('Utility components accessibility', () => {
 
   it('Icon has no a11y violations', async () => {
     const { container } = render(Icon, {
-      props: { ariaLabel: 'Check icon' },
+      props: { label: 'Check icon' },
       slots: { default: '<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>' },
     });
     const results = await axe(container);

@@ -8,26 +8,42 @@ const STORY = {
 };
 
 test.describe('Data / Calendar', () => {
-  test('default', async ({ page }) => {
-    await testVariant(page, STORY.calendar, 0, 'calendar-default');
+  test('month', async ({ page }) => {
+    await testVariant(page, STORY.calendar, 0, 'calendar-month');
   });
 
-  test('with events', async ({ page }) => {
-    await testVariant(page, STORY.calendar, 1, 'calendar-events');
+  test('week', async ({ page }) => {
+    await testVariant(page, STORY.calendar, 1, 'calendar-week');
+  });
+
+  test('day', async ({ page }) => {
+    await testVariant(page, STORY.calendar, 2, 'calendar-day');
+  });
+
+  test('agenda', async ({ page }) => {
+    await testVariant(page, STORY.calendar, 3, 'calendar-agenda');
+  });
+
+  test('right to left', async ({ page }) => {
+    await testVariant(page, STORY.calendar, 5, 'calendar-rtl');
   });
 });
 
 test.describe('Data / Chart', () => {
-  test('bar chart', async ({ page }) => {
-    await testVariant(page, STORY.chart, 1, 'chart-bar');
+  test('bar', async ({ page }) => {
+    await testVariant(page, STORY.chart, 0, 'chart-bar');
   });
 
-  test('line chart', async ({ page }) => {
+  test('area', async ({ page }) => {
+    await testVariant(page, STORY.chart, 1, 'chart-area');
+  });
+
+  test('line', async ({ page }) => {
     await testVariant(page, STORY.chart, 2, 'chart-line');
   });
 
-  test('donut chart', async ({ page }) => {
-    await testVariant(page, STORY.chart, 4, 'chart-donut');
+  test('donut with a data table', async ({ page }) => {
+    await testVariant(page, STORY.chart, 3, 'chart-donut-with-a-data-table');
   });
 });
 
