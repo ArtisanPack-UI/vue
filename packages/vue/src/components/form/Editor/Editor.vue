@@ -1,5 +1,9 @@
 <script setup lang="ts">
-/** @module Editor */
+/**
+ * @module Editor
+ *
+ * @deprecated Use CodeEditor, the design-system replacement (#53).
+ */
 import { computed, useId } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { EditorProps } from './types';

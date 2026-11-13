@@ -1,223 +1,103 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/vue';
-import { nextTick } from 'vue';
+import { fireEvent, render, screen } from '@testing-library/vue';
+import { h, nextTick } from 'vue';
 import { Popover } from '../../components/layout';
+import { Button } from '../../components/form';
+
+const partOf = (name: string, root: ParentNode = document.body) =>
+  root.querySelector<HTMLElement>(`[data-scope="popover"][data-part="${name}"]`);
+
+const panel = () => document.body.querySelector<HTMLElement>('.apui-popover')!;
+
+const settle = async () => {
+  await nextTick();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  await nextTick();
+};
 
 describe('Popover', () => {
-  it('renders trigger slot', () => {
+  it('renders a hidden, non-modal dialog panel with the requested placement', () => {
+    render(Popover, { props: { title: 'Share report', trigger: 'Share' } });
+    const root = panel();
+    expect(root.getAttribute('data-part')).toBe('content');
+    expect(root.getAttribute('role')).toBe('dialog');
+    expect(root.hasAttribute('aria-modal')).toBe(false);
+    expect(root.getAttribute('data-placement')).toBe('bottom');
+    expect(root.hidden).toBe(true);
+  });
+
+  it('renders arrow, title, body and actions in order', () => {
     render(Popover, {
-      slots: { trigger: '<button>Open</button>', default: 'Popover content' },
+      props: { open: true, portal: false, title: 'Share report', actions: 'Copy link' },
+      slots: { default: 'Body' },
     });
-    expect(screen.getByText('Open')).toBeTruthy();
+    expect([...panel().children].map((el) => el.getAttribute('data-part'))).toEqual([
+      'arrow',
+      'title',
+      'body',
+      'actions',
+    ]);
+    expect(partOf('arrow')!.getAttribute('aria-hidden')).toBe('true');
+    expect(partOf('title')!.tagName).toBe('H3');
+    expect(screen.getByRole('dialog', { name: 'Share report' })).toBe(panel());
   });
 
-  it('renders content slot', () => {
-    const { container } = render(Popover, {
-      slots: { trigger: '<button>Open</button>', default: 'Popover body' },
-    });
-    expect(container.querySelector('[role="dialog"]')).toBeTruthy();
+  it('renders a text trigger as an outline Button that controls the panel', () => {
+    render(Popover, { props: { title: 'T', trigger: 'Share' } });
+    const trigger = screen.getByRole('button', { name: 'Share' });
+    expect(trigger.getAttribute('data-part')).toBe('trigger');
+    expect(trigger.getAttribute('data-variant')).toBe('outline');
+    expect(trigger.getAttribute('aria-haspopup')).toBe('dialog');
+    expect(trigger.getAttribute('aria-controls')).toBe(panel().id);
   });
 
-  it('does not have dropdown-open class when closed', () => {
-    const { container } = render(Popover, {
-      slots: { trigger: '<button>Open</button>', default: 'Hidden content' },
-    });
-    expect(container.querySelector('.dropdown-open')).toBeFalsy();
-  });
-
-  it('adds dropdown-open class after clicking trigger in click mode', async () => {
-    const { container } = render(Popover, {
-      props: { triggerMode: 'click' },
-      slots: { trigger: '<button>Open</button>', default: 'Visible content' },
-    });
-    await fireEvent.click(screen.getByText('Open'));
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
-  });
-
-  it('sets aria-expanded to true when open', async () => {
-    const { container } = render(Popover, {
-      props: { triggerMode: 'click' },
-      slots: { trigger: '<button>Open</button>', default: 'Content' },
-    });
-    await fireEvent.click(screen.getByText('Open'));
-    await nextTick();
-    const trigger = container.querySelector('[aria-expanded]');
-    expect(trigger?.getAttribute('aria-expanded')).toBe('true');
-  });
-
-  it('toggles dropdown-open on and off on click in uncontrolled click mode', async () => {
-    const { container } = render(Popover, {
-      props: { triggerMode: 'click' },
-      slots: { trigger: '<button>Click me</button>', default: 'Content' },
-    });
-    await fireEvent.click(screen.getByText('Click me'));
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
-
-    await fireEvent.click(screen.getByText('Click me'));
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeFalsy();
-  });
-
-  it('adds dropdown-open on mouse enter in hover mode', async () => {
-    const { container } = render(Popover, {
-      props: { triggerMode: 'hover', showDelay: 0, hideDelay: 0 },
-      slots: { trigger: '<button>Hover</button>', default: 'Hover content' },
-    });
-    const wrapper = container.firstElementChild!;
-    await fireEvent.mouseEnter(wrapper);
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
-
-    await fireEvent.mouseLeave(wrapper);
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeFalsy();
-  });
-
-  it('applies position class', () => {
-    const { container } = render(Popover, {
-      props: { position: 'top' },
-      slots: { trigger: '<button>Open</button>', default: 'Content' },
-    });
-    expect(container.querySelector('.dropdown-top')).toBeTruthy();
-  });
-
-  it('opens on focus and closes on blur in hover mode', async () => {
-    const { container } = render(Popover, {
-      props: { triggerMode: 'hover', showDelay: 0, hideDelay: 0 },
-      slots: { trigger: '<button>Focus me</button>', default: 'Focus content' },
-    });
-    const triggerEl = container.querySelector('[aria-expanded]') as HTMLElement;
-    await fireEvent.focusIn(triggerEl);
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
-
-    await fireEvent.focusOut(triggerEl);
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeFalsy();
-  });
-
-  it('keeps popover open when focus moves from trigger to content in hover mode', async () => {
-    const { container } = render(Popover, {
-      props: { triggerMode: 'hover', showDelay: 0, hideDelay: 0 },
+  it('uses an element in the trigger slot as the trigger itself', async () => {
+    render(Popover, {
+      props: { title: 'About visits' },
       slots: {
-        trigger: '<button>Focus me</button>',
-        default: '<button>Content button</button>',
+        trigger: () =>
+          h(Button, {
+            id: 'about',
+            variant: 'ghost',
+            iconOnly: true,
+            leadingIcon: 'info',
+            'aria-label': 'About visits',
+          }),
+        default: 'Text',
       },
     });
-    const triggerEl = container.querySelector('[aria-expanded]') as HTMLElement;
-    const contentButton = container.querySelector('[role="dialog"] button') as HTMLElement;
-
-    await fireEvent.focusIn(triggerEl);
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
-
-    // Focus moves from trigger into content — popover should stay open
-    await fireEvent.focusOut(triggerEl, { relatedTarget: contentButton });
-    await fireEvent.focusIn(contentButton);
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+    const trigger = screen.getByRole('button', { name: 'About visits' });
+    expect(trigger.id).toBe('about');
+    expect(trigger.getAttribute('data-variant')).toBe('ghost');
+    expect(trigger.getAttribute('data-part')).toBe('trigger');
+    expect(document.querySelectorAll('[data-part="trigger"]')).toHaveLength(1);
+    await fireEvent.click(trigger);
+    await settle();
+    expect(panel().hidden).toBe(false);
   });
 
-  it('persistent popover can still be toggled via trigger click', async () => {
-    const { container } = render(Popover, {
-      props: { triggerMode: 'click', persistent: true },
-      slots: { trigger: '<button>Click me</button>', default: 'Persistent' },
+  it('opens on click, reports it, and closes on Escape', async () => {
+    const { emitted } = render(Popover, {
+      props: { title: 'Share report', trigger: 'Share' },
+      slots: { default: '<button>Copy</button>' },
     });
-    await fireEvent.click(screen.getByText('Click me'));
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
-
-    await fireEvent.click(screen.getByText('Click me'));
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeFalsy();
+    await fireEvent.click(screen.getByRole('button', { name: 'Share' }));
+    await settle();
+    expect(panel().hidden).toBe(false);
+    await fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+    await settle();
+    expect(emitted('update:open')).toEqual([[true], [false]]);
+    expect(panel().hidden).toBe(true);
   });
 
-  it('persistent hover popover closes on mouse leave', async () => {
-    const { container } = render(Popover, {
-      props: { triggerMode: 'hover', persistent: true, showDelay: 0, hideDelay: 0 },
-      slots: { trigger: '<button>Hover</button>', default: 'Persistent hover' },
-    });
-    const wrapper = container.firstElementChild!;
-    await fireEvent.mouseEnter(wrapper);
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
-
-    await fireEvent.mouseLeave(wrapper);
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeFalsy();
+  it('emits placement and drops the arrow', () => {
+    render(Popover, { props: { open: true, title: 'T', placement: 'end', arrow: false } });
+    expect(panel().getAttribute('data-placement')).toBe('end');
+    expect(partOf('arrow')).toBeNull();
   });
 
-  it('Escape closes non-persistent popover', async () => {
-    const { container } = render(Popover, {
-      props: { triggerMode: 'click' },
-      slots: { trigger: '<button>Open</button>', default: 'Content' },
-    });
-    await fireEvent.click(screen.getByText('Open'));
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
-
-    await fireEvent.keyDown(container.firstElementChild as HTMLElement, { key: 'Escape' });
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeFalsy();
-  });
-
-  it('Escape does not close persistent popover', async () => {
-    const { container } = render(Popover, {
-      props: { triggerMode: 'click', persistent: true },
-      slots: { trigger: '<button>Open</button>', default: 'Content' },
-    });
-    await fireEvent.click(screen.getByText('Open'));
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
-
-    await fireEvent.keyDown(container.firstElementChild as HTMLElement, { key: 'Escape' });
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
-  });
-
-  it('Enter/Space only toggles when trigger has focus', async () => {
-    const { container } = render(Popover, {
-      props: { triggerMode: 'click' },
-      slots: {
-        trigger: '<button>Trigger</button>',
-        default: '<button>Inner Button</button>',
-      },
-    });
-
-    const triggerWrapper = container.querySelector('[aria-expanded]') as HTMLElement;
-
-    // Focus trigger and verify before sending Enter
-    triggerWrapper.focus();
-    expect(document.activeElement).toBe(triggerWrapper);
-    await fireEvent.keyDown(triggerWrapper, { key: 'Enter' });
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
-
-    // Space on focused trigger should close
-    expect(document.activeElement).toBe(triggerWrapper);
-    await fireEvent.keyDown(triggerWrapper, { key: ' ' });
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeFalsy();
-
-    // Re-open for content descendant test
-    await fireEvent.keyDown(triggerWrapper, { key: 'Enter' });
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
-
-    // Focus the inner button and verify
-    const innerButton = container.querySelector('[role="dialog"] button') as HTMLElement;
-    innerButton.focus();
-    expect(document.activeElement).toBe(innerButton);
-
-    // Enter/Space on content descendant should NOT toggle the popover
-    await fireEvent.keyDown(innerButton, { key: 'Enter' });
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
-
-    await fireEvent.keyDown(innerButton, { key: ' ' });
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
+  it('uses no DaisyUI classes', () => {
+    render(Popover, { props: { open: true, title: 'T', trigger: 'Share' } });
+    expect(document.body.innerHTML).not.toMatch(/\b(dropdown-content|bg-base-100|rounded-box)\b/);
   });
 });

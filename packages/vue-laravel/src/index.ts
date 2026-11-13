@@ -44,6 +44,7 @@ export {
   InertiaToggle,
   InertiaPassword,
   InertiaRadio,
+  InertiaRadioGroup,
   INERTIA_FORM_KEY,
 } from './components/form';
 export type { InertiaFormContext } from './components/form';

@@ -1,131 +1,81 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/vue';
+import { fireEvent, render } from '@testing-library/vue';
 import { nextTick } from 'vue';
 import { Collapse } from '../../components/layout';
 
+const settle = async () => {
+  await nextTick();
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  await nextTick();
+};
+
+const part = (name: string) =>
+  document.querySelector<HTMLElement>(`[data-scope="collapse"][data-part="${name}"]`);
+
 describe('Collapse', () => {
-  it('renders with title', () => {
-    render(Collapse, { props: { title: 'Section' }, slots: { default: 'Content' } });
-    expect(screen.getByText('Section')).toBeTruthy();
-  });
-
-  it('applies arrow icon class by default', () => {
-    const { container } = render(Collapse, {
-      props: { title: 'Test' },
-      slots: { default: 'Content' },
-    });
-    expect(container.querySelector('.collapse-arrow')).toBeTruthy();
-  });
-
-  it('applies plus icon class', () => {
-    const { container } = render(Collapse, {
-      props: { title: 'Test', icon: 'plus' },
-      slots: { default: 'Content' },
-    });
-    expect(container.querySelector('.collapse-plus')).toBeTruthy();
-  });
-
-  it('applies no icon class when icon is none', () => {
-    const { container } = render(Collapse, {
-      props: { title: 'Test', icon: 'none' },
-      slots: { default: 'Content' },
-    });
-    expect(container.querySelector('.collapse-arrow')).toBeFalsy();
-    expect(container.querySelector('.collapse-plus')).toBeFalsy();
-  });
-
-  it('applies bordered class', () => {
-    const { container } = render(Collapse, {
-      props: { title: 'Test', bordered: true },
-      slots: { default: 'Content' },
-    });
-    expect(container.querySelector('.collapse-border')).toBeTruthy();
-  });
-
-  it('has correct ARIA attributes', () => {
-    render(Collapse, { props: { title: 'Test' }, slots: { default: 'Content' } });
-    const trigger = screen.getByRole('button');
-    expect(trigger.getAttribute('aria-expanded')).toBe('false');
-    expect(trigger.getAttribute('aria-controls')).toBeTruthy();
-  });
-
-  it('toggles open state on click', async () => {
-    render(Collapse, { props: { title: 'Test' }, slots: { default: 'Content' } });
-    const trigger = screen.getByRole('button');
-    expect(trigger.getAttribute('aria-expanded')).toBe('false');
-
-    await fireEvent.click(trigger);
-    await nextTick();
-    expect(trigger.getAttribute('aria-expanded')).toBe('true');
-
-    await fireEvent.click(trigger);
-    await nextTick();
-    expect(trigger.getAttribute('aria-expanded')).toBe('false');
-  });
-
-  it('toggles on Enter key', async () => {
-    render(Collapse, { props: { title: 'Test' }, slots: { default: 'Content' } });
-    const trigger = screen.getByRole('button');
-
-    await fireEvent.keyDown(trigger, { key: 'Enter' });
-    await nextTick();
-    expect(trigger.getAttribute('aria-expanded')).toBe('true');
-
-    await fireEvent.keyDown(trigger, { key: 'Enter' });
-    await nextTick();
-    expect(trigger.getAttribute('aria-expanded')).toBe('false');
-  });
-
-  it('toggles on Space key', async () => {
-    render(Collapse, { props: { title: 'Test' }, slots: { default: 'Content' } });
-    const trigger = screen.getByRole('button');
-
-    await fireEvent.keyDown(trigger, { key: ' ' });
-    await nextTick();
-    expect(trigger.getAttribute('aria-expanded')).toBe('true');
-
-    await fireEvent.keyDown(trigger, { key: ' ' });
-    await nextTick();
-    expect(trigger.getAttribute('aria-expanded')).toBe('false');
-  });
-
-  it('starts open when defaultOpen is true', async () => {
+  it('renders a section: the trigger, then the hidden region', async () => {
     render(Collapse, {
-      props: { title: 'Test', defaultOpen: true },
-      slots: { default: 'Content' },
+      props: { label: 'Advanced settings' },
+      slots: { default: 'Custom URL' },
     });
-    await nextTick();
-    expect(screen.getByRole('button').getAttribute('aria-expanded')).toBe('true');
-  });
-
-  it('renders slot content', () => {
-    render(Collapse, { props: { title: 'Test' }, slots: { default: 'Inner content' } });
-    expect(screen.getByText('Inner content')).toBeTruthy();
-  });
-
-  it('applies disabled styling and prevents toggle', async () => {
-    const { container } = render(Collapse, {
-      props: { title: 'Test', disabled: true },
-      slots: { default: 'Content' },
-    });
-    expect(container.querySelector('.opacity-50')).toBeTruthy();
-
-    const trigger = screen.getByRole('button');
+    await settle();
+    const root = document.querySelector('.apui-collapse')!;
+    expect(root.getAttribute('data-variant')).toBe('section');
+    expect(root.getAttribute('data-state')).toBe('closed');
+    const trigger = part('trigger')!;
+    expect(trigger.textContent?.trim()).toBe('Advanced settings');
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
-
-    await fireEvent.click(trigger);
-    await nextTick();
-    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(trigger.getAttribute('aria-controls')).toBe(part('content')!.id);
+    expect(part('icon')!.getAttribute('aria-hidden')).toBe('true');
+    expect(part('content')!.hidden).toBe(true);
+    expect(
+      trigger.compareDocumentPosition(part('content')!) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(part('fade')).toBeNull();
   });
 
-  it('emits update:open in controlled mode', async () => {
-    const { emitted } = render(Collapse, {
-      props: { title: 'Test', open: false, 'onUpdate:open': () => {} },
-      slots: { default: 'Content' },
-    });
-    const trigger = screen.getByRole('button');
-    await fireEvent.click(trigger);
-    expect(emitted()['update:open']).toBeTruthy();
-    expect(emitted()['update:open'][0]).toEqual([true]);
+  it('opens from the trigger and emits update:open', async () => {
+    const { emitted } = render(Collapse, { props: { label: 'More' }, slots: { default: 'Body' } });
+    await settle();
+    await fireEvent.click(part('trigger')!);
+    await settle();
+    expect(part('trigger')!.getAttribute('aria-expanded')).toBe('true');
+    expect(part('content')!.hidden).toBe(false);
+    expect(emitted()['update:open']).toEqual([[true]]);
+  });
+
+  it('follows open', async () => {
+    const { rerender } = render(Collapse, { props: { label: 'More', open: false } });
+    await settle();
+    await rerender({ label: 'More', open: true });
+    await settle();
+    expect(part('trigger')!.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('clamps a read-more and puts the trigger after it, with default labels', async () => {
+    render(Collapse, { props: { variant: 'read-more' }, slots: { default: 'Long text' } });
+    await settle();
+    expect(part('content')!.hidden).toBe(false);
+    expect(part('content')!.style.maxHeight).toContain('--apui-collapse-clamp-height');
+    expect(part('fade')!.getAttribute('aria-hidden')).toBe('true');
+    expect(part('trigger')!.textContent?.trim()).toBe('Read more');
+    expect(
+      part('content')!.compareDocumentPosition(part('trigger')!) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    await fireEvent.click(part('trigger')!);
+    await settle();
+    expect(part('trigger')!.textContent?.trim()).toBe('Show less');
+  });
+
+  it('disables the trigger', async () => {
+    render(Collapse, { props: { label: 'More', disabled: true } });
+    await settle();
+    expect(part('trigger')!.hasAttribute('disabled')).toBe(true);
+  });
+
+  it('takes a trigger slot', async () => {
+    render(Collapse, { slots: { trigger: '<strong>Custom</strong>', default: 'Body' } });
+    await settle();
+    expect(part('trigger')!.querySelector('strong')?.textContent).toBe('Custom');
   });
 });

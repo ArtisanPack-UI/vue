@@ -1,18 +1,19 @@
 /**
- * Props for the ErrorDisplay component.
+ * Props for the deprecated ErrorDisplay component.
  *
- * Displays a user-friendly error state with an optional icon, title,
- * message, and retry action.
+ * @deprecated Use `ErrorState` (#60). ErrorDisplay renders an ErrorState:
+ * `message` becomes its description and `retryable` adds a Try again button
+ * to its actions.
  */
 export interface ErrorDisplayProps {
   /** Error title displayed as a heading. @defaultValue `'Something went wrong'` */
   title?: string;
   /** Descriptive error message displayed below the title. */
   message?: string;
-  /** When true, renders a retry button. @defaultValue `false` */
+  /** When true, renders a retry button that emits `retry`. @defaultValue `false` */
   retryable?: boolean;
-  /** Custom label for the retry button. @defaultValue `'Try again'` */
+  /** Label for the retry button; translate it. @defaultValue `'Try again'` */
   retryLabel?: string;
-  /** Additional CSS classes. */
+  /** Additional CSS classes on the root. */
   className?: string;
 }

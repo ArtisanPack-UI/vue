@@ -82,15 +82,19 @@
     "test:visual:update": "histoire build && playwright test --update-snapshots"
   },
   "dependencies": {
-    "@artisanpack-ui/tokens": "^1.0.1"
+    "@artisanpack-ui/behavior": "file:../../../design-system/packages/behavior",
+    "@artisanpack-ui/tokens": "^1.0.1",
+    "@zag-js/vue": "~1.47.0"
   },
   "devDependencies": {
+    "@artisanpack-ui/css": "file:../../../design-system/packages/css",
+    "@artisanpack-ui/manifest": "file:../../../design-system/packages/manifest",
+    "@artisanpack-ui/testing": "file:../../../design-system/packages/testing",
     "@histoire/plugin-vue": "^0.17.17",
     "@playwright/test": "^1.59.1",
     "@tailwindcss/vite": "^4.2.2",
     "@testing-library/vue": "^8.1.0",
     "@vitejs/plugin-vue": "^5.2.0",
-    "apexcharts": "^5.10.4",
     "axe-core": "^4.11.2",
     "daisyui": "^5.5.19",
     "histoire": "^0.17.17",
@@ -101,22 +105,12 @@
     "vitest": "^2.1.0",
     "vitest-axe": "^0.1.0",
     "vue": "^3.5.0",
-    "vue-tsc": "^3.2.6",
-    "vue3-apexcharts": "^1.11.1"
+    "vue-tsc": "^3.2.6"
   },
   "peerDependencies": {
-    "apexcharts": "^5.10.0",
-    "vue": "^3.5.0",
-    "vue3-apexcharts": "^1.7.0"
+    "vue": "^3.5.0"
   },
-  "peerDependenciesMeta": {
-    "apexcharts": {
-      "optional": true
-    },
-    "vue3-apexcharts": {
-      "optional": true
-    }
-  },
+  "peerDependenciesMeta": {},
   "publishConfig": {
     "access": "public"
   },

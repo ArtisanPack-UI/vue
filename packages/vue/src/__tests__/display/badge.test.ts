@@ -1,58 +1,50 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/vue';
+import { render } from '@testing-library/vue';
 import { Badge } from '../../components/display';
 
 describe('Badge', () => {
-  it('renders value text', () => {
-    render(Badge, { props: { value: 'New' } });
-    expect(screen.getByText('New')).toBeTruthy();
+  it('renders a soft neutral md badge with a label part', () => {
+    const { container } = render(Badge, { slots: { default: 'Draft' } });
+    const root = container.querySelector('.apui-badge')!;
+    expect(root.tagName).toBe('SPAN');
+    expect(root.getAttribute('data-variant')).toBe('soft');
+    expect(root.getAttribute('data-color')).toBe('neutral');
+    expect(root.getAttribute('data-size')).toBe('md');
+    expect(root.querySelector('[data-scope="badge"][data-part="label"]')?.textContent).toBe(
+      'Draft',
+    );
   });
 
-  it('renders numeric value', () => {
-    render(Badge, { props: { value: 42 } });
-    expect(screen.getByText('42')).toBeTruthy();
-  });
-
-  it('renders slot content when no value provided', () => {
-    render(Badge, { slots: { default: 'Slot content' } });
-    expect(screen.getByText('Slot content')).toBeTruthy();
-  });
-
-  it('applies badge base class', () => {
-    const { container } = render(Badge, { props: { value: 'Test' } });
-    expect(container.querySelector('.badge')).toBeTruthy();
-  });
-
-  it('applies color variant', () => {
+  it('emits variant, color and size', () => {
     const { container } = render(Badge, {
-      props: { value: 'Test', color: 'primary' },
+      props: { variant: 'solid', color: 'success', size: 'lg' },
+      slots: { default: 'Paid' },
     });
-    expect(container.querySelector('.badge-primary')).toBeTruthy();
+    const root = container.querySelector('.apui-badge')!;
+    expect(root.getAttribute('data-variant')).toBe('solid');
+    expect(root.getAttribute('data-color')).toBe('success');
+    expect(root.getAttribute('data-size')).toBe('lg');
   });
 
-  it('applies size class', () => {
+  it('renders a decorative dot and icon, and arrows mirror', () => {
     const { container } = render(Badge, {
-      props: { value: 'Test', size: 'lg' },
+      props: { dot: true, leadingIcon: 'arrow-right' },
+      slots: { default: 'Up' },
     });
-    expect(container.querySelector('.badge-lg')).toBeTruthy();
+    expect(container.querySelector('[data-part="dot"]')?.getAttribute('aria-hidden')).toBe('true');
+    const icon = container.querySelector('[data-part="icon"]')!;
+    expect(icon.getAttribute('aria-hidden')).toBe('true');
+    expect(icon.getAttribute('data-mirror')).toBe('');
+    expect(icon.querySelector('svg')).not.toBeNull();
   });
 
-  it('applies outline variant', () => {
+  it('takes an icon slot over leadingIcon and part classes', () => {
     const { container } = render(Badge, {
-      props: { value: 'Test', outline: true },
+      props: { leadingIcon: 'check', classes: { label: 'x' } },
+      slots: { default: 'New', icon: '<b>!</b>' },
     });
-    expect(container.querySelector('.badge-outline')).toBeTruthy();
-  });
-
-  it('applies ghost variant', () => {
-    const { container } = render(Badge, {
-      props: { value: 'Test', ghost: true },
-    });
-    expect(container.querySelector('.badge-ghost')).toBeTruthy();
-  });
-
-  it('renders as a span element', () => {
-    const { container } = render(Badge, { props: { value: 'Test' } });
-    expect(container.querySelector('span.badge')).toBeTruthy();
+    expect(container.querySelector('[data-part="icon"] b')).not.toBeNull();
+    expect(container.querySelector('[data-part="icon"] svg')).toBeNull();
+    expect(container.querySelector('[data-part="label"]')?.classList.contains('x')).toBe(true);
   });
 });

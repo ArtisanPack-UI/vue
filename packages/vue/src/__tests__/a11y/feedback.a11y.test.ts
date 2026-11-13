@@ -1,7 +1,15 @@
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/vue';
 import { axe } from 'vitest-axe';
-import { Alert, EmptyState, ErrorDisplay, Loading, Skeleton } from '../../components/feedback';
+import {
+  Alert,
+  EmptyState,
+  ErrorDisplay,
+  ErrorState,
+  Loading,
+  Skeleton,
+  Toast,
+} from '../../components/feedback';
 
 describe('Feedback components accessibility', () => {
   it('Alert info has no a11y violations', async () => {
@@ -24,7 +32,7 @@ describe('Feedback components accessibility', () => {
 
   it('EmptyState has no a11y violations', async () => {
     const { container } = render(EmptyState, {
-      props: { heading: 'No results', description: 'Try adjusting your filters.' },
+      props: { title: 'No results', description: 'Try adjusting your filters.' },
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -38,6 +46,22 @@ describe('Feedback components accessibility', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('ErrorState has no a11y violations', async () => {
+    const { container } = render(ErrorState, {
+      props: { title: 'Couldn’t load', description: 'Try again.', code: 'Error 503' },
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('Alert dismissible has no a11y violations', async () => {
+    const { container } = render(Alert, {
+      props: { color: 'success', title: 'Saved', dismissible: true },
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
   it('Loading has no a11y violations', async () => {
     const { container } = render(Loading);
     const results = await axe(container);
@@ -46,6 +70,21 @@ describe('Feedback components accessibility', () => {
 
   it('Skeleton has no a11y violations', async () => {
     const { container } = render(Skeleton);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('Toast has no a11y violations', async () => {
+    const { container } = render(Toast, {
+      props: { title: 'Listing saved', description: 'Cedarwood Estates is live now.' },
+      slots: { actions: '<button>Undo</button>' },
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('Toast error has no a11y violations', async () => {
+    const { container } = render(Toast, { props: { title: 'Upload failed', color: 'error' } });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

@@ -1,139 +1,93 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import Table from './Table.vue';
-import type { SortState } from './types';
+import type { TableKey, TableSort } from './types';
 
-const columns = [
-  { key: 'name', label: 'Name', sortable: true },
-  { key: 'email', label: 'Email', sortable: true },
-  { key: 'role', label: 'Role' },
+const headers = [
+  { key: 'symbol', label: 'Product name', secondary: 'company', sortable: true },
+  { key: 'amount', label: 'Order amount', numeric: true },
+  { key: 'date', label: 'Date', sortable: true },
   { key: 'status', label: 'Status' },
+  { key: 'owner', label: 'Executed by' },
 ];
 
 const rows = [
-  { name: 'John Doe', email: 'john@example.com', role: 'Admin', status: 'Active' },
-  { name: 'Jane Smith', email: 'jane@example.com', role: 'Editor', status: 'Active' },
-  { name: 'Bob Johnson', email: 'bob@example.com', role: 'Viewer', status: 'Inactive' },
-  { name: 'Alice Brown', email: 'alice@example.com', role: 'Editor', status: 'Active' },
-  { name: 'Charlie Wilson', email: 'charlie@example.com', role: 'Admin', status: 'Active' },
+  {
+    id: 1,
+    symbol: 'TSLA',
+    company: 'Tesla, Inc.',
+    amount: '$30,021.23',
+    date: 'Dec 13, 2023',
+    status: 'Processing',
+    owner: 'Olivia Rhye',
+  },
+  {
+    id: 2,
+    symbol: 'MTCH',
+    company: 'Match Group, Inc.',
+    amount: '$10,045.00',
+    date: 'Dec 13, 2023',
+    status: 'Success',
+    owner: 'Phoenix Baker',
+  },
+  {
+    id: 3,
+    symbol: 'DDOG',
+    company: 'Datadog Inc.',
+    amount: '$40,132.16',
+    date: 'Dec 13, 2023',
+    status: 'Success',
+    owner: 'Lana Steiner',
+  },
+  {
+    id: 4,
+    symbol: 'ARKG',
+    company: 'ARK Genomic Revolution ETF',
+    amount: '$22,665.12',
+    date: 'Dec 28, 2023',
+    status: 'Declined',
+    owner: 'Demi Wilkinson',
+  },
 ];
 
-const sort = ref<SortState | undefined>(undefined);
-
-function handleSort(state: SortState) {
-  sort.value = state;
-}
+const selected = ref<TableKey[]>([2]);
+const sort = ref<TableSort>({ column: 'date', direction: 'desc' });
+const page = ref(3);
 </script>
 
 <template>
   <Story title="Data/Table" group="data">
-    <Variant title="Playground">
-      <template #controls="{ state }">
-        <HstCheckbox v-model="state.striped" title="Striped" />
-        <HstCheckbox v-model="state.compact" title="Compact" />
-        <HstCheckbox v-model="state.hoverable" title="Hoverable" />
-        <HstCheckbox v-model="state.pinRows" title="Pin Rows" />
-        <HstCheckbox v-model="state.pinCols" title="Pin Columns" />
-      </template>
-
-      <template #default="{ state }">
-        <Table
-          :columns="columns"
-          :rows="rows"
-          :striped="state.striped"
-          :compact="state.compact"
-          :hoverable="state.hoverable"
-          :pin-rows="state.pinRows"
-          :pin-cols="state.pinCols"
-        />
-      </template>
+    <Variant title="Default">
+      <Table title="Transaction history" :headers="headers" :rows="rows" />
     </Variant>
-
-    <Variant title="Striped & Hoverable">
-      <Table :columns="columns" :rows="rows" :striped="true" :hoverable="true" />
-    </Variant>
-
-    <Variant title="With Sorting">
-      <Table :columns="columns" :rows="rows" :sort="sort" @sort="handleSort" />
-      <p v-if="sort" style="margin-top: 8px; font-size: 0.875rem; color: gray">
-        Sorting by <strong>{{ sort.key }}</strong> ({{ sort.direction }})
-      </p>
-    </Variant>
-
-    <Variant title="Column Alignment and Width">
+    <Variant title="Selection, sorting, expansion and pagination">
       <Table
-        :columns="[
-          { key: 'id', label: 'ID', width: '60px', align: 'center' },
-          { key: 'name', label: 'Name' },
-          { key: 'amount', label: 'Amount', align: 'right' },
-        ]"
-        :rows="[
-          { id: 1, name: 'Order A', amount: '$120.00' },
-          { id: 2, name: 'Order B', amount: '$85.50' },
-          { id: 3, name: 'Order C', amount: '$210.00' },
-        ]"
-      />
+        v-model="selected"
+        v-model:sort-by="sort"
+        title="Transaction history"
+        :headers="headers"
+        :rows="rows"
+        selectable
+        expandable
+        :footer="`${selected.length} selected · 4 of 128 transactions`"
+        :pagination="{
+          page,
+          total: 128,
+          perPage: 4,
+          onPageChange: (next: number) => (page = next),
+        }"
+      >
+        <template #expansion="{ row }">{{ row.company }} — order details</template>
+      </Table>
     </Variant>
-
+    <Variant title="Compact">
+      <Table title="Transaction history" :headers="headers" :rows="rows" density="compact" />
+    </Variant>
     <Variant title="Loading">
-      <Table :columns="columns" :rows="[]" :loading="true" />
+      <Table title="Transaction history" :headers="headers" :rows="rows" loading />
     </Variant>
-
     <Variant title="Empty">
-      <Table :columns="columns" :rows="[]" empty-message="No users found" />
+      <Table title="Transaction history" :headers="headers" :rows="[]" />
     </Variant>
   </Story>
 </template>
-
-<docs lang="md">
-# Table
-
-A data table with sorting, striping, hover effects, pinning, and loading/empty states.
-
-## Usage
-
-```vue
-<Table
-  :columns="columns"
-  :rows="users"
-  :striped="true"
-  :hoverable="true"
-  :sort="currentSort"
-  @sort="handleSort"
-/>
-```
-
-## Props
-
-| Prop           | Type                        | Default               | Description                |
-| -------------- | --------------------------- | --------------------- | -------------------------- |
-| `columns`      | `TableColumn[]`             | —                     | Column definitions         |
-| `rows`         | `Record<string, unknown>[]` | —                     | Array of row data objects  |
-| `striped`      | `boolean`                   | `false`               | Adds zebra striping        |
-| `compact`      | `boolean`                   | `false`               | Compact row height         |
-| `hoverable`    | `boolean`                   | `false`               | Hover highlighting on rows |
-| `pinRows`      | `boolean`                   | `false`               | Pins the header row        |
-| `pinCols`      | `boolean`                   | `false`               | Pins the first column      |
-| `sort`         | `SortState`                 | —                     | Current sort state         |
-| `loading`      | `boolean`                   | `false`               | Shows loading spinner      |
-| `emptyMessage` | `string`                    | `'No data available'` | Message when no rows       |
-| `className`    | `string`                    | —                     | Additional CSS classes     |
-
-## Events
-
-| Event  | Payload     | Description                                      |
-| ------ | ----------- | ------------------------------------------------ |
-| `sort` | `SortState` | Emitted when a sortable column header is clicked |
-
-## Custom Cell Rendering
-
-Use scoped slots named `cell-{columnKey}` to customize cell rendering:
-
-```vue
-<Table :columns="columns" :rows="rows">
-  <template #cell-name="{ row, value }">
-    <strong>{{ value }}</strong>
-  </template>
-</Table>
-```
-</docs>

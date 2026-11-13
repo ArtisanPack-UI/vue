@@ -17,3 +17,4 @@ Per-package changelogs are generated automatically by [Changesets](https://githu
 - `@artisanpack-ui/vue-laravel` - `useInertiaForm`, `useFlashMessages`, and `useAuth` composables
 - `@artisanpack-ui/vue-laravel` - `createArtisanPackUILaravel` plugin
 - Root documentation: README, CONTRIBUTING, LICENSE, and `docs/` directory
+- `@artisanpack-ui/vue` - Design-system Dialog, DropdownMenu, Toast and Toaster (design-system #49 to #51); Modal, Dropdown and ToastProvider are deprecated

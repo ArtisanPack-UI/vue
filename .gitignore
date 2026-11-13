@@ -11,3 +11,6 @@ storybook-static/
 
 # Playwright
 packages/vue/visual-tests/test-results/
+
+# apui-gates output (design-system quality gates)
+packages/*/build/

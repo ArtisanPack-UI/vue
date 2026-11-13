@@ -1,57 +1,50 @@
 <script setup lang="ts">
+import { ref } from 'vue';
+import Step from './Step.vue';
 import Steps from './Steps.vue';
 
-const steps = [
-  { label: 'Register' },
-  { label: 'Choose Plan' },
-  { label: 'Payment' },
-  { label: 'Confirm' },
-];
+const checkout = ref(3);
 </script>
 
 <template>
   <Story title="Navigation/Steps" group="navigation">
-    <Variant title="Playground">
-      <template #controls="{ state }">
-        <HstNumber v-model="state.currentStep" title="Current Step" />
-        <HstSelect
-          v-model="state.color"
-          title="Color"
-          :options="['', 'primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info']"
-        />
-        <HstCheckbox v-model="state.vertical" title="Vertical" />
-      </template>
-
-      <template #default="{ state }">
-        <Steps
-          :steps="steps"
-          :current-step="state.currentStep ?? 1"
-          :color="state.color || undefined"
-          :vertical="state.vertical"
-        />
-      </template>
+    <Variant title="Horizontal">
+      <Steps :model-value="3" label="Listing progress">
+        <Step title="Basics" description="Title and type" />
+        <Step title="Location" description="Address and map" />
+        <Step title="Pricing" description="Price and rent" />
+        <Step title="Photos" description="At least 6" />
+        <Step title="Review" description="Publish" />
+      </Steps>
     </Variant>
 
-    <Variant title="Colored Steps">
+    <Variant title="Vertical with error">
+      <div style="max-width: 420px">
+        <Steps :model-value="3" orientation="vertical">
+          <Step title="Account created" description="Nov 2 · Olivia Rhye" />
+          <Step title="Identity verified" description="Nov 3" />
+          <Step
+            state="error"
+            title="Payout account"
+            description="IBAN rejected by the bank. Update it to continue."
+          />
+          <Step title="Go live" description="Listings become public" />
+        </Steps>
+      </div>
+    </Variant>
+
+    <Variant title="Clickable, from data">
       <Steps
+        v-model="checkout"
+        clickable
+        label="Checkout progress"
         :steps="[
-          { label: 'Done', color: 'success' },
-          { label: 'Done', color: 'success' },
-          { label: 'In Progress', color: 'warning' },
-          { label: 'Pending' },
+          { title: 'Cart' },
+          { title: 'Shipping' },
+          { title: 'Payment' },
+          { title: 'Confirm' },
         ]"
-        :current-step="2"
       />
-    </Variant>
-
-    <Variant title="Vertical">
-      <Steps :steps="steps" :current-step="2" :vertical="true" color="primary" />
     </Variant>
   </Story>
 </template>
-
-<docs lang="md">
-# Steps
-
-A step indicator for multi-step processes with color and vertical support.
-</docs>

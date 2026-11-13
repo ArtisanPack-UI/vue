@@ -1,208 +1,142 @@
 <script setup lang="ts">
-/** @module Tabs */
-import { computed, ref, useId, watch } from 'vue';
-import { cn } from '@artisanpack-ui/tokens';
-import type { DaisyColor, Size } from '@artisanpack-ui/tokens';
-import type { TabsProps } from './types';
+/**
+ * @module Tabs
+ *
+ * Switches between views of the same content. Renders the design-system
+ * Tabs markup contract (`.apui-tabs`, #56) on the shared Zag tabs machine
+ * (`useTabs`): a tablist with a roving tabindex, arrow keys that follow the
+ * orientation and the text direction, and automatic or manual activation.
+ *
+ * Compose it from `Tab` children, each a trigger and its panel, or pass the
+ * same tabs as `tabs`. Bind the selected tab with `v-model`.
+ */
+import { computed, getCurrentInstance, mergeProps, provide, ref, useAttrs, useSlots } from 'vue';
+import { useTabs } from '@artisanpack-ui/behavior/vue';
+import { DsIcon, part } from '../../_shared/design-system';
+import { TABS_KEY } from './keys';
+import { collectTabs, type CollectedTab } from './TabsEntries';
+import type { TabsPart, TabsProps } from './types';
+
+defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(defineProps<TabsProps>(), {
-  variant: 'bordered',
-  vertical: false,
-  verticalRight: false,
+  modelValue: undefined,
+  tabs: undefined,
+  variant: 'segmented',
+  size: 'md',
+  orientation: 'horizontal',
+  activationMode: 'automatic',
+  label: undefined,
+  classes: undefined,
 });
 
-const emit = defineEmits<{
-  'update:activeTab': [value: string];
-}>();
+const emit = defineEmits<{ 'update:modelValue': [value: string] }>();
 
-const autoId = useId();
+const attrs = useAttrs();
+const slots = useSlots();
+const instance = getCurrentInstance();
 
-function djb2Hash(str: string): string {
-  let hash = 5381;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash * 33) ^ str.charCodeAt(i);
-  }
-  return (hash >>> 0).toString(16).slice(0, 6);
+/** Whether the parent passes `modelValue`; then the tabs show only what it says. */
+function isBound(): boolean {
+  const raw = instance?.vnode.props;
+  return !!raw && 'modelValue' in raw;
 }
 
-function sanitizeId(name: string): string {
-  const slug = name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-  const hash = djb2Hash(name);
-  return slug ? `${slug}-${hash}` : hash;
+const localValue = ref<string | undefined>(props.modelValue);
+
+/**
+ * The first enabled `Tab` child, found while rendering: slots can only be
+ * read in render. Data tabs are known up front, so they never need it.
+ */
+const firstChild = ref<string | null>(null);
+
+/** The tabs this render, from `entries()`. Not reactive: the render reads it right after. */
+let rendered: CollectedTab[] = [];
+
+/**
+ * The tabs, from data then children, collected once per render before
+ * anything reads the machine: the root's attributes call it first, so the
+ * first enabled child is known (and selected) in the same render, on the
+ * server too, rather than one render later.
+ */
+function entries(): CollectedTab[] {
+  rendered = collectTabs(props.tabs, slots.default?.() ?? []);
+  const first = rendered.find((tab) => !tab.disabled)?.value ?? null;
+  if (firstChild.value !== first) firstChild.value = first;
+  return rendered;
 }
 
-const isControlled = computed(() => props.activeTab !== undefined);
-
-const firstSelectableTab = computed(() => props.tabs.find((t) => !t.disabled)?.name ?? '');
-
-function resolveValidTab(name: string | undefined): string {
-  if (name) {
-    const tab = props.tabs.find((t) => t.name === name && !t.disabled);
-    if (tab) return tab.name;
-  }
-  return firstSelectableTab.value;
+/** The shown value: the bound or local one, else the first enabled tab. */
+function shownValue(): string | null {
+  const own = isBound() ? props.modelValue : localValue.value;
+  if (own !== undefined && own !== null && own !== '') return own;
+  return props.tabs?.find((tab) => !tab.disabled)?.value ?? firstChild.value;
 }
 
-const internalTab = ref(resolveValidTab(props.defaultTab));
+const machine = useTabs(() => ({
+  value: shownValue(),
+  orientation: props.orientation,
+  activationMode: props.activationMode,
+  label: props.label,
+  onValueChange: ({ value }) => {
+    if (!isBound()) localValue.value = value;
+    emit('update:modelValue', value);
+  },
+}));
 
-const selectableTabs = computed(() => props.tabs.filter((t) => !t.disabled));
+/** The machine's API, re-wrapped in this package's `computed` for the template type-check. */
+const api = computed(() => machine.value);
 
-// Keep uncontrolled state in sync when tabs change
-watch(selectableTabs, () => {
-  if (!isControlled.value) {
-    const current = selectableTabs.value.find((t) => t.name === internalTab.value);
-    if (!current) {
-      internalTab.value = firstSelectableTab.value;
-    }
-  }
-});
-
-const currentTab = computed(() => {
-  if (isControlled.value) {
-    const valid = selectableTabs.value.find((t) => t.name === props.activeTab);
-    return valid ? props.activeTab! : firstSelectableTab.value;
-  }
-  return internalTab.value;
-});
-
-function selectTab(name: string) {
-  const tab = props.tabs.find((t) => t.name === name);
-  if (tab?.disabled) return;
-  if (isControlled.value) {
-    emit('update:activeTab', name);
-  } else {
-    internalTab.value = name;
-  }
+function classOf(name: TabsPart): string | undefined {
+  return props.classes?.[name];
 }
 
-const colorMap: Record<DaisyColor, string> = {
-  primary: 'text-primary [--tab-border-color:var(--color-primary)]',
-  secondary: 'text-secondary [--tab-border-color:var(--color-secondary)]',
-  accent: 'text-accent [--tab-border-color:var(--color-accent)]',
-  success: 'text-success [--tab-border-color:var(--color-success)]',
-  warning: 'text-warning [--tab-border-color:var(--color-warning)]',
-  error: 'text-error [--tab-border-color:var(--color-error)]',
-  info: 'text-info [--tab-border-color:var(--color-info)]',
-  neutral: 'text-neutral [--tab-border-color:var(--color-neutral)]',
-};
+provide(TABS_KEY, { api: () => api.value, classOf });
 
-const sizeMap: Record<Size, string> = {
-  xs: 'tabs-xs',
-  sm: 'tabs-sm',
-  md: 'tabs-md',
-  lg: 'tabs-lg',
-};
-
-const variantMap: Record<'bordered' | 'lifted' | 'boxed', string> = {
-  bordered: 'tabs-bordered',
-  lifted: 'tabs-lifted',
-  boxed: 'tabs-boxed',
-};
-
-const isVertical = computed(() => props.vertical || props.verticalRight);
-
-const tabListClasses = computed(() =>
-  cn(
-    'tabs',
-    variantMap[props.variant],
-    props.size && sizeMap[props.size],
-    isVertical.value && 'tabs-vertical min-w-48',
-    props.tabListClassName,
-  ),
-);
-
-function getTabClasses(tabName: string, disabled?: boolean) {
-  const isActive = currentTab.value === tabName;
-  return cn(
-    'tab',
-    isActive && 'tab-active',
-    isActive && props.color && colorMap[props.color],
-    isActive && props.activeTabClassName,
-    disabled && 'tab-disabled',
-    isVertical.value && 'w-full justify-start',
-  );
+function withClass(zagProps: unknown, className: string | undefined): Record<string, unknown> {
+  const own = zagProps as Record<string, unknown>;
+  return className ? mergeProps(own, { class: className }) : own;
 }
 
-function handleKeydown(e: KeyboardEvent) {
-  const selectable = selectableTabs.value;
-  const currentIndex = selectable.findIndex((t) => t.name === currentTab.value);
-  if (currentIndex === -1) return;
-
-  const isVert = isVertical.value;
-  const prevKey = isVert ? 'ArrowUp' : 'ArrowLeft';
-  const nextKey = isVert ? 'ArrowDown' : 'ArrowRight';
-
-  let targetIndex = -1;
-
-  if (e.key === prevKey) {
-    e.preventDefault();
-    targetIndex = currentIndex > 0 ? currentIndex - 1 : selectable.length - 1;
-  } else if (e.key === nextKey) {
-    e.preventDefault();
-    targetIndex = currentIndex < selectable.length - 1 ? currentIndex + 1 : 0;
-  } else if (e.key === 'Home') {
-    e.preventDefault();
-    targetIndex = 0;
-  } else if (e.key === 'End') {
-    e.preventDefault();
-    targetIndex = selectable.length - 1;
-  }
-
-  if (targetIndex >= 0) {
-    selectTab(selectable[targetIndex].name);
-    const tabEl = document.getElementById(tabId(selectable[targetIndex].name));
-    tabEl?.focus();
-  }
+function rootAttrs(): Record<string, unknown> {
+  entries();
+  return mergeProps(attrs, api.value.getRootProps() as Record<string, unknown>, {
+    class: ['apui-tabs', props.classes?.root],
+    'data-variant': props.variant,
+    'data-size': props.size,
+    'data-activation-mode': props.activationMode,
+  });
 }
 
-function tabPanelId(name: string) {
-  return `tabpanel-${autoId}-${sanitizeId(name)}`;
-}
-
-function tabId(name: string) {
-  return `tab-${autoId}-${sanitizeId(name)}`;
+function hasCount(tab: CollectedTab): boolean {
+  return tab.count !== undefined && tab.count !== null && tab.count !== '';
 }
 </script>
 
 <template>
-  <div :class="cn(isVertical && 'flex', verticalRight && 'flex-row-reverse')">
-    <div
-      role="tablist"
-      :aria-orientation="isVertical ? 'vertical' : 'horizontal'"
-      :class="tabListClasses"
-      @keydown="handleKeydown"
-    >
+  <div v-bind="rootAttrs()">
+    <div v-bind="withClass(api.getListProps(), classOf('list'))">
       <button
-        v-for="tab in tabs"
-        :id="tabId(tab.name)"
-        :key="tab.name"
-        role="tab"
-        type="button"
-        :class="getTabClasses(tab.name, tab.disabled)"
-        :aria-selected="currentTab === tab.name"
-        :aria-controls="tabPanelId(tab.name)"
-        :aria-disabled="tab.disabled || undefined"
-        :tabindex="currentTab === tab.name ? 0 : -1"
-        :disabled="tab.disabled"
-        @click="selectTab(tab.name)"
+        v-for="tab in rendered"
+        :key="tab.value"
+        v-bind="
+          withClass(
+            api.getTriggerProps({ value: tab.value, disabled: tab.disabled }),
+            classOf('trigger'),
+          )
+        "
       >
-        {{ tab.label }}
+        <span
+          v-if="tab.icon"
+          v-bind="part('tabs', 'icon', classOf('icon'), { 'aria-hidden': 'true' })"
+          ><DsIcon :name="tab.icon"
+        /></span>
+        {{ tab.label ?? tab.value }}
+        <span v-if="hasCount(tab)" v-bind="part('tabs', 'count', classOf('count'))">{{
+          tab.count
+        }}</span>
       </button>
     </div>
-    <div
-      v-for="tab in tabs"
-      :id="tabPanelId(tab.name)"
-      :key="tab.name"
-      role="tabpanel"
-      :aria-labelledby="tabId(tab.name)"
-      :hidden="currentTab !== tab.name"
-      :class="cn(isVertical ? 'flex-1 pl-4' : 'p-4', panelClassName)"
-      :tabindex="currentTab === tab.name ? 0 : -1"
-    >
-      <slot v-if="currentTab === tab.name" :name="tab.name" />
-    </div>
+    <component :is="tab.node" v-for="tab in rendered" :key="`panel-${tab.value}`" />
   </div>
 </template>

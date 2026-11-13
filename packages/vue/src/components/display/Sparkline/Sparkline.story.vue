@@ -4,50 +4,22 @@ import Sparkline from './Sparkline.vue';
 
 <template>
   <Story title="Display/Sparkline" group="display">
-    <Variant title="Playground">
-      <template #controls="{ state }">
-        <HstSelect v-model="state.type" title="Type" :options="['line', 'area', 'bar']" />
-        <HstSelect
-          v-model="state.color"
-          title="Color"
-          :options="['', 'primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info']"
-        />
-        <HstNumber v-model="state.height" title="Height" />
-        <HstCheckbox v-model="state.showTooltip" title="Show Tooltip" />
-      </template>
-
-      <template #default="{ state }">
+    <Variant title="Line, area, bar and large">
+      <div style="display: flex; gap: 32px; align-items: center">
+        <Sparkline :data="[2, 4, 3, 7, 6, 9, 12, 11, 14]" />
+        <Sparkline :data="[2, 6, 4, 7, 5, 8, 10, 7, 12]" variant="area" />
+        <Sparkline :data="[2, 6, 4, 7, 5, 8, 10, 7, 12]" variant="bar" />
         <Sparkline
-          :data="[4, 7, 2, 8, 5, 9, 3, 6, 8, 4, 7, 5]"
-          :type="state.type || 'line'"
-          :color="state.color || 'primary'"
-          :height="state.height || 40"
-          :show-tooltip="state.showTooltip"
+          :data="[2, 4, 3, 7, 6, 9, 12, 11, 14]"
+          variant="area"
+          :width="160"
+          :height="40"
         />
-      </template>
+      </div>
     </Variant>
 
-    <Variant title="Types">
-      <div style="display: flex; flex-direction: column; gap: 16px; max-width: 300px">
-        <div>
-          <span style="font-size: 0.75rem; color: gray">Line</span>
-          <Sparkline :data="[4, 7, 2, 8, 5, 9, 3, 6]" type="line" color="primary" />
-        </div>
-        <div>
-          <span style="font-size: 0.75rem; color: gray">Area</span>
-          <Sparkline :data="[4, 7, 2, 8, 5, 9, 3, 6]" type="area" color="success" />
-        </div>
-        <div>
-          <span style="font-size: 0.75rem; color: gray">Bar</span>
-          <Sparkline :data="[4, 7, 2, 8, 5, 9, 3, 6]" type="bar" color="accent" />
-        </div>
-      </div>
+    <Variant title="Crossing zero">
+      <Sparkline :data="[-4, -2, 1, 3, -1, 2, 5, 4, 6]" variant="bar" />
     </Variant>
   </Story>
 </template>
-
-<docs lang="md">
-# Sparkline
-
-A compact inline chart (line, area, or bar) for data visualization.
-</docs>

@@ -1,184 +1,244 @@
 <script setup lang="ts">
-/** @module Chart */
-import { computed, defineAsyncComponent, defineComponent, h } from 'vue';
-import { cn } from '@artisanpack-ui/tokens';
+/**
+ * @module Chart
+ *
+ * A bar, line, area or donut chart in a Card. Renders the design-system
+ * Chart markup contract (`.apui-card.apui-chart`, #63) with the geometry from
+ * the behavior package's `chartGeometry`, the same one Blade and React draw:
+ * no chart library. `attachChartTooltip` opens the tooltip on hover and
+ * keyboard focus of each mark. The plot stays LTR (D-004).
+ */
+import {
+  attachChartTooltip,
+  CHART_HEIGHT,
+  CHART_TYPES,
+  CHART_WIDTH,
+  chartGeometry,
+  type ChartType,
+} from '@artisanpack-ui/behavior';
+import { computed, onBeforeUnmount, onMounted, ref, useSlots } from 'vue';
+import { part } from '../../_shared/design-system';
 import type { ChartProps } from './types';
-
-const ChartError = defineComponent({
-  render() {
-    return h(
-      'div',
-      { class: 'p-4 text-sm text-base-content/60 border border-base-300 rounded-lg text-center' },
-      'Chart requires apexcharts and vue3-apexcharts. Install with: npm install apexcharts vue3-apexcharts',
-    );
-  },
-});
-
-const VueApexCharts = defineAsyncComponent({
-  loader: () => import('vue3-apexcharts').then((m) => m.default || m),
-  errorComponent: ChartError,
-});
 
 const props = withDefaults(defineProps<ChartProps>(), {
   type: 'bar',
-  height: 350,
-  showLegend: true,
-  animated: true,
+  labels: undefined,
+  description: undefined,
+  actions: undefined,
+  tabular: false,
+  prefix: undefined,
+  suffix: undefined,
+  notation: 'standard',
+  width: CHART_WIDTH,
+  height: CHART_HEIGHT,
+  classes: undefined,
 });
 
-const daisyToHex: Record<string, string> = {
-  primary: '#6366f1',
-  secondary: '#a855f7',
-  accent: '#06b6d4',
-  success: '#22c55e',
-  warning: '#f59e0b',
-  error: '#ef4444',
-  info: '#3b82f6',
-  neutral: '#64748b',
-};
+const slots = useSlots();
+const root = ref<HTMLElement | null>(null);
+let detach: (() => void) | null = null;
 
-const defaultPalette = [
-  '#6366f1',
-  '#f43f5e',
-  '#10b981',
-  '#f59e0b',
-  '#3b82f6',
-  '#8b5cf6',
-  '#ec4899',
-  '#14b8a6',
-];
+onMounted(() => {
+  if (root.value) detach = attachChartTooltip(root.value);
+});
+onBeforeUnmount(() => detach?.());
 
-function resolveColor(color?: string): string | undefined {
-  if (!color) return undefined;
-  return daisyToHex[color] || color;
-}
-
-const isSingleSeries = computed(() =>
-  ['pie', 'donut', 'radialBar', 'polarArea'].includes(props.type || 'bar'),
+const filled = (value: unknown): boolean => value !== undefined && value !== null && value !== '';
+const shown = computed<ChartType>(() => (CHART_TYPES.includes(props.type) ? props.type : 'bar'));
+const donut = computed(() => shown.value === 'donut');
+const geometry = computed(() =>
+  chartGeometry(props.series, {
+    type: shown.value,
+    labels: props.labels,
+    width: props.width,
+    height: props.height,
+    title: props.title,
+    prefix: props.prefix,
+    suffix: props.suffix,
+    notation: props.notation === 'compact' ? 'compact' : 'standard',
+  }),
 );
-
-const chartSeries = computed(() => {
-  if (isSingleSeries.value) {
-    return props.data ? props.data.map((d) => d.value) : [];
-  }
-  if (props.series) {
-    return props.series.map((s) => ({
-      name: s.name,
-      data: s.data,
-    }));
-  }
-  return [];
-});
-
-const defaultColor = computed(() => resolveColor(props.color));
-
-const chartColors = computed(() => {
-  if (isSingleSeries.value) {
-    if (!props.data) return [];
-    return props.data.map(
-      (d, i) =>
-        resolveColor(d.color) || defaultColor.value || defaultPalette[i % defaultPalette.length],
-    );
-  }
-  if (props.series) {
-    return props.series.map(
-      (s, i) =>
-        resolveColor(s.color) || defaultColor.value || defaultPalette[i % defaultPalette.length],
-    );
-  }
-  if (defaultColor.value) return [defaultColor.value];
-  return defaultPalette;
-});
-
-const chartLabels = computed(() => {
-  if (isSingleSeries.value && props.data) {
-    return props.data.map((d) => d.label);
-  }
-  return props.labels || [];
-});
-
-function deepMerge(
-  target: Record<string, unknown>,
-  source: Record<string, unknown>,
-): Record<string, unknown> {
-  const result = { ...target };
-  for (const key of Object.keys(source)) {
-    if (key === '__proto__' || key === 'constructor' || key === 'prototype') continue;
-    const s = source[key];
-    const t = target[key];
-    if (
-      s !== null &&
-      typeof s === 'object' &&
-      !Array.isArray(s) &&
-      t !== null &&
-      typeof t === 'object' &&
-      !Array.isArray(t)
-    ) {
-      result[key] = deepMerge(t as Record<string, unknown>, s as Record<string, unknown>);
-    } else {
-      result[key] = s;
-    }
-  }
-  return result;
-}
-
-const chartOptions = computed(() => {
-  const base: Record<string, unknown> = {
-    chart: {
-      type: props.type,
-      background: 'transparent',
-      toolbar: { show: false },
-      animations: {
-        enabled: props.animated,
-        easing: 'easeinout',
-        speed: 800,
-      },
-    },
-    colors: chartColors.value,
-    labels: chartLabels.value,
-    xaxis: {
-      categories: chartLabels.value,
-      labels: { style: { colors: 'var(--color-base-content)' } },
-    },
-    yaxis: {
-      labels: { style: { colors: 'var(--color-base-content)' } },
-    },
-    legend: {
-      show: props.showLegend,
-      labels: { colors: 'var(--color-base-content)' },
-    },
-    grid: {
-      borderColor: 'var(--color-base-300)',
-    },
-    tooltip: {
-      theme: 'dark',
-    },
-    dataLabels: {
-      enabled: isSingleSeries.value,
-    },
-    stroke: {
-      curve: 'smooth' as const,
-    },
-  };
-
-  if (props.options) {
-    return deepMerge(base, props.options);
-  }
-  return base;
-});
+const named = computed(() => (filled(props.title) ? props.title : undefined));
+const hasActions = () => !!slots.actions || filled(props.actions);
+const markAttributes = (mark: (typeof geometry.value.marks)[number]) =>
+  part('chart', 'mark', props.classes?.mark, {
+    'data-series': mark.series,
+    'data-index': mark.index,
+    tabindex: 0,
+    role: 'img',
+    'aria-label': mark.label,
+    'data-tooltip-title': mark.title,
+    'data-tooltip-body': mark.body,
+    'data-anchor-x': mark.anchorX,
+    'data-anchor-y': mark.anchorY,
+  });
 </script>
 
 <template>
-  <div :class="cn('w-full', props.className)">
-    <h3 v-if="title" class="text-lg font-semibold mb-2">
-      {{ title }}
-    </h3>
-    <VueApexCharts
-      :type="type"
-      :height="height"
-      :width="width"
-      :options="chartOptions"
-      :series="chartSeries"
-    />
+  <div ref="root" :class="['apui-card apui-chart', classes?.root]" :data-type="shown">
+    <div v-bind="part('chart', 'header', classes?.header)">
+      <div>
+        <h3 v-if="filled(title)" v-bind="part('chart', 'title', classes?.title)">{{ title }}</h3>
+        <p v-if="filled(description)" v-bind="part('chart', 'description', classes?.description)">
+          {{ description }}
+        </p>
+      </div>
+      <ul
+        v-if="!donut && geometry.legend.length > 0"
+        v-bind="part('chart', 'legend', classes?.legend)"
+      >
+        <li v-for="(item, index) in geometry.legend" :key="index">
+          <span
+            v-bind="
+              part('chart', 'swatch', classes?.swatch, {
+                'data-series': item.series,
+                'aria-hidden': 'true',
+              })
+            "
+          ></span
+          >{{ item.name }}
+        </li>
+      </ul>
+      <div v-if="hasActions()" v-bind="part('chart', 'actions', classes?.actions)">
+        <slot name="actions">{{ actions }}</slot>
+      </div>
+    </div>
+    <div v-bind="part('chart', 'body', classes?.body)">
+      <svg
+        v-bind="part('chart', 'plot', classes?.plot)"
+        :viewBox="`0 0 ${geometry.width} ${geometry.height}`"
+        :width="geometry.width"
+        :height="geometry.height"
+        role="group"
+        :aria-label="named"
+      >
+        <template v-if="!donut">
+          <g aria-hidden="true">
+            <template v-for="(tick, index) in geometry.ticks" :key="`tick-${index}`">
+              <line
+                v-bind="part('chart', 'grid', classes?.grid)"
+                :x1="geometry.left"
+                :x2="geometry.right"
+                :y1="tick.y"
+                :y2="tick.y"
+              />
+              <text
+                v-bind="part('chart', 'axis', classes?.axis)"
+                :x="geometry.tickX"
+                :y="tick.textY"
+                text-anchor="end"
+              >
+                {{ tick.label }}
+              </text>
+            </template>
+            <text
+              v-for="(category, index) in geometry.categories"
+              :key="`category-${index}`"
+              v-bind="part('chart', 'axis', classes?.axis)"
+              :x="category.x"
+              :y="geometry.labelY"
+              text-anchor="middle"
+            >
+              {{ category.label }}
+            </text>
+          </g>
+          <template v-if="geometry.lines.length > 0">
+            <g aria-hidden="true">
+              <path
+                v-for="(area, index) in geometry.areas"
+                :key="`area-${index}`"
+                v-bind="part('chart', 'area', classes?.area, { 'data-series': area.series })"
+                :d="area.d"
+              />
+              <path
+                v-for="(line, index) in geometry.lines"
+                :key="`line-${index}`"
+                v-bind="part('chart', 'line', classes?.line, { 'data-series': line.series })"
+                :d="line.d"
+              />
+            </g>
+            <g aria-hidden="true">
+              <g
+                v-for="point in geometry.points"
+                :key="point.index"
+                v-bind="part('chart', 'point', classes?.point, { 'data-index': point.index })"
+                visibility="hidden"
+              >
+                <line
+                  v-bind="part('chart', 'crosshair', classes?.crosshair)"
+                  :x1="point.x"
+                  :x2="point.x"
+                  :y1="point.top"
+                  :y2="point.bottom"
+                />
+                <circle
+                  v-for="(dot, dotIndex) in point.dots"
+                  :key="dotIndex"
+                  v-bind="part('chart', 'dot', classes?.dot, { 'data-series': dot.series })"
+                  :cx="dot.cx"
+                  :cy="dot.cy"
+                  r="5"
+                />
+              </g>
+            </g>
+          </template>
+          <text
+            v-if="geometry.value !== null"
+            v-bind="part('chart', 'value', classes?.value)"
+            :x="geometry.value.x"
+            :y="geometry.value.y"
+            text-anchor="middle"
+            aria-hidden="true"
+          >
+            {{ geometry.value.text }}
+          </text>
+        </template>
+        <template v-for="mark in geometry.marks" :key="mark.index">
+          <rect
+            v-if="mark.shape === 'rect'"
+            v-bind="markAttributes(mark)"
+            :x="mark.x"
+            :y="mark.y"
+            :width="mark.width"
+            :height="mark.height"
+          />
+          <path v-else v-bind="markAttributes(mark)" :d="mark.d" />
+        </template>
+      </svg>
+      <ul v-if="donut" v-bind="part('chart', 'legend', classes?.legend)">
+        <li v-for="(item, index) in geometry.legend" :key="index">
+          <span
+            v-bind="
+              part('chart', 'swatch', classes?.swatch, {
+                'data-series': item.series,
+                'aria-hidden': 'true',
+              })
+            "
+          ></span
+          >{{ item.name
+          }}<span v-bind="part('chart', 'value', classes?.value)">{{ item.value }}</span>
+        </li>
+      </ul>
+      <div
+        v-bind="part('chart', 'tooltip', classes?.tooltip, { 'aria-hidden': 'true' })"
+        hidden
+      ></div>
+    </div>
+    <table v-if="tabular" v-bind="part('chart', 'table', classes?.table)" :aria-label="named">
+      <thead>
+        <tr>
+          <template v-for="(column, index) in geometry.table.columns" :key="index">
+            <td v-if="index === 0"></td>
+            <th v-else scope="col">{{ column }}</th>
+          </template>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(row, index) in geometry.table.rows" :key="index">
+          <th scope="row">{{ row.label }}</th>
+          <td v-for="(cell, cellIndex) in row.cells" :key="cellIndex">{{ cell }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>

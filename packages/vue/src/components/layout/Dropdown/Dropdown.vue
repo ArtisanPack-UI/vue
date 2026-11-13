@@ -1,5 +1,9 @@
 <script setup lang="ts">
-/** @module Dropdown */
+/**
+ * @module Dropdown
+ *
+ * @deprecated Use DropdownMenu, the design-system replacement (#50).
+ */
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue';
 import { cn } from '@artisanpack-ui/tokens';
 import type { DropdownProps } from './types';

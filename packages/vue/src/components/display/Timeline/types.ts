@@ -1,39 +1,54 @@
-import type { DaisyColor } from '@artisanpack-ui/tokens';
+/** A Timeline's markers. Emitted as `data-variant`. */
+export type TimelineVariant = 'icon' | 'dot';
 
-/**
- * A single item in the timeline.
- */
-export interface TimelineItem {
-  /** Unique identifier for the item. */
-  id: string | number;
-  /** Title text for the timeline event. */
-  title: string;
-  /** Description or body text. */
-  description?: string;
-  /** Timestamp or date label. */
+/** A marker's color. Emitted as `data-color` on the marker. */
+export type TimelineColor =
+  | 'primary'
+  | 'secondary'
+  | 'accent'
+  | 'neutral'
+  | 'success'
+  | 'warning'
+  | 'error'
+  | 'info';
+
+/** The parts of a Timeline that accept extra classes, its items' included. */
+export type TimelinePart = 'root' | 'item' | 'marker' | 'head' | 'time' | 'body' | 'card';
+
+/** One event in `items`, and a TimelineItem's props. */
+export interface TimelineItemData {
+  /** What happened: the head. The default slot replaces it. */
+  title?: string;
+  /** When, as shown ("2h ago"). */
   time?: string;
-  /** Color of the timeline dot. */
-  color?: DaisyColor;
-  /** Whether this item represents the start of the timeline. */
-  start?: boolean;
-  /** Whether this item represents the end of the timeline. */
-  end?: boolean;
+  /** When, machine-readable (ISO 8601), for the `<time>` element. */
+  datetime?: string;
+  /** A registry icon name for the marker. */
+  icon?: string;
+  /** Tints the marker. */
+  color?: TimelineColor;
+  /** Muted detail under the head. */
+  description?: string;
+  /** A sunken box under the head, such as a comment. The `card` slot replaces it. */
+  card?: string;
 }
 
+/** Props for a TimelineItem. `class` and every other attribute go to the `<li>`. */
+export type TimelineItemProps = TimelineItemData;
+
 /**
- * Props for the Timeline component.
+ * Props for the Timeline component (design-system manifest `Timeline`, #61).
  *
- * A vertical or horizontal timeline for displaying events or activity.
+ * The default slot holds TimelineItem children, rendered after `items`.
+ * `class` and every other attribute go to the root.
  */
 export interface TimelineProps {
-  /** Array of timeline items. */
-  items: TimelineItem[];
-  /** When true, renders a vertical timeline. @defaultValue `true` */
-  vertical?: boolean;
-  /** When true, alternates items left and right. @defaultValue `false` */
-  snap?: boolean;
-  /** When true, renders a compact timeline. @defaultValue `false` */
-  compact?: boolean;
-  /** Additional CSS classes. */
-  className?: string;
+  /** The events as data, rendering the same children as composition. */
+  items?: TimelineItemData[];
+  /** Icon markers, or small dots for a compact history. @defaultValue `'icon'` */
+  variant?: TimelineVariant;
+  /** The list's accessible name. */
+  label?: string;
+  /** Extra classes per part, its items' included. */
+  classes?: Partial<Record<TimelinePart, string>>;
 }

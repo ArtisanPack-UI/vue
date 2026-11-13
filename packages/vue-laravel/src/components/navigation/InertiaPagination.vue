@@ -16,9 +16,7 @@ interface InertiaPaginationProps {
   /** Laravel paginator response object. */
   paginator: LaravelPaginator;
   /** Number of sibling pages to show on each side of the current page. */
-  siblingCount?: number;
-  /** DaisyUI size modifier for pagination buttons. */
-  size?: PaginationProps['size'];
+  siblingCount?: PaginationProps['siblings'];
   /** Additional CSS classes. */
   className?: string;
   /**
@@ -70,11 +68,10 @@ function handlePageChange(page: number) {
 
 <template>
   <Pagination
-    :current-page="currentPage"
-    :total-pages="totalPages"
-    :sibling-count="siblingCount"
-    :size="size"
-    :class-name="className"
-    @update:current-page="handlePageChange"
+    :page="currentPage"
+    :page-count="totalPages"
+    :siblings="siblingCount"
+    :class="className"
+    @page-change="handlePageChange"
   />
 </template>

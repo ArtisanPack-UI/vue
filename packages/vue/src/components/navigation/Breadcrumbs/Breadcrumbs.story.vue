@@ -1,74 +1,37 @@
 <script setup lang="ts">
 import Breadcrumbs from './Breadcrumbs.vue';
-
-const items = [
-  { label: 'Home', href: '/' },
-  { label: 'Products', href: '/products' },
-  { label: 'Category', href: '/products/category' },
-  { label: 'Current Page' },
-];
-
-const deepNestingItems = [
-  { label: 'Home', href: '/' },
-  { label: 'Admin', href: '/admin' },
-  { label: 'Settings', href: '/admin/settings' },
-  { label: 'Security', href: '/admin/settings/security' },
-  { label: 'Two-Factor Auth' },
-];
+import BreadcrumbsItem from './BreadcrumbsItem.vue';
 </script>
 
 <template>
   <Story title="Navigation/Breadcrumbs" group="navigation">
     <Variant title="Default">
-      <Breadcrumbs :items="items" />
+      <Breadcrumbs
+        :items="[
+          { label: 'Dashboard', href: '#' },
+          { label: 'Properties', href: '#' },
+          { label: 'Lakeview Lofts' },
+        ]"
+      />
     </Variant>
 
-    <Variant title="Two Levels">
-      <Breadcrumbs :items="[{ label: 'Home', href: '/' }, { label: 'About' }]" />
+    <Variant title="Home icon and overflow">
+      <Breadcrumbs
+        :items="[
+          { label: 'Home', href: '#', icon: 'house', hideLabel: true },
+          { label: 'Properties', href: '#' },
+          { label: 'Lakeview Lofts', href: '#' },
+          { label: 'Analytics', href: '#' },
+          { label: 'Visitor' },
+        ]"
+      />
     </Variant>
 
-    <Variant title="Single Item (Current Page Only)">
-      <Breadcrumbs :items="[{ label: 'Dashboard' }]" />
-    </Variant>
-
-    <Variant title="Deep Nesting">
-      <Breadcrumbs :items="deepNestingItems" />
-    </Variant>
-
-    <Variant title="With Custom Class">
-      <Breadcrumbs :items="items" class-name="text-sm" />
+    <Variant title="Composed">
+      <Breadcrumbs>
+        <BreadcrumbsItem label="All media" href="#" @click.prevent />
+        <BreadcrumbsItem label="Invoices" />
+      </Breadcrumbs>
     </Variant>
   </Story>
 </template>
-
-<docs lang="md">
-# Breadcrumbs
-
-A navigation breadcrumb trail with semantic markup and ARIA navigation role.
-
-## Usage
-
-```vue
-<Breadcrumbs
-  :items="[
-    { label: 'Home', href: '/' },
-    { label: 'Products', href: '/products' },
-    { label: 'Current Page' },
-  ]"
-/>
-```
-
-## Props
-
-| Prop        | Type               | Default | Description                                 |
-| ----------- | ------------------ | ------- | ------------------------------------------- |
-| `items`     | `BreadcrumbItem[]` | —       | Array of breadcrumb items (root to current) |
-| `className` | `string`           | —       | Additional CSS classes                      |
-
-## BreadcrumbItem
-
-| Property | Type      | Description                                       |
-| -------- | --------- | ------------------------------------------------- |
-| `label`  | `string`  | Display label for the breadcrumb                  |
-| `href`   | `string?` | Optional URL; the last item typically has no href |
-</docs>

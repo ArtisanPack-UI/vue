@@ -1,193 +1,169 @@
 <script setup lang="ts">
-/** @module Markdown */
-import { computed } from 'vue';
-import { cn } from '@artisanpack-ui/tokens';
-import type { MarkdownProps } from './types';
+/**
+ * @module Markdown
+ *
+ * The design-system Markdown (#65): GitHub-flavored Markdown in the shared
+ * `.apui-prose` styles, rendering the `.apui-markdown` markup contract. The
+ * HTML comes from the behavior package's `renderMarkdown`, the same HTML
+ * Blade writes with league/commonmark and React with the same helper: raw
+ * HTML is escaped (or, with `:sanitize="false"`, filtered to formatting
+ * tags) and unsafe link and image URLs are dropped. `mode="write"` or
+ * `"split"` adds Write, Preview and Split tabs over a Textarea.
+ */
+import { MARKDOWN_LABELS, renderMarkdown, type MarkdownMode } from '@artisanpack-ui/behavior';
+import { computed, getCurrentInstance, nextTick, ref, watch } from 'vue';
+import { part } from '../../_shared/design-system';
+import Textarea from '../../form/Textarea/Textarea.vue';
+import Tab from '../../layout/Tabs/Tab.vue';
+import Tabs from '../../layout/Tabs/Tabs.vue';
+import type { MarkdownEmits, MarkdownProps } from './types';
 
-const props = defineProps<MarkdownProps>();
+const props = withDefaults(defineProps<MarkdownProps>(), {
+  source: undefined,
+  content: undefined,
+  mode: 'preview',
+  sanitize: true,
+  tabsLabel: MARKDOWN_LABELS.tabs,
+  writeLabel: MARKDOWN_LABELS.write,
+  previewLabel: MARKDOWN_LABELS.preview,
+  splitLabel: MARKDOWN_LABELS.split,
+  editorLabel: MARKDOWN_LABELS.editor,
+  outputLabel: MARKDOWN_LABELS.output,
+  classes: undefined,
+});
+
+const emit = defineEmits<MarkdownEmits>();
+
+const given = computed(() => props.source ?? props.content ?? '');
+const editing = computed(() => props.mode === 'write' || props.mode === 'split');
+
+/** The editor's draft: follows `source`, and typing when nothing binds it. */
+const draft = ref(given.value);
+watch(given, (value) => {
+  draft.value = value;
+});
+
+/** The selected tab: opens on `mode`, and follows a new one. */
+const view = ref<MarkdownMode>(props.mode);
+watch(
+  () => props.mode,
+  (value) => {
+    view.value = value;
+  },
+);
 
 /**
- * Minimal markdown-to-HTML converter.
- * Handles headings, bold, italic, links, images, lists, code blocks,
- * inline code, blockquotes, horizontal rules, and paragraphs.
+ * Whether the parent owns the source: it passes `source` and listens for the
+ * edit (`v-model:source` or `@source-change`), so an edit it rejects never
+ * shows. Otherwise the editor keeps its own draft. A listener bound to
+ * nothing (`@source-change="undefined"`) is no listener.
  */
-function parseMarkdown(md: string): string {
-  // Normalize line endings (CRLF/CR → LF)
-  let html = md.replace(/\r\n?/g, '\n');
-  const codeBlocks: string[] = [];
-
-  // Fenced code blocks (``` ... ```) — replace with placeholders
-  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_match, _lang, code) => {
-    const index = codeBlocks.length;
-    codeBlocks.push(`<pre><code>${escapeHtml(code.trimEnd())}</code></pre>`);
-    return `__CODE_BLOCK_${index}__`;
-  });
-
-  // Split into lines for block-level processing
-  const lines = html.split('\n');
-  const result: string[] = [];
-  let inList: 'ul' | 'ol' | null = null;
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-
-    // Restore code block placeholders
-    const codeBlockMatch = line.match(/^__CODE_BLOCK_(\d+)__$/);
-    if (codeBlockMatch) {
-      if (inList) {
-        result.push(inList === 'ul' ? '</ul>' : '</ol>');
-        inList = null;
-      }
-      result.push(codeBlocks[Number(codeBlockMatch[1])]);
-      continue;
-    }
-
-    // Horizontal rules
-    if (/^(-{3,}|\*{3,}|_{3,})$/.test(line.trim())) {
-      if (inList) {
-        result.push(inList === 'ul' ? '</ul>' : '</ol>');
-        inList = null;
-      }
-      result.push('<hr>');
-      continue;
-    }
-
-    // Headings
-    const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
-    if (headingMatch) {
-      if (inList) {
-        result.push(inList === 'ul' ? '</ul>' : '</ol>');
-        inList = null;
-      }
-      const level = headingMatch[1].length;
-      result.push(`<h${level}>${applyInline(headingMatch[2])}</h${level}>`);
-      continue;
-    }
-
-    // Blockquotes
-    const blockquoteMatch = line.match(/^>\s?(.*)$/);
-    if (blockquoteMatch) {
-      if (inList) {
-        result.push(inList === 'ul' ? '</ul>' : '</ol>');
-        inList = null;
-      }
-      result.push(`<blockquote><p>${applyInline(blockquoteMatch[1])}</p></blockquote>`);
-      continue;
-    }
-
-    // Unordered list items
-    const ulMatch = line.match(/^[-*+]\s+(.+)$/);
-    if (ulMatch) {
-      if (inList !== 'ul') {
-        if (inList) result.push('</ol>');
-        result.push('<ul>');
-        inList = 'ul';
-      }
-      result.push(`<li>${applyInline(ulMatch[1])}</li>`);
-      continue;
-    }
-
-    // Ordered list items
-    const olMatch = line.match(/^\d+\.\s+(.+)$/);
-    if (olMatch) {
-      if (inList !== 'ol') {
-        if (inList) result.push('</ul>');
-        result.push('<ol>');
-        inList = 'ol';
-      }
-      result.push(`<li>${applyInline(olMatch[1])}</li>`);
-      continue;
-    }
-
-    // Close any open list if the line is not a list item
-    if (inList) {
-      result.push(inList === 'ul' ? '</ul>' : '</ol>');
-      inList = null;
-    }
-
-    // Empty line
-    if (line.trim() === '') {
-      continue;
-    }
-
-    // Paragraph
-    result.push(`<p>${applyInline(line)}</p>`);
-  }
-
-  if (inList) {
-    result.push(inList === 'ul' ? '</ul>' : '</ol>');
-  }
-
-  return result.join('\n');
+const instance = getCurrentInstance();
+function isControlled(): boolean {
+  const raw = instance?.vnode.props;
+  if (!raw || !('source' in raw)) return false;
+  return [raw['onUpdate:source'], raw.onSourceChange, raw['onSource-change']].some(
+    (listener) => typeof listener === 'function' || Array.isArray(listener),
+  );
 }
 
-/** Sanitize a URL to prevent javascript: and data: schemes. */
-function sanitizeUrl(url: string): string {
-  const trimmed = url.trim();
-  if (/^(javascript|data|vbscript):/i.test(trimmed)) {
-    return '#';
-  }
-  return trimmed;
+/**
+ * The source every mode shows: the parent's when it owns it, else the draft,
+ * which follows a new source, so an edit made in write mode still shows when
+ * the parent switches to preview. Read lazily: nothing renders the HTML while
+ * only the Write tab shows.
+ */
+const text = computed(() => (isControlled() ? given.value : draft.value));
+const html = computed(() => renderMarkdown(text.value, { sanitize: props.sanitize }));
+
+/**
+ * The Textarea's value. It follows `text`, and takes each edit as typed: the
+ * Textarea keeps what was typed until its value changes, so an edit the
+ * parent rejects is put back by moving this to the edit and back again.
+ */
+const editorValue = ref(text.value);
+watch(text, (value) => {
+  editorValue.value = value;
+});
+
+function change(value: string): void {
+  draft.value = value;
+  editorValue.value = value;
+  emit('source-change', value);
+  emit('update:source', value);
+  void nextTick(() => {
+    editorValue.value = text.value;
+  });
 }
 
-/** Apply inline markdown transformations (bold, italic, links, images, code). */
-function applyInline(text: string): string {
-  // First escape HTML to prevent XSS
-  let result = escapeHtml(text);
-
-  // Extract inline code spans into placeholders so their content is not re-parsed
-  const codeSpans: string[] = [];
-  result = result.replace(/`([^`]+)`/g, (_m, content: string) => {
-    const index = codeSpans.length;
-    codeSpans.push(`<code>${content}</code>`);
-    return `\uE000CS${index}\uE001`;
-  });
-
-  // Images and links — tokenize to protect from emphasis regexes
-  const tags: string[] = [];
-  // Images (before links to avoid conflict)
-  result = result.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_m, alt: string, src: string) => {
-    const index = tags.length;
-    tags.push(`<img src="${sanitizeUrl(src)}" alt="${alt}">`);
-    return `\uE000TG${index}\uE001`;
-  });
-  // Links
-  result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, label: string, href: string) => {
-    const index = tags.length;
-    tags.push(`<a href="${sanitizeUrl(href)}">${label}</a>`);
-    return `\uE000TG${index}\uE001`;
-  });
-
-  // Bold
-  result = result.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  result = result.replace(/__(.+?)__/g, '<strong>$1</strong>');
-  // Italic
-  result = result.replace(/\*(.+?)\*/g, '<em>$1</em>');
-  result = result.replace(/_(.+?)_/g, '<em>$1</em>');
-
-  // Restore tag and code span placeholders
-  result = result.replace(/\uE000TG(\d+)\uE001/g, (_m, index: string) => tags[Number(index)]);
-  result = result.replace(/\uE000CS(\d+)\uE001/g, (_m, index: string) => codeSpans[Number(index)]);
-
-  return result;
+function select(value: string): void {
+  view.value = value as MarkdownMode;
 }
-
-/** Escape HTML special characters. */
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-const renderedHtml = computed(() => parseMarkdown(props.content));
-
-const containerClasses = computed(() => cn('prose', props.className));
 </script>
 
 <template>
-  <!-- eslint-disable-next-line vue/no-v-html -->
-  <div :class="containerClasses" v-html="renderedHtml" />
+  <!-- eslint-disable vue/no-v-html -- renderMarkdown escapes or filters raw HTML and drops unsafe URLs -->
+  <div
+    v-if="!editing"
+    :class="['apui-markdown', 'apui-prose', classes?.root]"
+    data-mode="preview"
+    v-html="html"
+  />
+  <div v-else :class="['apui-markdown', classes?.root]" :data-mode="mode">
+    <Tabs size="sm" :label="tabsLabel" :model-value="view" @update:model-value="select">
+      <!-- Only the selected tab's panel holds content, so the source has one Textarea. -->
+      <Tab
+        v-for="tab in ['write', 'preview', 'split'] as const"
+        :key="tab"
+        :value="tab"
+        :label="tab === 'write' ? writeLabel : tab === 'preview' ? previewLabel : splitLabel"
+      >
+        <template v-if="view === tab">
+          <div v-if="tab === 'split'" v-bind="part('markdown', 'split', classes?.split)">
+            <div v-bind="part('markdown', 'editor', classes?.editor)">
+              <Textarea
+                :aria-label="editorLabel"
+                dir="auto"
+                :model-value="editorValue"
+                :rows="12"
+                @update:model-value="change"
+              />
+            </div>
+            <div
+              v-bind="
+                part(
+                  'markdown',
+                  'preview',
+                  classes?.preview ? `apui-prose ${classes.preview}` : 'apui-prose',
+                  { role: 'region', 'aria-label': outputLabel },
+                )
+              "
+              v-html="html"
+            />
+          </div>
+          <div v-else-if="tab === 'write'" v-bind="part('markdown', 'editor', classes?.editor)">
+            <Textarea
+              :aria-label="editorLabel"
+              dir="auto"
+              :model-value="editorValue"
+              :rows="12"
+              @update:model-value="change"
+            />
+          </div>
+          <div
+            v-else
+            v-bind="
+              part(
+                'markdown',
+                'preview',
+                classes?.preview ? `apui-prose ${classes.preview}` : 'apui-prose',
+                { role: 'region', 'aria-label': outputLabel },
+              )
+            "
+            v-html="html"
+          />
+        </template>
+      </Tab>
+    </Tabs>
+  </div>
 </template>

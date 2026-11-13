@@ -1,122 +1,103 @@
 <script setup lang="ts">
-/** @module Button */
-import { computed } from 'vue';
-import { cn } from '@artisanpack-ui/tokens';
-import type { Size } from '@artisanpack-ui/tokens';
+/**
+ * @module Button
+ *
+ * Triggers an action. Renders the design-system Button markup contract
+ * (`.apui-button`, #44).
+ */
+import { useAttrs } from 'vue';
+import {
+  DsIcon,
+  flag,
+  hasContent,
+  MIRRORED_ICONS,
+  part,
+  safeHref,
+} from '../../_shared/design-system';
 import type { ButtonProps } from './types';
 
+defineOptions({ inheritAttrs: false });
+
 const props = withDefaults(defineProps<ButtonProps>(), {
+  variant: 'solid',
+  color: 'primary',
+  size: 'md',
+  iconOnly: false,
   loading: false,
-  responsive: false,
-  tooltipPosition: 'top',
+  disabled: false,
+  href: undefined,
+  leadingIcon: undefined,
+  trailingIcon: undefined,
   type: 'button',
+  classes: undefined,
 });
 
-const colorMap: Record<string, string> = {
-  primary: 'btn-primary',
-  secondary: 'btn-secondary',
-  accent: 'btn-accent',
-  success: 'btn-success',
-  warning: 'btn-warning',
-  error: 'btn-error',
-  info: 'btn-info',
-  neutral: 'btn-neutral',
-  ghost: 'btn-ghost',
-  outline: 'btn-outline',
-};
+const attrs = useAttrs();
 
-const sizeMap: Record<Size, string> = {
-  xs: 'btn-xs',
-  sm: 'btn-sm',
-  md: 'btn-md',
-  lg: 'btn-lg',
-};
+/** The href to render, without unsafe schemes. */
+function linkHref(): string | undefined {
+  return safeHref(props.href);
+}
 
-const tooltipPositionMap: Record<string, string> = {
-  top: 'tooltip-top',
-  bottom: 'tooltip-bottom',
-  left: 'tooltip-left',
-  right: 'tooltip-right',
-};
+/** Swallows a click: loading buttons and disabled or loading links don't act. */
+function blockClick(event: Event): void {
+  event.preventDefault();
+}
 
-const buttonClasses = computed(() =>
-  cn(
-    'btn',
-    props.color && colorMap[props.color],
-    props.size && sizeMap[props.size],
-    props.loading && 'btn-disabled',
-  ),
-);
-
-const tag = computed(() => (props.link ? 'a' : 'button'));
-
-const elementAttrs = computed(() => {
-  if (props.link) {
-    return {
-      href: props.link,
-      target: props.external ? '_blank' : undefined,
-      rel: props.external ? 'noopener noreferrer' : undefined,
-      role: 'button',
-      'aria-busy': props.loading || undefined,
-      'aria-disabled': props.disabled || props.loading || undefined,
-    };
-  }
-  return {
-    type: props.type,
-    disabled: props.disabled || props.loading,
-    'aria-busy': props.loading || undefined,
+function rootAttrs(): Record<string, unknown> {
+  const { class: className, onClick, ...rest } = attrs;
+  const href = linkHref();
+  const isAnchor = href !== undefined;
+  const blocked = props.loading || (isAnchor && props.disabled);
+  const attributes: Record<string, unknown> = {
+    ...rest,
+    class: ['apui-button', className, props.classes?.root],
+    'data-variant': props.variant,
+    'data-color': props.color,
+    'data-size': props.size,
+    'data-icon-only': flag(props.iconOnly),
+    'aria-busy': props.loading ? 'true' : undefined,
+    'data-disabled': flag(props.disabled),
+    onClick: blocked ? blockClick : onClick,
   };
-});
-
-const badgeColorMap: Record<string, string> = {
-  primary: 'badge-primary',
-  secondary: 'badge-secondary',
-  accent: 'badge-accent',
-  success: 'badge-success',
-  warning: 'badge-warning',
-  error: 'badge-error',
-  info: 'badge-info',
-  neutral: 'badge-neutral',
-  ghost: 'badge-ghost',
-  outline: 'badge-outline',
-};
-
-const computedBadgeClasses = computed(() =>
-  cn(props.badgeColor && badgeColorMap[props.badgeColor], props.badgeClasses),
-);
-
-function handleClick(e: MouseEvent) {
-  if (props.link && (props.disabled || props.loading)) {
-    e.preventDefault();
+  if (isAnchor) {
+    // Disabled and loading links render without href, so they can't be followed.
+    if (props.disabled || props.loading) attributes['aria-disabled'] = 'true';
+    else attributes.href = href;
+  } else {
+    attributes.type = props.type;
+    attributes.disabled = props.disabled || undefined;
   }
+  return attributes;
+}
+
+function iconAttrs(name: 'icon' | 'iconEnd', icon: string | undefined, slotted: boolean) {
+  return part('button', name, props.classes?.[name], {
+    'aria-hidden': 'true',
+    'data-mirror': flag(!slotted && icon && MIRRORED_ICONS.has(icon)),
+  });
 }
 </script>
 
 <template>
-  <div
-    v-if="tooltip"
-    :class="cn('tooltip', tooltipPositionMap[tooltipPosition])"
-    :data-tip="tooltip"
-  >
-    <component :is="tag" :class="buttonClasses" v-bind="elementAttrs" @click="handleClick">
-      <span v-if="loading" class="loading loading-spinner loading-sm" aria-hidden="true" />
-      <template v-else>
-        <span v-if="$slots.icon" aria-hidden="true"><slot name="icon" /></span>
-      </template>
-      <span v-if="label" :class="cn(responsive && 'hidden sm:inline')">{{ label }}</span>
-      <slot />
-      <span v-if="$slots.iconRight" aria-hidden="true"><slot name="iconRight" /></span>
-      <span v-if="badge" :class="cn('badge', computedBadgeClasses)">{{ badge }}</span>
-    </component>
-  </div>
-  <component v-else :is="tag" :class="buttonClasses" v-bind="elementAttrs" @click="handleClick">
-    <span v-if="loading" class="loading loading-spinner loading-sm" aria-hidden="true" />
-    <template v-else>
-      <span v-if="$slots.icon" aria-hidden="true"><slot name="icon" /></span>
-    </template>
-    <span v-if="label" :class="cn(responsive && 'hidden sm:inline')">{{ label }}</span>
-    <slot />
-    <span v-if="$slots.iconRight" aria-hidden="true"><slot name="iconRight" /></span>
-    <span v-if="badge" :class="cn('badge', computedBadgeClasses)">{{ badge }}</span>
+  <component :is="linkHref() !== undefined ? 'a' : 'button'" v-bind="rootAttrs()">
+    <span v-if="$slots.icon || leadingIcon" v-bind="iconAttrs('icon', leadingIcon, !!$slots.icon)">
+      <slot name="icon"><DsIcon :name="leadingIcon" /></slot>
+    </span>
+    <span
+      v-if="!iconOnly && hasContent($slots.default?.())"
+      v-bind="part('button', 'label', classes?.label)"
+      ><slot
+    /></span>
+    <span
+      v-if="$slots.iconEnd || trailingIcon"
+      v-bind="iconAttrs('iconEnd', trailingIcon, !!$slots.iconEnd)"
+    >
+      <slot name="iconEnd"><DsIcon :name="trailingIcon" /></slot>
+    </span>
+    <span
+      v-if="loading"
+      v-bind="part('button', 'spinner', classes?.spinner, { 'aria-hidden': 'true' })"
+    />
   </component>
 </template>

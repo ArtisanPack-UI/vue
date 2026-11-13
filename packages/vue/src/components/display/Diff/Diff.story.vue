@@ -1,40 +1,39 @@
 <script setup lang="ts">
 import Diff from './Diff.vue';
+
+const before = `{
+  price: 220000,
+  rent: 1600,
+  currency: "USD",
+  available: "2027-01-01",
+}`;
+
+const after = `{
+  price: 220000,
+  rent: 1650,
+  deposit: 3300,
+  currency: "USD",
+  available: "2027-01-15",
+}`;
 </script>
 
 <template>
   <Story title="Display/Diff" group="display">
-    <Variant title="Playground">
-      <template #controls="{ state }">
-        <HstSelect v-model="state.mode" title="Mode" :options="['side-by-side', 'inline']" />
-        <HstCheckbox v-model="state.lineNumbers" title="Line Numbers" />
-      </template>
-
-      <template #default="{ state }">
-        <Diff
-          before="const greeting = 'Hello';\nconsole.log(greeting);"
-          after="const greeting = 'Hello World';\nconsole.log(greeting);\nconsole.log('Done');"
-          before-label="Original"
-          after-label="Modified"
-          :mode="state.mode || 'side-by-side'"
-          :line-numbers="state.lineNumbers"
-        />
-      </template>
+    <Variant title="Unified">
+      <Diff :old-content="before" :new-content="after" file-name="listings/grove-greenfield.json" />
     </Variant>
 
-    <Variant title="Inline Mode">
+    <Variant title="Split">
       <Diff
-        before="function add(a, b) { return a + b; }"
-        after="function add(a: number, b: number): number { return a + b; }"
-        mode="inline"
-        :line-numbers="true"
+        :old-content="before"
+        :new-content="after"
+        file-name="Version 3 → Version 4"
+        view="split"
       />
+    </Variant>
+
+    <Variant title="Without word marks">
+      <Diff :old-content="before" :new-content="after" :word-level="false" :context="1" />
     </Variant>
   </Story>
 </template>
-
-<docs lang="md">
-# Diff
-
-A text diff viewer with side-by-side and inline modes.
-</docs>

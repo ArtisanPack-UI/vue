@@ -8,7 +8,7 @@ export default defineConfig({
   dts: false,
   clean: true,
   sourcemap: true,
-  external: ['vue', '@artisanpack-ui/tokens', 'apexcharts', 'vue3-apexcharts'],
+  external: ['vue', '@artisanpack-ui/tokens'],
   outExtension: () => ({ js: '.mjs' }),
   esbuildPlugins: [vue()],
 });
