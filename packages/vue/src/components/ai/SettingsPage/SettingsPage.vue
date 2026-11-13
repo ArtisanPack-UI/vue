@@ -9,6 +9,19 @@ import type {
   AiSettingsUpdate,
 } from '../types';
 import { AiApiError } from '../createAiApiClient';
+import Alert from '../../feedback/Alert/Alert.vue';
+import Loading from '../../feedback/Loading/Loading.vue';
+import Button from '../../form/Button/Button.vue';
+import Fieldset from '../../form/Fieldset/Fieldset.vue';
+import Form from '../../form/Form/Form.vue';
+import Input from '../../form/Input/Input.vue';
+import Password from '../../form/Password/Password.vue';
+import Select from '../../form/Select/Select.vue';
+import Textarea from '../../form/Textarea/Textarea.vue';
+import Card from '../../layout/Card/Card.vue';
+import Heading from '../../layout/Heading/Heading.vue';
+import Stack from '../../layout/Stack/Stack.vue';
+import Text from '../../layout/Text/Text.vue';
 
 interface Props {
   /** API client wrapping the artisanpack-ui/ai JSON endpoints. */
@@ -121,6 +134,11 @@ async function handleSubmit(): Promise<void> {
   }
 }
 
+/** Joins a field's validation messages into the single string the field components take. */
+function fieldError(field: string): string | undefined {
+  return errors.value[field]?.join(' ');
+}
+
 async function handleTest(): Promise<void> {
   testing.value = true;
   testResult.value = null;
@@ -147,148 +165,99 @@ async function handleTest(): Promise<void> {
 </script>
 
 <template>
-  <div v-if="loading" class="flex items-center gap-2" role="status" aria-live="polite">
-    <span class="loading loading-spinner loading-sm" aria-hidden="true" />
-    <span>Loading AI settings…</span>
-  </div>
+  <Loading v-if="loading" size="sm"> Loading AI settings… </Loading>
 
-  <form
-    v-else
-    class="flex flex-col gap-6"
-    data-testid="ai-settings-page"
-    novalidate
-    @submit.prevent="handleSubmit"
-  >
-    <h2 v-if="heading" class="text-lg font-semibold">
+  <Form v-else data-testid="ai-settings-page" novalidate @submit.prevent="handleSubmit">
+    <Heading v-if="heading" :level="2">
       {{ heading }}
-    </h2>
+    </Heading>
 
-    <div
+    <Alert
       v-if="status"
-      :role="statusVariant === 'error' ? 'alert' : 'status'"
-      aria-live="polite"
-      :class="statusVariant === 'error' ? 'alert alert-error' : 'alert alert-success'"
-    >
-      <span>{{ status }}</span>
-    </div>
+      :color="statusVariant === 'error' ? 'error' : 'success'"
+      :description="status"
+    />
 
-    <fieldset class="flex flex-col gap-3">
-      <legend class="text-base font-medium">Credentials</legend>
+    <Fieldset title="Credentials">
+      <Select
+        label="Provider"
+        :options="props.providers"
+        :model-value="form.provider"
+        :error="fieldError('provider')"
+        @update:model-value="(provider) => handleProviderChange(String(provider))"
+      />
 
-      <label class="form-control flex flex-col gap-1">
-        <span class="label-text">Provider</span>
-        <select
-          :value="form.provider"
-          class="select select-bordered"
-          @change="handleProviderChange(($event.target as HTMLSelectElement).value)"
-        >
-          <option v-for="provider in props.providers" :key="provider" :value="provider">
-            {{ provider }}
-          </option>
-        </select>
-        <span v-for="message in errors.provider" :key="message" class="label-text-alt text-error">{{
-          message
-        }}</span>
-      </label>
+      <Password
+        v-if="!isOllama"
+        v-model="form.api_key"
+        label="API key"
+        :hint="apiKeyPresent ? 'Leave blank to keep the stored key.' : undefined"
+        autocomplete="new-password"
+        :placeholder="apiKeyPresent ? '••••••••' : 'sk-…'"
+        :error="fieldError('api_key')"
+      />
 
-      <label v-if="!isOllama" class="form-control flex flex-col gap-1">
-        <span class="label-text">
-          API key <span v-if="apiKeyPresent">(leave blank to keep the stored key)</span>
-        </span>
-        <input
-          v-model="form.api_key"
-          type="password"
-          autocomplete="off"
-          class="input input-bordered"
-          :placeholder="apiKeyPresent ? '••••••••' : 'sk-…'"
-        />
-        <span v-for="message in errors.api_key" :key="message" class="label-text-alt text-error">{{
-          message
-        }}</span>
-      </label>
+      <Input
+        v-model="form.base_url"
+        type="url"
+        label="Base URL"
+        :hint="isOllama ? 'Required for Ollama.' : 'Optional.'"
+        :required="isOllama"
+        :placeholder="isOllama ? 'http://localhost:11434' : 'https://api.example.com/v1'"
+        :error="fieldError('base_url')"
+      />
 
-      <label class="form-control flex flex-col gap-1">
-        <span class="label-text">
-          Base URL <span v-if="isOllama">(required)</span><span v-else>(optional)</span>
-        </span>
-        <input
-          v-model="form.base_url"
-          type="url"
-          class="input input-bordered"
-          :placeholder="isOllama ? 'http://localhost:11434' : 'https://api.example.com/v1'"
-        />
-        <span v-for="message in errors.base_url" :key="message" class="label-text-alt text-error">{{
-          message
-        }}</span>
-      </label>
+      <Input
+        v-model="form.default_model"
+        label="Default model"
+        placeholder="gpt-4o-mini"
+        :error="fieldError('default_model')"
+      />
 
-      <label class="form-control flex flex-col gap-1">
-        <span class="label-text">Default model</span>
-        <input
-          v-model="form.default_model"
-          type="text"
-          class="input input-bordered"
-          placeholder="gpt-4o-mini"
-        />
-        <span
-          v-for="message in errors.default_model"
-          :key="message"
-          class="label-text-alt text-error"
-          >{{ message }}</span
-        >
-      </label>
-
-      <div class="flex items-center gap-2">
-        <button
-          type="button"
-          class="btn btn-outline btn-sm"
-          :disabled="testing"
-          @click="handleTest"
-        >
-          {{ testing ? 'Testing…' : 'Test connection' }}
-        </button>
-        <span
+      <Stack orientation="horizontal" gap="2" align="center" wrap>
+        <Button variant="outline" color="neutral" size="sm" :loading="testing" @click="handleTest">
+          Test connection
+        </Button>
+        <Text
           v-if="testResult"
+          as="span"
+          size="sm"
           role="status"
-          :class="testResult.result === 'ok' ? 'text-sm text-success' : 'text-sm text-error'"
+          :tone="testResult.result === 'ok' ? 'success' : 'error'"
         >
           {{ testResult.message ?? (testResult.result === 'ok' ? 'OK' : 'Failed') }}
-        </span>
-      </div>
-    </fieldset>
+        </Text>
+      </Stack>
+    </Fieldset>
 
-    <fieldset v-if="form.overrides.length > 0" class="flex flex-col gap-3">
-      <legend class="text-base font-medium">Per-feature overrides</legend>
-      <div
-        v-for="(override, index) in form.overrides"
+    <Fieldset v-if="form.overrides.length > 0" title="Per-feature overrides">
+      <Card
+        v-for="override in form.overrides"
         :key="override.feature_key"
-        class="rounded-box border border-base-300 p-3"
+        :title="`${override.package} · ${override.feature_key}`"
       >
-        <div class="text-sm font-medium">{{ override.package }} · {{ override.feature_key }}</div>
-        <label class="form-control mt-2 flex flex-col gap-1">
-          <span class="label-text">Model</span>
-          <input
-            v-model="form.overrides[index].model"
-            type="text"
-            class="input input-bordered input-sm"
+        <Stack gap="3">
+          <Input
+            size="sm"
+            label="Model"
             placeholder="inherit default"
+            :model-value="override.model ?? ''"
+            @update:model-value="(model) => (override.model = model === '' ? null : model)"
           />
-        </label>
-        <label class="form-control mt-2 flex flex-col gap-1">
-          <span class="label-text">Instructions</span>
-          <textarea
-            v-model="form.overrides[index].instructions"
-            class="textarea textarea-bordered"
-            rows="3"
+          <Textarea
+            label="Instructions"
+            :rows="3"
+            :model-value="override.instructions ?? ''"
+            @update:model-value="
+              (instructions) => (override.instructions = instructions === '' ? null : instructions)
+            "
           />
-        </label>
-      </div>
-    </fieldset>
+        </Stack>
+      </Card>
+    </Fieldset>
 
-    <div class="flex justify-end">
-      <button type="submit" class="btn btn-primary" :disabled="saving">
-        {{ saving ? 'Saving…' : 'Save settings' }}
-      </button>
-    </div>
-  </form>
+    <template #actions>
+      <Button type="submit" color="primary" :loading="saving"> Save settings </Button>
+    </template>
+  </Form>
 </template>

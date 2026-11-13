@@ -24,6 +24,7 @@ import {
   UsageDashboard,
   FeatureToggles,
 } from '@artisanpack-ui/vue/ai';
+import { Stack } from '@artisanpack-ui/vue/layout';
 
 const client = createAiApiClient({
   baseUrl: '/api/artisanpack-ai',
@@ -35,11 +36,11 @@ const client = createAiApiClient({
 </script>
 
 <template>
-  <div class="flex flex-col gap-8">
+  <Stack gap="8">
     <SettingsPage :client="client" heading="AI Settings" />
     <UsageDashboard :client="client" :refresh-interval="15000" heading="Usage" />
     <FeatureToggles :client="client" heading="Features" />
-  </div>
+  </Stack>
 </template>
 ```
 
@@ -87,7 +88,7 @@ Behaviour worth knowing:
 
 - **Never emits the stored key.** The API returns `api_key_present: boolean`, not the plaintext key. The password input renders empty by default so a user can leave it blank to keep whatever's already stored.
 - **Provider switch is safe.** Changing provider clears the typed key + last probe result so an OpenAI key never silently ships to an Ollama base URL.
-- **422 errors render inline.** Field-level messages from the `{ errors: Record<string, string[]> }` envelope render under the offending input; a network error (or other non-422 failure) renders in the top alert with the `alert-error` styling instead of the green success one.
+- **422 errors render inline.** Field-level messages from the `{ errors: Record<string, string[]> }` envelope render under the offending input; a network error (or other non-422 failure) renders in the top `Alert` with `color="error"` (and `role="alert"`) instead of the success one.
 
 ## `<UsageDashboard>`
 

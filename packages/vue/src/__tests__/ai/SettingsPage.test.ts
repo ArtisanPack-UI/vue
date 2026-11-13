@@ -27,7 +27,7 @@ describe('SettingsPage', () => {
     expect((screen.getByPlaceholderText('gpt-4o-mini') as HTMLInputElement).value).toBe(
       'gpt-4o-mini',
     );
-    expect(screen.getByText(/leave blank to keep the stored key/)).toBeTruthy();
+    expect(screen.getByText(/leave blank to keep the stored key/i)).toBeTruthy();
   });
 
   it('submits the form via PUT /settings and shows a success status', async () => {
@@ -136,7 +136,6 @@ describe('SettingsPage', () => {
 
     const alert = await screen.findByRole('alert');
     expect(alert.textContent).toContain('Network down');
-    expect(alert.className).toContain('alert-error');
-    expect(alert.className).not.toContain('alert-success');
+    expect(alert.getAttribute('data-color')).toBe('error');
   });
 });

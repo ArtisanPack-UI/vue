@@ -1,6 +1,14 @@
 <script setup lang="ts">
 /** @module ai/FeatureToggles */
 import { onMounted, reactive, ref } from 'vue';
+import Alert from '../../feedback/Alert/Alert.vue';
+import EmptyState from '../../feedback/EmptyState/EmptyState.vue';
+import Loading from '../../feedback/Loading/Loading.vue';
+import Toggle from '../../form/Toggle/Toggle.vue';
+import Card from '../../layout/Card/Card.vue';
+import Heading from '../../layout/Heading/Heading.vue';
+import Stack from '../../layout/Stack/Stack.vue';
+import Text from '../../layout/Text/Text.vue';
 import type { AiApiClient, AiFeature } from '../types';
 
 interface Props {
@@ -57,58 +65,36 @@ async function handleToggle(feature: AiFeature): Promise<void> {
 </script>
 
 <template>
-  <div class="flex flex-col gap-3" data-testid="ai-feature-toggles">
-    <h2 v-if="heading" class="text-lg font-semibold">
+  <Stack gap="3" data-testid="ai-feature-toggles">
+    <Heading v-if="heading" :level="2">
       {{ heading }}
-    </h2>
+    </Heading>
 
-    <div v-if="error && !features" role="alert" class="alert alert-error">
-      <span>{{ error }}</span>
-    </div>
+    <Alert v-if="error && !features" color="error" :description="error" />
 
-    <div v-else-if="!features" class="flex items-center gap-2" role="status" aria-live="polite">
-      <span class="loading loading-spinner loading-sm" aria-hidden="true" />
-      <span>Loading features…</span>
-    </div>
+    <Loading v-else-if="!features" size="sm"> Loading features… </Loading>
 
-    <div v-else-if="features.length === 0" class="text-sm text-base-content/70" role="status">
-      No AI features registered.
-    </div>
+    <EmptyState v-else-if="features.length === 0" size="sm" title="No AI features registered." />
 
     <template v-else>
-      <div v-if="error" role="alert" class="alert alert-error">
-        <span>{{ error }}</span>
-      </div>
-      <ul class="flex flex-col gap-2">
-        <li
-          v-for="feature in features"
-          :key="feature.key"
-          class="flex items-center justify-between gap-4 rounded-box border border-base-300 p-3"
-        >
-          <div class="flex flex-col">
-            <span class="font-medium">{{ feature.label }}</span>
-            <span v-if="feature.description" class="text-sm text-base-content/70">{{
-              feature.description
-            }}</span>
-            <span class="text-xs uppercase tracking-wide text-base-content/50">
+      <Alert v-if="error" color="error" :description="error" />
+      <Stack gap="2" role="list">
+        <Card v-for="feature in features" :key="feature.key" role="listitem">
+          <Toggle
+            color="primary"
+            :label="feature.label"
+            :description="feature.description || undefined"
+            :checked="feature.enabled"
+            :disabled="pending[feature.key] === true"
+            @update:checked="handleToggle(feature)"
+          />
+          <template #footer>
+            <Text as="span" size="xs" tone="muted">
               {{ feature.package }} · {{ feature.key }}
-            </span>
-          </div>
-          <label class="cursor-pointer">
-            <span class="sr-only">
-              {{ feature.enabled ? 'Disable' : 'Enable' }} {{ feature.label }}
-            </span>
-            <input
-              type="checkbox"
-              class="toggle toggle-primary"
-              :checked="feature.enabled"
-              :disabled="pending[feature.key] === true"
-              :aria-label="`Toggle ${feature.label}`"
-              @change="handleToggle(feature)"
-            />
-          </label>
-        </li>
-      </ul>
+            </Text>
+          </template>
+        </Card>
+      </Stack>
     </template>
-  </div>
+  </Stack>
 </template>

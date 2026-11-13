@@ -1,6 +1,14 @@
 <script setup lang="ts">
 /** @module ai/UsageDashboard */
 import { onMounted, onScopeDispose, ref, watch } from 'vue';
+import Table from '../../data/Table/Table.vue';
+import type { TableColumn } from '../../data/Table/types';
+import Stat from '../../display/Stat/Stat.vue';
+import Alert from '../../feedback/Alert/Alert.vue';
+import Loading from '../../feedback/Loading/Loading.vue';
+import Heading from '../../layout/Heading/Heading.vue';
+import Stack from '../../layout/Stack/Stack.vue';
+import Text from '../../layout/Text/Text.vue';
 import type { AiApiClient, AiUsageResponse } from '../types';
 
 interface Props {
@@ -39,6 +47,21 @@ const formatCost = (value: number): string =>
     minimumFractionDigits: 2,
     maximumFractionDigits: 4,
   }).format(value);
+
+const featureColumns: TableColumn[] = [
+  { key: 'feature_key', label: 'Feature' },
+  { key: 'requests', label: 'Requests', numeric: true },
+  { key: 'input_tokens', label: 'Input', numeric: true },
+  { key: 'output_tokens', label: 'Output', numeric: true },
+  { key: 'cost', label: 'Cost', numeric: true },
+];
+
+const dailyColumns: TableColumn[] = [
+  { key: 'period', label: 'Day' },
+  { key: 'requests', label: 'Requests', numeric: true },
+  { key: 'total_tokens', label: 'Tokens', numeric: true },
+  { key: 'cost', label: 'Cost', numeric: true },
+];
 
 async function load(): Promise<void> {
   const seq = ++requestSeq;
@@ -96,124 +119,51 @@ onScopeDispose(() => {
 </script>
 
 <template>
-  <div v-if="loading && !usage" class="flex items-center gap-2" role="status" aria-live="polite">
-    <span class="loading loading-spinner loading-sm" aria-hidden="true" />
-    <span>Loading usage…</span>
-  </div>
+  <Loading v-if="loading && !usage" size="sm"> Loading usage… </Loading>
 
-  <div v-else-if="error && !usage" role="alert" class="alert alert-error">
-    <span>{{ error }}</span>
-  </div>
+  <Alert v-else-if="error && !usage" color="error" :description="error" />
 
-  <div v-else-if="usage" class="flex flex-col gap-6" data-testid="ai-usage-dashboard">
-    <h2 v-if="heading" class="text-lg font-semibold">
+  <Stack v-else-if="usage" gap="6" data-testid="ai-usage-dashboard">
+    <Heading v-if="heading" :level="2">
       {{ heading }}
-    </h2>
+    </Heading>
 
-    <div class="stats stats-vertical sm:stats-horizontal shadow">
-      <div class="stat">
-        <div class="stat-title">Requests</div>
-        <div class="stat-value">
-          {{ formatNumber(usage.totals.requests) }}
-        </div>
-      </div>
-      <div class="stat">
-        <div class="stat-title">Input tokens</div>
-        <div class="stat-value">
-          {{ formatNumber(usage.totals.input_tokens) }}
-        </div>
-      </div>
-      <div class="stat">
-        <div class="stat-title">Output tokens</div>
-        <div class="stat-value">
-          {{ formatNumber(usage.totals.output_tokens) }}
-        </div>
-      </div>
-      <div class="stat">
-        <div class="stat-title">Cost</div>
-        <div class="stat-value">
-          {{ formatCost(usage.totals.cost) }}
-        </div>
-      </div>
-    </div>
+    <Stack orientation="horizontal" gap="4" wrap>
+      <Stat label="Requests" :value="formatNumber(usage.totals.requests)" />
+      <Stat label="Input tokens" :value="formatNumber(usage.totals.input_tokens)" />
+      <Stat label="Output tokens" :value="formatNumber(usage.totals.output_tokens)" />
+      <Stat label="Cost" :value="formatCost(usage.totals.cost)" />
+    </Stack>
 
-    <section aria-labelledby="ai-usage-by-feature">
-      <h3 id="ai-usage-by-feature" class="mb-2 font-medium">By feature</h3>
-      <p v-if="usage.by_feature.length === 0" class="text-sm text-base-content/70">
-        No feature usage in this range.
-      </p>
-      <div v-else class="overflow-x-auto">
-        <table class="table table-sm">
-          <thead>
-            <tr>
-              <th>Feature</th>
-              <th class="text-right">Requests</th>
-              <th class="text-right">Input</th>
-              <th class="text-right">Output</th>
-              <th class="text-right">Cost</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="row in usage.by_feature" :key="row.feature_key">
-              <td>{{ row.feature_key }}</td>
-              <td class="text-right">
-                {{ formatNumber(row.requests) }}
-              </td>
-              <td class="text-right">
-                {{ formatNumber(row.input_tokens) }}
-              </td>
-              <td class="text-right">
-                {{ formatNumber(row.output_tokens) }}
-              </td>
-              <td class="text-right">
-                {{ formatCost(row.cost) }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <section aria-labelledby="ai-usage-daily">
-      <h3 id="ai-usage-daily" class="mb-2 font-medium">Daily</h3>
-      <p v-if="usage.daily.length === 0" class="text-sm text-base-content/70">
-        No daily usage in this range.
-      </p>
-      <div v-else class="overflow-x-auto">
-        <table class="table table-sm">
-          <thead>
-            <tr>
-              <th>Day</th>
-              <th class="text-right">Requests</th>
-              <th class="text-right">Tokens</th>
-              <th class="text-right">Cost</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="row in usage.daily" :key="row.period">
-              <td>{{ row.period }}</td>
-              <td class="text-right">
-                {{ formatNumber(row.requests) }}
-              </td>
-              <td class="text-right">
-                {{ formatNumber(row.total_tokens) }}
-              </td>
-              <td class="text-right">
-                {{ formatCost(row.cost) }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <p
-      v-if="props.refreshInterval > 0"
-      class="text-xs text-base-content/50"
-      role="status"
-      aria-live="polite"
+    <Table
+      title="By feature"
+      :headers="featureColumns"
+      :rows="usage.by_feature"
+      key-by="feature_key"
+      density="compact"
+      empty-text="No feature usage in this range."
     >
-      Live · refreshing every {{ Math.round(props.refreshInterval / 1000) }}s
-    </p>
-  </div>
+      <template #cell-requests="{ value }">{{ formatNumber(value as number) }}</template>
+      <template #cell-input_tokens="{ value }">{{ formatNumber(value as number) }}</template>
+      <template #cell-output_tokens="{ value }">{{ formatNumber(value as number) }}</template>
+      <template #cell-cost="{ value }">{{ formatCost(value as number) }}</template>
+    </Table>
+
+    <Table
+      title="Daily"
+      :headers="dailyColumns"
+      :rows="usage.daily"
+      key-by="period"
+      density="compact"
+      empty-text="No daily usage in this range."
+    >
+      <template #cell-requests="{ value }">{{ formatNumber(value as number) }}</template>
+      <template #cell-total_tokens="{ value }">{{ formatNumber(value as number) }}</template>
+      <template #cell-cost="{ value }">{{ formatCost(value as number) }}</template>
+    </Table>
+
+    <Text v-if="refreshInterval > 0" size="xs" tone="muted" role="status" aria-live="polite">
+      Live · refreshing every {{ Math.round(refreshInterval / 1000) }}s
+    </Text>
+  </Stack>
 </template>
