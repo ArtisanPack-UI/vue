@@ -206,4 +206,56 @@ describe('SettingsPage', () => {
 
     expect(screen.queryByText('Connected')).toBeNull();
   });
+
+  it('keeps the form hidden when settings reject with a non-Error value', async () => {
+    const client = createMockClient({ getSettings: vi.fn().mockRejectedValue(null) });
+
+    render(SettingsPage, { props: { client } });
+
+    expect(await screen.findByRole('alert')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeTruthy();
+    expect(screen.queryByTestId('ai-settings-page')).toBeNull();
+  });
+
+  it('discards a connection result when the client changes mid-test', async () => {
+    const probe = deferred<{ result: 'ok'; message: string }>();
+    const first = createMockClient({
+      getSettings: vi.fn().mockResolvedValue(baseResponse),
+      testConnection: vi.fn().mockReturnValue(probe.promise),
+    });
+    const second = createMockClient({ getSettings: vi.fn().mockResolvedValue(baseResponse) });
+
+    const { rerender } = render(SettingsPage, { props: { client: first } });
+    await screen.findByDisplayValue('gpt-4o-mini');
+    await fireEvent.click(screen.getByRole('button', { name: /Test connection/ }));
+
+    await rerender({ client: second });
+    await screen.findByDisplayValue('gpt-4o-mini');
+    probe.resolve({ result: 'ok', message: 'Connected' });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(screen.queryByText('Connected')).toBeNull();
+  });
+
+  it('discards a connection result when a save replaces the credentials mid-test', async () => {
+    const probe = deferred<{ result: 'ok'; message: string }>();
+    const client = createMockClient({
+      getSettings: vi.fn().mockResolvedValue(baseResponse),
+      updateSettings: vi.fn().mockResolvedValue({
+        ...baseResponse,
+        credentials: { ...baseResponse.credentials, provider: 'anthropic' },
+      }),
+      testConnection: vi.fn().mockReturnValue(probe.promise),
+    });
+
+    render(SettingsPage, { props: { client } });
+    await screen.findByDisplayValue('gpt-4o-mini');
+    await fireEvent.click(screen.getByRole('button', { name: /Test connection/ }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Save settings' }));
+    await screen.findByText('Settings saved.');
+    probe.resolve({ result: 'ok', message: 'Connected' });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(screen.queryByText('Connected')).toBeNull();
+  });
 });
