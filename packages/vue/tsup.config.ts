@@ -12,6 +12,7 @@ export default defineConfig({
     feedback: 'src/components/feedback/index.ts',
     utility: 'src/components/utility/index.ts',
     composables: 'src/composables/index.ts',
+    ai: 'src/components/ai/index.ts',
   },
   format: ['esm'],
   dts: false,
