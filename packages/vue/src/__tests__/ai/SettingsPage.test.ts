@@ -258,4 +258,58 @@ describe('SettingsPage', () => {
 
     expect(screen.queryByText('Connected')).toBeNull();
   });
+
+  it('translates its built-in text through labels, keeping the defaults it leaves out', async () => {
+    const client = createMockClient({ getSettings: vi.fn().mockResolvedValue(baseResponse) });
+
+    render(SettingsPage, {
+      props: {
+        client,
+        labels: {
+          credentials: 'Identifiants',
+          provider: 'Fournisseur',
+          apiKey: 'Clé API',
+          apiKeyKeepHint: 'Laisser vide pour garder la clé.',
+          testConnection: 'Tester la connexion',
+          overrides: 'Par fonctionnalité',
+          model: 'Modèle',
+          instructions: 'Consignes',
+          save: 'Enregistrer',
+        },
+      },
+    });
+
+    expect(await screen.findByText('Identifiants')).toBeTruthy();
+    expect(screen.getByLabelText('Fournisseur')).toBeTruthy();
+    expect(screen.getByText('Laisser vide pour garder la clé.')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Tester la connexion/ })).toBeTruthy();
+    expect(screen.getByText('Par fonctionnalité')).toBeTruthy();
+    expect(screen.getByLabelText('Modèle')).toBeTruthy();
+    expect(screen.getByLabelText('Consignes')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Enregistrer' })).toBeTruthy();
+    expect(screen.getByText('Base URL')).toBeTruthy();
+  });
+
+  it('translates the loading and load-error text', async () => {
+    const load = deferred<AiSettingsResponse>();
+    const client = createMockClient({ getSettings: vi.fn().mockReturnValue(load.promise) });
+
+    render(SettingsPage, {
+      props: {
+        client,
+        labels: {
+          loading: 'Chargement…',
+          loadError: 'Échec du chargement.',
+          retry: 'Réessayer',
+          genericError: 'Erreur inconnue.',
+        },
+      },
+    });
+
+    expect(screen.getByText('Chargement…')).toBeTruthy();
+    load.reject(null);
+    expect(await screen.findByText('Échec du chargement.')).toBeTruthy();
+    expect(screen.getByText('Erreur inconnue.')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Réessayer' })).toBeTruthy();
+  });
 });

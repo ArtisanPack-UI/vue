@@ -140,4 +140,48 @@ describe('UsageDashboard', () => {
     expect(screen.getByText(/Couldn't refresh usage/)).toBeTruthy();
     expect(screen.getByText('12')).toBeTruthy();
   });
+
+  it('translates its stats, tables and status through labels', async () => {
+    const client = createMockClient({ getUsage: vi.fn().mockResolvedValue(usage) });
+
+    render(UsageDashboard, {
+      props: {
+        client,
+        refreshInterval: 60000,
+        labels: {
+          requests: 'Requêtes',
+          inputTokens: 'Jetons entrants',
+          byFeature: 'Par fonctionnalité',
+          daily: 'Par jour',
+          feature: 'Fonctionnalité',
+          day: 'Jour',
+          live: 'En direct · toutes les :seconds s',
+        },
+      },
+    });
+
+    expect(await screen.findByText('Jetons entrants')).toBeTruthy();
+    expect(screen.getAllByText('Requêtes').length).toBeGreaterThanOrEqual(3);
+    expect(screen.getByText('Par fonctionnalité')).toBeTruthy();
+    expect(screen.getByText('Par jour')).toBeTruthy();
+    expect(screen.getByRole('columnheader', { name: /Fonctionnalité/ })).toBeTruthy();
+    expect(screen.getByRole('columnheader', { name: /Jour/ })).toBeTruthy();
+    expect(screen.getByText('En direct · toutes les 60 s')).toBeTruthy();
+    expect(screen.getByText('Output tokens')).toBeTruthy();
+  });
+
+  it('keeps the English live status by default', async () => {
+    const client = createMockClient({ getUsage: vi.fn().mockResolvedValue(usage) });
+    render(UsageDashboard, { props: { client, refreshInterval: 5000 } });
+    expect(await screen.findByText('Live · refreshing every 5s')).toBeTruthy();
+  });
+
+  it('translates the loading text and the fallback error', async () => {
+    const client = createMockClient({ getUsage: vi.fn().mockRejectedValue(null) });
+    render(UsageDashboard, {
+      props: { client, labels: { loading: 'Chargement…', genericError: 'Erreur inconnue.' } },
+    });
+    expect(screen.getByText('Chargement…')).toBeTruthy();
+    expect(await screen.findByText('Erreur inconnue.')).toBeTruthy();
+  });
 });

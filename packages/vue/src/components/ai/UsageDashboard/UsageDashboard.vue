@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** @module ai/UsageDashboard */
-import { onScopeDispose, ref, watch } from 'vue';
+import { computed, onScopeDispose, ref, watch } from 'vue';
 import Table from '../../data/Table/Table.vue';
 import type { TableColumn } from '../../data/Table/types';
 import Stat from '../../display/Stat/Stat.vue';
@@ -11,6 +11,7 @@ import Stack from '../../layout/Stack/Stack.vue';
 import Text from '../../layout/Text/Text.vue';
 import type { AiApiClient, AiUsageResponse } from '../types';
 import { errorMessage } from '../errorMessage';
+import { USAGE_DASHBOARD_LABELS, type UsageDashboardLabels } from '../labels';
 
 interface Props {
   /** API client wrapping the artisanpack-ui/ai JSON endpoints. */
@@ -25,6 +26,8 @@ interface Props {
   refreshInterval?: number;
   /** Optional heading rendered above the dashboard. */
   heading?: string;
+  /** Built-in text (stat labels, table titles and headers…), merged over the English defaults; translate it. */
+  labels?: Partial<UsageDashboardLabels>;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -32,7 +35,10 @@ const props = withDefaults(defineProps<Props>(), {
   to: undefined,
   refreshInterval: 0,
   heading: undefined,
+  labels: undefined,
 });
+
+const text = computed<UsageDashboardLabels>(() => ({ ...USAGE_DASHBOARD_LABELS, ...props.labels }));
 
 const usage = ref<AiUsageResponse | null>(null);
 const loading = ref(true);
@@ -51,20 +57,25 @@ const formatCost = (value: number): string =>
     maximumFractionDigits: 4,
   }).format(value);
 
-const featureColumns: TableColumn[] = [
-  { key: 'feature_key', label: 'Feature' },
-  { key: 'requests', label: 'Requests', numeric: true },
-  { key: 'input_tokens', label: 'Input', numeric: true },
-  { key: 'output_tokens', label: 'Output', numeric: true },
-  { key: 'cost', label: 'Cost', numeric: true },
-];
+const featureColumns = computed<TableColumn[]>(() => [
+  { key: 'feature_key', label: text.value.feature },
+  { key: 'requests', label: text.value.requests, numeric: true },
+  { key: 'input_tokens', label: text.value.input, numeric: true },
+  { key: 'output_tokens', label: text.value.output, numeric: true },
+  { key: 'cost', label: text.value.cost, numeric: true },
+]);
 
-const dailyColumns: TableColumn[] = [
-  { key: 'period', label: 'Day' },
-  { key: 'requests', label: 'Requests', numeric: true },
-  { key: 'total_tokens', label: 'Tokens', numeric: true },
-  { key: 'cost', label: 'Cost', numeric: true },
-];
+const dailyColumns = computed<TableColumn[]>(() => [
+  { key: 'period', label: text.value.day },
+  { key: 'requests', label: text.value.requests, numeric: true },
+  { key: 'total_tokens', label: text.value.tokens, numeric: true },
+  { key: 'cost', label: text.value.cost, numeric: true },
+]);
+
+/** The live status, with `:seconds` replaced by the interval in seconds. */
+const liveText = computed(() =>
+  text.value.live.replaceAll(':seconds', String(Math.round(props.refreshInterval / 1000))),
+);
 
 function stopPolling(): void {
   run++;
@@ -84,7 +95,7 @@ function startPolling(): void {
       error.value = null;
     } catch (err) {
       if (current !== run) return;
-      error.value = errorMessage(err);
+      error.value = errorMessage(err, text.value.genericError);
     } finally {
       if (current === run) {
         loading.value = false;
@@ -117,7 +128,7 @@ onScopeDispose(stopPolling);
 </script>
 
 <template>
-  <Loading v-if="loading && !usage" size="sm"> Loading usage… </Loading>
+  <Loading v-if="loading && !usage" size="sm">{{ text.loading }}</Loading>
 
   <Alert v-else-if="error && !usage" color="error" :description="error" />
 
@@ -126,27 +137,22 @@ onScopeDispose(stopPolling);
       {{ heading }}
     </Heading>
 
-    <Alert
-      v-if="error"
-      color="warning"
-      title="Couldn't refresh usage. Showing the last figures loaded."
-      :description="error"
-    />
+    <Alert v-if="error" color="warning" :title="text.refreshError" :description="error" />
 
     <Stack orientation="horizontal" gap="4" wrap>
-      <Stat label="Requests" :value="formatNumber(usage.totals.requests)" />
-      <Stat label="Input tokens" :value="formatNumber(usage.totals.input_tokens)" />
-      <Stat label="Output tokens" :value="formatNumber(usage.totals.output_tokens)" />
-      <Stat label="Cost" :value="formatCost(usage.totals.cost)" />
+      <Stat :label="text.requests" :value="formatNumber(usage.totals.requests)" />
+      <Stat :label="text.inputTokens" :value="formatNumber(usage.totals.input_tokens)" />
+      <Stat :label="text.outputTokens" :value="formatNumber(usage.totals.output_tokens)" />
+      <Stat :label="text.cost" :value="formatCost(usage.totals.cost)" />
     </Stack>
 
     <Table
-      title="By feature"
+      :title="text.byFeature"
       :headers="featureColumns"
       :rows="usage.by_feature"
       key-by="feature_key"
       density="compact"
-      empty-text="No feature usage in this range."
+      :empty-text="text.noFeatureUsage"
     >
       <template #cell-requests="{ value }">{{ formatNumber(value as number) }}</template>
       <template #cell-input_tokens="{ value }">{{ formatNumber(value as number) }}</template>
@@ -155,12 +161,12 @@ onScopeDispose(stopPolling);
     </Table>
 
     <Table
-      title="Daily"
+      :title="text.daily"
       :headers="dailyColumns"
       :rows="usage.daily"
       key-by="period"
       density="compact"
-      empty-text="No daily usage in this range."
+      :empty-text="text.noDailyUsage"
     >
       <template #cell-requests="{ value }">{{ formatNumber(value as number) }}</template>
       <template #cell-total_tokens="{ value }">{{ formatNumber(value as number) }}</template>
@@ -168,7 +174,7 @@ onScopeDispose(stopPolling);
     </Table>
 
     <Text v-if="refreshInterval > 0" size="xs" tone="muted" role="status" aria-live="polite">
-      Live · refreshing every {{ Math.round(refreshInterval / 1000) }}s
+      {{ liveText }}
     </Text>
   </Stack>
 </template>

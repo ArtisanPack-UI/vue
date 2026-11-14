@@ -20,6 +20,8 @@ export type { CreateAiApiClientOptions } from './createAiApiClient';
 export { useStreamingText } from './useStreamingText';
 export type { UseStreamingTextResult } from './useStreamingText';
 
+export type { FeatureTogglesLabels, SettingsPageLabels, UsageDashboardLabels } from './labels';
+
 export type {
   AiApiClient,
   AiCredentials,
