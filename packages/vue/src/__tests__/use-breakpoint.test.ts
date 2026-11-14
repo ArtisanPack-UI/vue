@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { defineComponent, h } from 'vue';
+import { defineComponent, h, nextTick } from 'vue';
 import { render, screen } from '@testing-library/vue';
 import { useBreakpoint } from '../composables/use-breakpoint';
 
@@ -105,5 +105,22 @@ describe('useBreakpoint', () => {
     expect(screen.getByTestId('current').textContent).toBe('2xl');
     expect(screen.getByTestId('is-sm').textContent).toBe('true');
     expect(screen.getByTestId('is-2xl').textContent).toBe('true');
+  });
+
+  it('re-reads the width on mount, so a server-rendered md is corrected', async () => {
+    // The first read stands in for the server's 'md' (setup); the browser is wider.
+    let reads = 0;
+    Object.defineProperty(window, 'innerWidth', {
+      configurable: true,
+      get: () => (reads++ === 0 ? 800 : 1300),
+    });
+
+    render(createBreakpointApp());
+    await nextTick();
+
+    expect(screen.getByTestId('current').textContent).toBe('xl');
+    expect(screen.getByTestId('is-xl').textContent).toBe('true');
+
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1024, writable: true });
   });
 });

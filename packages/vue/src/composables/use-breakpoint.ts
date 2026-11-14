@@ -98,6 +98,11 @@ export function useBreakpoint(): BreakpointContext {
   const cleanups: (() => void)[] = [];
 
   onMounted(() => {
+    // The setup-time read is 'md' during server rendering (no window), and a
+    // hydrated page keeps that until a breakpoint is crossed. Read the real
+    // width once the component is in the browser.
+    current.value = getCurrentBreakpoint();
+
     // Use matchMedia for each breakpoint for efficient change detection
     for (const bp of BREAKPOINT_ORDER) {
       if (bp === 'xs') continue;
