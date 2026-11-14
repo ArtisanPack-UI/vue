@@ -1,26 +1,50 @@
-import type { DaisyColor } from '@artisanpack-ui/tokens';
+/** The status colors an Alert takes. */
+export type AlertColor =
+  | 'primary'
+  | 'secondary'
+  | 'accent'
+  | 'neutral'
+  | 'success'
+  | 'warning'
+  | 'error'
+  | 'info';
+
+/** The parts of an Alert that accept extra classes. */
+export type AlertPart = 'root' | 'icon' | 'title' | 'description' | 'actions' | 'closeTrigger';
 
 /**
- * Subset of DaisyUI colors applicable to alerts.
- */
-export type AlertColor = Extract<DaisyColor, 'info' | 'success' | 'warning' | 'error'>;
-
-/**
- * Props for the Alert component.
+ * Props for the Alert component (design-system manifest `Alert`, #60).
  *
- * Displays contextual feedback messages such as success confirmations,
- * warnings, informational notices, or error messages.
+ * An inline message about the state of a page or section. The `icon`,
+ * `title`, `description` and `actions` slots override the same-named props;
+ * the default slot fills the description. `class` and every other attribute
+ * go to the root.
  */
 export interface AlertProps {
-  /** The color variant of the alert. Determines background and text styling. */
+  /** The headline: what happened. */
+  title?: string;
+  /** Supporting text: what to do next. The default slot fills it too. */
+  description?: string;
+  /** The status. `error` makes the alert `role="alert"`; every other color is `role="status"`. @defaultValue `'neutral'` */
   color?: AlertColor;
-  /** Whether the alert can be dismissed by the user via a close button. @defaultValue `false` */
+  /** `soft` tints the background, `outline` suits dense forms, `solid` is for blocking failures. @defaultValue `'soft'` */
+  variant?: 'soft' | 'outline' | 'solid';
+  /** The alert's surface. @defaultValue `'default'` */
+  surface?: 'default' | 'glass';
+  /** An icon name from the registry. Defaults to the color's status icon. The `icon` slot overrides it. */
+  icon?: string;
+  /** Content under the text, usually the `actions` slot. */
+  actions?: string;
+  /** Adds a close button; pressing it hides the alert and emits `open-change` (`false`). @defaultValue `false` */
   dismissible?: boolean;
-  /**
-   * Controlled visibility -- when provided, the parent manages show/hide.
-   * When omitted the component manages its own internal visibility state.
-   */
-  visible?: boolean;
-  /** Additional CSS classes. */
-  className?: string;
+  /** The close button's accessible name; translate it. @defaultValue `'Dismiss'` */
+  closeLabel?: string;
+  /** Extra classes per part, such as `{ title: '…', actions: '…' }`. */
+  classes?: Partial<Record<AlertPart, string>>;
+}
+
+/** Events of the Alert component. */
+export interface AlertEmits {
+  /** The close button was pressed (always `false`); the alert has hidden itself. */
+  'open-change': [open: boolean];
 }

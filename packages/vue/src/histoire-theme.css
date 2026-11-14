@@ -1,3 +1,19 @@
+/* @artisanpack-ui/css sits between Tailwind's base and components layers
+   (design-system docs/css-conventions.md, With Tailwind): Preflight never
+   overrides a design-system component, and Tailwind utilities still win. */
+@layer theme, base, apui, components, utilities;
 @import 'tailwindcss';
-@import '@artisanpack-ui/tokens/css';
-@plugin "daisyui";
+@import '@artisanpack-ui/css';
+
+/*
+ * Histoire's sandbox ships its own unlayered preflight (border-width: 0,
+ * button { color: inherit }, …). Unlayered CSS beats every cascade layer, so
+ * it would restyle the design-system components. revert-layer hands their
+ * markup back to the apui layers; custom properties and inline styles are
+ * untouched.
+ */
+:is([class*='apui-'], [data-scope]),
+:is([class*='apui-'], [data-scope])::before,
+:is([class*='apui-'], [data-scope])::after {
+  all: revert-layer;
+}

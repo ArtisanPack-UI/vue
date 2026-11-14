@@ -1,57 +1,93 @@
 <script setup lang="ts">
-/** @module Accordion */
-import { computed, provide, ref } from 'vue';
-import { cn } from '@artisanpack-ui/tokens';
-import type { AccordionProps } from './types';
+/**
+ * @module Accordion
+ *
+ * Stacked sections that expand and collapse (#58). Renders the
+ * design-system Accordion markup contract (`.apui-accordion`) on the shared
+ * Zag accordion machine (`useAccordion`): each item is a heading holding a
+ * button with aria-expanded and aria-controls, and a panel that is a region
+ * labelled by it and hidden while closed. ArrowDown and ArrowUp move between
+ * triggers.
+ *
+ * Compose it from `AccordionItem` children, or pass the same items as
+ * `items` (rendered first). Bind the open items with `v-model`.
+ */
+import { computed, getCurrentInstance, h, mergeProps, provide, ref, useAttrs } from 'vue';
+import { useAccordion } from '@artisanpack-ui/behavior/vue';
+import { flag } from '../../_shared/design-system';
+import AccordionItem from './AccordionItem.vue';
 import { ACCORDION_KEY } from './keys';
+import type { AccordionPart, AccordionProps } from './types';
+
+defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(defineProps<AccordionProps>(), {
+  modelValue: undefined,
+  items: undefined,
   multiple: false,
-  join: true,
+  collapsible: true,
+  variant: 'default',
+  headingLevel: 3,
+  disabled: false,
+  classes: undefined,
 });
 
-const emit = defineEmits<{
-  'update:openIndices': [value: number[]];
-}>();
+const emit = defineEmits<{ 'update:modelValue': [value: string[]] }>();
 
-const isControlled = computed(() => props.openIndices !== undefined);
+const attrs = useAttrs();
+const instance = getCurrentInstance();
 
-// Normalize initial indices: single mode allows at most one open panel
-const normalizeIndices = (indices: number[]): number[] => {
-  const unique = [...new Set(indices)];
-  return props.multiple ? unique : unique.slice(0, 1);
-};
-
-const internalIndices = ref<number[]>(normalizeIndices(props.defaultOpenIndices ?? []));
-
-const currentIndices = computed(() =>
-  isControlled.value
-    ? normalizeIndices(props.openIndices ?? [])
-    : normalizeIndices(internalIndices.value),
-);
-
-function toggleIndex(index: number) {
-  let next: number[];
-  if (currentIndices.value.includes(index)) {
-    next = currentIndices.value.filter((i) => i !== index);
-  } else {
-    next = props.multiple ? [...currentIndices.value, index] : [index];
-  }
-
-  if (isControlled.value) {
-    emit('update:openIndices', next);
-  } else {
-    internalIndices.value = next;
-  }
+/** Whether the parent passes `modelValue`; then the accordion shows only what it says. */
+function isBound(): boolean {
+  const raw = instance?.vnode.props;
+  return !!raw && 'modelValue' in raw;
 }
 
-provide(ACCORDION_KEY, { currentIndices, toggleIndex });
+const localValue = ref<string[]>(props.modelValue ?? []);
 
-const accordionClasses = computed(() => cn(props.join && 'join join-vertical w-full'));
+const machine = useAccordion(() => ({
+  value: (isBound() ? props.modelValue : localValue.value) ?? [],
+  multiple: props.multiple,
+  collapsible: props.collapsible,
+  disabled: props.disabled || undefined,
+  onValueChange: ({ value }) => {
+    if (!isBound()) localValue.value = value;
+    emit('update:modelValue', value);
+  },
+}));
+
+/** The machine's API, re-wrapped in this package's `computed` for the template type-check. */
+const api = computed(() => machine.value);
+
+function classOf(name: AccordionPart): string | undefined {
+  return props.classes?.[name];
+}
+
+provide(ACCORDION_KEY, {
+  api: () => api.value,
+  classOf,
+  level: () => Math.min(6, Math.max(2, Math.round(Number(props.headingLevel) || 3))),
+});
+
+function rootAttrs(): Record<string, unknown> {
+  return mergeProps(attrs, api.value.getRootProps() as Record<string, unknown>, {
+    class: ['apui-accordion', props.classes?.root],
+    'data-variant': props.variant,
+    'data-multiple': flag(props.multiple),
+    'data-collapsible': flag(props.collapsible),
+  });
+}
+
+/** The `items` data as AccordionItems. */
+const DataItems = () =>
+  (props.items ?? []).map(({ content, ...item }) =>
+    h(AccordionItem, { key: `item-${item.value}`, ...item }, () => content ?? ''),
+  );
 </script>
 
 <template>
-  <div :class="accordionClasses">
+  <div v-bind="rootAttrs()">
+    <DataItems />
     <slot />
   </div>
 </template>

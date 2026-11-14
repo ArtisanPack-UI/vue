@@ -1,85 +1,54 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/vue';
 import { Sidebar } from '../../components/navigation';
 
-describe('Sidebar', () => {
-  it('renders with drawer class', () => {
-    const { container } = render(Sidebar);
-    expect(container.querySelector('.drawer')).toBeTruthy();
+const part = (name: string) =>
+  document.querySelector<HTMLElement>(`[data-scope="app-shell"][data-part="${name}"]`);
+
+describe('Sidebar (deprecated alias of AppShell)', () => {
+  it('warns once in development that it is deprecated', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    render(Sidebar);
+    render(Sidebar);
+    const calls = warn.mock.calls.filter(([m]) => String(m).includes('Sidebar'));
+    expect(calls).toHaveLength(1);
+    expect(calls[0]![0]).toContain('Sidebar is deprecated; use AppShell.');
+    warn.mockRestore();
   });
 
-  it('renders default slot as main content', () => {
-    render(Sidebar, {
-      slots: { default: '<p>Main Content</p>' },
+  it('renders the design-system AppShell, with no DaisyUI markup', () => {
+    const { container } = render(Sidebar, {
+      slots: { default: '<p>Main Content</p>', sidebar: '<nav>Sidebar Content</nav>' },
     });
+    expect(container.querySelector('.apui-app-shell')).toBeTruthy();
+    expect(container.querySelector('.drawer, .drawer-side, .drawer-toggle, .menu')).toBeNull();
+    expect(part('sidebar')!.textContent).toContain('Sidebar Content');
+    expect(part('content')!.textContent).toContain('Main Content');
     expect(screen.getByText('Main Content')).toBeTruthy();
   });
 
-  it('renders sidebar slot', () => {
-    render(Sidebar, {
-      slots: { sidebar: '<p>Sidebar Content</p>' },
-    });
-    expect(screen.getByText('Sidebar Content')).toBeTruthy();
+  it('maps ariaLabel to the sidebar landmark label', () => {
+    render(Sidebar);
+    expect(part('sidebar')!.getAttribute('aria-label')).toBe('Sidebar navigation');
+    document.body.innerHTML = '';
+    render(Sidebar, { props: { ariaLabel: 'Main navigation' } });
+    expect(part('sidebar')!.getAttribute('aria-label')).toBe('Main navigation');
   });
 
-  it('places main content in drawer-content', () => {
+  it('maps className to the frame and consumes open, side and responsive', () => {
     const { container } = render(Sidebar, {
-      slots: { default: '<p>Main</p>' },
+      props: { className: 'my-frame', open: true, side: 'right', responsive: false },
     });
-    const drawerContent = container.querySelector('.drawer-content');
-    expect(drawerContent?.textContent).toContain('Main');
+    const root = container.querySelector('.apui-app-shell')!;
+    expect(root.classList.contains('my-frame')).toBe(true);
+    for (const name of ['open', 'side', 'responsive']) {
+      expect(root.hasAttribute(name)).toBe(false);
+    }
   });
 
-  it('applies drawer-end class for right side', () => {
-    const { container } = render(Sidebar, { props: { side: 'right' } });
-    expect(container.querySelector('.drawer-end')).toBeTruthy();
-  });
-
-  it('applies lg:drawer-open when responsive', () => {
-    const { container } = render(Sidebar, { props: { responsive: true } });
-    const drawer = container.querySelector('.drawer');
-    expect(drawer?.classList.contains('lg:drawer-open')).toBe(true);
-  });
-
-  it('does not apply lg:drawer-open when not responsive', () => {
-    const { container } = render(Sidebar, { props: { responsive: false } });
-    const drawer = container.querySelector('.drawer');
-    expect(drawer?.classList.contains('lg:drawer-open')).toBe(false);
-  });
-
-  it('has navigation role on sidebar aside', () => {
-    const { container } = render(Sidebar);
-    const aside = container.querySelector('aside[role="navigation"]');
-    expect(aside).toBeTruthy();
-  });
-
-  it('has aria-label on sidebar', () => {
-    const { container } = render(Sidebar, { props: { ariaLabel: 'Site navigation' } });
-    const aside = container.querySelector('aside');
-    expect(aside?.getAttribute('aria-label')).toBe('Site navigation');
-  });
-
-  it('uses default aria-label', () => {
-    const { container } = render(Sidebar);
-    const aside = container.querySelector('aside');
-    expect(aside?.getAttribute('aria-label')).toBe('Sidebar navigation');
-  });
-
-  it('has drawer-toggle checkbox', () => {
-    const { container } = render(Sidebar);
-    const checkbox = container.querySelector('.drawer-toggle');
-    expect(checkbox).toBeTruthy();
-    expect(checkbox?.getAttribute('type')).toBe('checkbox');
-  });
-
-  it('has drawer-overlay label', () => {
-    const { container } = render(Sidebar);
-    const overlay = container.querySelector('.drawer-overlay');
-    expect(overlay).toBeTruthy();
-  });
-
-  it('applies custom className', () => {
-    const { container } = render(Sidebar, { props: { className: 'custom-sidebar' } });
-    expect(container.querySelector('.custom-sidebar')).toBeTruthy();
+  it('passes AppShell props through', () => {
+    const { container } = render(Sidebar, { attrs: { collapsible: true, brand: 'Apexify' } });
+    expect(container.querySelector('.apui-app-shell')!.hasAttribute('data-collapsible')).toBe(true);
+    expect(part('brand')!.textContent?.trim()).toBe('Apexify');
   });
 });

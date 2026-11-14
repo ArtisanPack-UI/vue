@@ -1,18 +1,19 @@
 /**
- * Props for the Sidebar component.
+ * Props for the deprecated Sidebar component.
  *
- * A collapsible side navigation panel using DaisyUI's drawer pattern.
- * Supports responsive behavior with overlay on mobile and fixed on desktop.
+ * @deprecated Use `AppShell` (#58). Sidebar renders an AppShell: the
+ * `sidebar` slot is its sidebar and `ariaLabel` its `label`. AppShell's own
+ * props pass through.
  */
 export interface SidebarProps {
-  /** Whether the sidebar is open. Use with `v-model:open`. @defaultValue `false` */
+  /** Ignored: AppShell has no mobile drawer. Use `collapsed` to shrink the sidebar to icons. @defaultValue `false` */
   open?: boolean;
-  /** Side the sidebar appears on. @defaultValue `'left'` */
+  /** Ignored: the sidebar is always at the start edge (left in LTR, right in RTL). @defaultValue `'left'` */
   side?: 'left' | 'right';
-  /** When true, sidebar is always visible on `lg` breakpoint and above. @defaultValue `true` */
+  /** Ignored: AppShell always shows the sidebar, stacked above the content on narrow screens. @defaultValue `true` */
   responsive?: boolean;
-  /** Accessible label for the sidebar navigation. @defaultValue `'Sidebar navigation'` */
+  /** Names the sidebar's landmark. AppShell's `label`. @defaultValue `'Sidebar navigation'` */
   ariaLabel?: string;
-  /** Additional CSS classes for the sidebar container. */
+  /** Additional CSS classes for the frame. */
   className?: string;
 }

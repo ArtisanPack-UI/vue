@@ -1,80 +1,125 @@
 <script setup lang="ts">
-/** @module Collapse */
-import { computed, getCurrentInstance, useId } from 'vue';
-import { cn } from '@artisanpack-ui/tokens';
-import type { CollapseProps } from './types';
+/**
+ * @module Collapse
+ *
+ * A single disclosure (#58). Renders the design-system Collapse markup
+ * contract (`.apui-collapse`) on the shared Zag collapsible machine
+ * (`useCollapse`): a trigger button with aria-expanded and aria-controls,
+ * and a region that is hidden while closed, or, with `variant="read-more"`,
+ * clamped behind a fade with the trigger after it. Bind the state with
+ * `v-model:open`.
+ */
+import { computed, getCurrentInstance, mergeProps, ref, useAttrs, useSlots } from 'vue';
+import { useCollapse } from '@artisanpack-ui/behavior/vue';
+import { DsIcon, hasContent, part } from '../../_shared/design-system';
+import type { CollapsePart, CollapseProps } from './types';
 
-const props = withDefaults(defineProps<Omit<CollapseProps, 'open'>>(), {
-  icon: 'arrow',
-  defaultOpen: false,
-  bordered: false,
+defineOptions({ inheritAttrs: false });
+
+const props = withDefaults(defineProps<CollapseProps>(), {
+  open: false,
+  variant: 'section',
+  label: undefined,
+  openLabel: undefined,
   disabled: false,
+  classes: undefined,
 });
 
-const openModel = defineModel<boolean>('open', { default: false });
+const emit = defineEmits<{ 'update:open': [open: boolean] }>();
 
-// Only seed from defaultOpen when the parent has not bound v-model:open
-const vnodeProps = getCurrentInstance()?.vnode.props ?? {};
-const isParentControlled = 'open' in vnodeProps || 'onUpdate:open' in vnodeProps;
-if (!isParentControlled && !openModel.value && props.defaultOpen) {
-  openModel.value = true;
+const attrs = useAttrs();
+const slots = useSlots();
+const instance = getCurrentInstance();
+
+/** Whether the parent passes `open`; then the region follows it. */
+function isBound(): boolean {
+  const raw = instance?.vnode.props;
+  return !!raw && 'open' in raw;
 }
 
-const autoId = useId();
-const contentId = `collapse-content-${autoId}`;
-const headerId = `collapse-header-${autoId}`;
+const localOpen = ref(props.open);
 
-const isOpen = computed(() => !!openModel.value);
+const machine = useCollapse(() => ({
+  open: isBound() ? props.open : localOpen.value,
+  variant: props.variant,
+  disabled: props.disabled || undefined,
+  onOpenChange: ({ open }) => {
+    if (!isBound()) localOpen.value = open;
+    emit('update:open', open);
+  },
+}));
 
-function toggle() {
-  if (props.disabled) return;
-  openModel.value = !isOpen.value;
+const api = computed(() => machine.value);
+const readMore = computed(() => props.variant === 'read-more');
+
+function classOf(name: CollapsePart): string | undefined {
+  return props.classes?.[name];
 }
 
-const iconClass = computed(() => {
-  if (props.icon === 'arrow') return 'collapse-arrow';
-  if (props.icon === 'plus') return 'collapse-plus';
-  return '';
+function withClass(zagProps: unknown, className: string | undefined): Record<string, unknown> {
+  const own = zagProps as Record<string, unknown>;
+  return className ? mergeProps(own, { class: className }) : own;
+}
+
+function rootAttrs(): Record<string, unknown> {
+  return mergeProps(attrs, api.value.getRootProps() as Record<string, unknown>, {
+    class: ['apui-collapse', props.classes?.root],
+    'data-variant': props.variant,
+  });
+}
+
+function triggerAttrs(): Record<string, unknown> {
+  return mergeProps(
+    withClass(api.value.getTriggerProps(), classOf('trigger')),
+    props.disabled ? { disabled: true } : {},
+  );
+}
+
+/** The trigger's text: `openLabel` while open, else `label`, with read-more's defaults. */
+const triggerText = computed(() => {
+  const label = props.label ?? (readMore.value ? 'Read more' : undefined);
+  const openLabel = props.openLabel ?? (readMore.value ? 'Show less' : undefined);
+  return api.value.open && openLabel ? openLabel : label;
 });
 
-const collapseClasses = computed(() =>
-  cn(
-    'collapse',
-    iconClass.value,
-    props.bordered && 'collapse-border',
-    props.disabled && 'opacity-50 pointer-events-none',
-  ),
-);
+const hasTriggerSlot = () => !!slots.trigger && hasContent(slots.trigger());
 </script>
 
 <template>
-  <div :class="collapseClasses">
-    <input
-      :type="name ? 'radio' : 'checkbox'"
-      :name="name || undefined"
-      :checked="isOpen"
-      :disabled="disabled"
-      class="peer"
-      :aria-hidden="true"
-      tabindex="-1"
-      @change="openModel = ($event.target as HTMLInputElement).checked"
-    />
-    <div
-      :id="headerId"
-      class="collapse-title cursor-pointer"
-      role="button"
-      :tabindex="disabled ? -1 : 0"
-      :aria-expanded="isOpen"
-      :aria-controls="contentId"
-      :aria-disabled="disabled || undefined"
-      @click="toggle"
-      @keydown.enter.prevent="toggle"
-      @keydown.space.prevent="toggle"
-    >
-      {{ title }}
-    </div>
-    <div :id="contentId" class="collapse-content" role="region" :aria-labelledby="headerId">
-      <slot />
-    </div>
+  <div v-bind="rootAttrs()">
+    <template v-if="!readMore">
+      <button v-bind="triggerAttrs()">
+        <slot v-if="hasTriggerSlot()" name="trigger" />
+        <template v-else>{{ triggerText }}</template
+        ><span
+          v-bind="
+            mergeProps(withClass(api.getIndicatorProps(), classOf('icon')), {
+              'aria-hidden': 'true',
+            })
+          "
+          ><DsIcon name="chevron-down"
+        /></span>
+      </button>
+      <div v-bind="withClass(api.getContentProps(), classOf('content'))"><slot /></div>
+    </template>
+    <template v-else>
+      <div v-bind="withClass(api.getContentProps(), classOf('content'))">
+        <slot /><span
+          v-bind="part('collapse', 'fade', classOf('fade'), { 'aria-hidden': 'true' })"
+        />
+      </div>
+      <button v-bind="triggerAttrs()">
+        <slot v-if="hasTriggerSlot()" name="trigger" />
+        <template v-else>{{ triggerText }}</template
+        ><span
+          v-bind="
+            mergeProps(withClass(api.getIndicatorProps(), classOf('icon')), {
+              'aria-hidden': 'true',
+            })
+          "
+          ><DsIcon name="chevron-down"
+        /></span>
+      </button>
+    </template>
   </div>
 </template>

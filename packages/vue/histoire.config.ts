@@ -23,5 +23,8 @@ export default defineConfig({
   },
   vite: {
     plugins: [tailwindcss(), vue()],
+    // Share this repo's Vue and Zag Vue adapter with the design-system
+    // packages instead of loading second copies.
+    resolve: { dedupe: ['vue', '@zag-js/vue'] },
   },
 });

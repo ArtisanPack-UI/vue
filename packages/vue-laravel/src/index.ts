@@ -28,7 +28,7 @@ export type {
 // Composables
 export { useInertiaForm } from './composables/useInertiaForm';
 export { useFlashMessages } from './composables/useFlashMessages';
-export type { UseFlashMessagesOptions } from './composables/useFlashMessages';
+export type { FlashToastColor, UseFlashMessagesOptions } from './composables/useFlashMessages';
 export { useAuth } from './composables/useAuth';
 
 // Components — Navigation
@@ -44,6 +44,7 @@ export {
   InertiaToggle,
   InertiaPassword,
   InertiaRadio,
+  InertiaRadioGroup,
   INERTIA_FORM_KEY,
 } from './components/form';
 export type { InertiaFormContext } from './components/form';

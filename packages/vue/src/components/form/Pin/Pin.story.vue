@@ -2,7 +2,8 @@
 import { ref } from 'vue';
 import Pin from './Pin.vue';
 
-const value = ref('');
+const code = ref('');
+const completed = ref('');
 </script>
 
 <template>
@@ -10,40 +11,40 @@ const value = ref('');
     <Variant title="Playground">
       <template #controls="{ state }">
         <HstNumber v-model="state.length" title="Length" />
-        <HstText v-model="state.error" title="Error" />
-        <HstSelect
-          v-model="state.color"
-          title="Color"
-          :options="['', 'primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info']"
-        />
-        <HstCheckbox v-model="state.numeric" title="Numeric Only" />
-        <HstCheckbox v-model="state.hide" title="Hide Input" />
+        <HstNumber v-model="state.groupSize" title="Group size" />
+        <HstCheckbox v-model="state.mask" title="Mask" />
         <HstCheckbox v-model="state.disabled" title="Disabled" />
+        <HstText v-model="state.error" title="Error" />
       </template>
 
       <template #default="{ state }">
         <Pin
-          v-model="value"
+          v-model="code"
+          label="Verification code"
           :length="state.length || 6"
-          :error="state.error || undefined"
-          :color="state.color || undefined"
-          :numeric="state.numeric"
-          :hide="state.hide"
+          :group-size="state.groupSize || undefined"
+          :mask="state.mask"
           :disabled="state.disabled"
+          :error="state.error || undefined"
+          @complete="completed = $event"
         />
+        <p v-if="completed">Completed: {{ completed }}</p>
       </template>
     </Variant>
 
-    <Variant title="4-Digit Numeric">
-      <Pin v-model="value" :length="4" :numeric="true" color="primary" />
+    <Variant title="Masked and alphanumeric">
+      <div style="display: grid; gap: 16px">
+        <Pin label="PIN" :length="4" mask />
+        <Pin label="Recovery code" :length="8" type="alphanumeric" :group-size="4" />
+      </div>
     </Variant>
 
-    <Variant title="Hidden (Password Style)">
-      <Pin v-model="value" :length="6" :hide="true" color="secondary" />
-    </Variant>
-
-    <Variant title="With Error">
-      <Pin v-model="value" :length="6" error="Invalid code" color="error" />
+    <Variant title="States and sizes">
+      <div style="display: grid; gap: 16px">
+        <Pin label="Invalid" :group-size="3" model-value="991027" error="That code has expired." />
+        <Pin label="Small" size="sm" :group-size="3" />
+        <Pin label="Disabled" model-value="503186" :group-size="3" disabled />
+      </div>
     </Variant>
   </Story>
 </template>
@@ -51,5 +52,11 @@ const value = ref('');
 <docs lang="md">
 # Pin
 
-An OTP/PIN input with configurable length, numeric-only mode, and hidden input support.
+A row of cells for one-time codes (`.apui-pin`). One input with `autocomplete="one-time-code"`
+drives the cells, so SMS autofill and paste fill the whole code. `complete` fires with the code
+when the last cell is filled.
+
+```vue
+<Pin v-model="code" label="Verification code" :group-size="3" @complete="verify" />
+```
 </docs>

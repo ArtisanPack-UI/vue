@@ -1,76 +1,44 @@
 <script setup lang="ts">
+import { ref } from 'vue';
+import Tab from './Tab.vue';
 import Tabs from './Tabs.vue';
+import type { TabData } from './types';
 
-const tabs = [
-  { name: 'overview', label: 'Overview' },
-  { name: 'features', label: 'Features' },
-  { name: 'pricing', label: 'Pricing' },
-  { name: 'disabled', label: 'Disabled', disabled: true },
+const section = ref('overview');
+const range = ref('week');
+const ranges: TabData[] = [
+  { value: 'day', label: 'Day' },
+  { value: 'week', label: 'Week' },
+  { value: 'month', label: 'Month' },
+  { value: 'year', label: 'Year' },
 ];
 </script>
 
 <template>
   <Story title="Layout/Tabs" group="layout">
-    <Variant title="Playground">
-      <template #controls="{ state }">
-        <HstSelect
-          v-model="state.variant"
-          title="Variant"
-          :options="['', 'bordered', 'lifted', 'boxed']"
-        />
-        <HstSelect v-model="state.size" title="Size" :options="['', 'xs', 'sm', 'md', 'lg']" />
-        <HstCheckbox v-model="state.vertical" title="Vertical" />
-      </template>
-
-      <template #default="{ state }">
-        <Tabs
-          :tabs="tabs"
-          default-tab="overview"
-          :variant="state.variant || undefined"
-          :size="state.size || undefined"
-          :vertical="state.vertical"
-        >
-          <template #tab-overview>
-            <p>This is the overview content.</p>
-          </template>
-          <template #tab-features>
-            <p>Feature list goes here.</p>
-          </template>
-          <template #tab-pricing>
-            <p>Pricing details go here.</p>
-          </template>
-        </Tabs>
-      </template>
-    </Variant>
-
-    <Variant title="Bordered">
-      <Tabs :tabs="tabs" default-tab="overview" variant="bordered">
-        <template #tab-overview><p>Overview content.</p></template>
-        <template #tab-features><p>Features content.</p></template>
-        <template #tab-pricing><p>Pricing content.</p></template>
+    <Variant title="Segmented">
+      <Tabs v-model="section" label="Sections">
+        <Tab value="overview" label="Overview" icon="list">Your portfolio at a glance.</Tab>
+        <Tab value="notifications" label="Notifications" :count="4">Four unread notifications.</Tab>
+        <Tab value="history" label="Trade history">Every trade in the last year.</Tab>
+        <Tab value="archived" label="Archived" disabled />
       </Tabs>
     </Variant>
-
-    <Variant title="Lifted">
-      <Tabs :tabs="tabs" default-tab="overview" variant="lifted">
-        <template #tab-overview><p>Overview content.</p></template>
-        <template #tab-features><p>Features content.</p></template>
-        <template #tab-pricing><p>Pricing content.</p></template>
+    <Variant title="Underline, manual activation">
+      <Tabs variant="underline" activation-mode="manual">
+        <Tab value="overview" label="Overview">Your portfolio at a glance.</Tab>
+        <Tab value="notifications" label="Notifications" :count="4">Four unread notifications.</Tab>
+        <Tab value="history" label="Trade history">Every trade in the last year.</Tab>
       </Tabs>
     </Variant>
-
-    <Variant title="Boxed">
-      <Tabs :tabs="tabs" default-tab="overview" variant="boxed">
-        <template #tab-overview><p>Overview content.</p></template>
-        <template #tab-features><p>Features content.</p></template>
-        <template #tab-pricing><p>Pricing content.</p></template>
+    <Variant title="Small, from data">
+      <Tabs v-model="range" size="sm" label="Range" :tabs="ranges" />
+    </Variant>
+    <Variant title="Vertical">
+      <Tabs orientation="vertical" variant="underline">
+        <Tab value="profile" label="Profile">Name and photo.</Tab>
+        <Tab value="security" label="Security">Password and two-factor.</Tab>
       </Tabs>
     </Variant>
   </Story>
 </template>
-
-<docs lang="md">
-# Tabs
-
-A tab component with bordered, lifted, and boxed variants, plus vertical layout.
-</docs>

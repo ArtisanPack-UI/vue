@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import DatePicker from './DatePicker.vue';
+import type { DatePickerValue } from './types';
 
-const value = ref('');
-const currentYear = new Date().getFullYear();
-const yearStart = computed(() => `${currentYear}-01-01`);
-const yearEnd = computed(() => `${currentYear}-12-31`);
+const moveIn = ref<DatePickerValue>('2026-11-12');
+const stay = ref<DatePickerValue>(['2026-11-12', '2026-11-18']);
+const viewingAt = ref<DatePickerValue>('2026-11-12T11:00');
 </script>
 
 <template>
@@ -15,25 +15,21 @@ const yearEnd = computed(() => `${currentYear}-12-31`);
         <HstText v-model="state.label" title="Label" />
         <HstText v-model="state.hint" title="Hint" />
         <HstText v-model="state.error" title="Error" />
-        <HstSelect
-          v-model="state.dateType"
-          title="Type"
-          :options="['date', 'datetime-local', 'time', 'month', 'week']"
-        />
-        <HstCheckbox v-model="state.inline" title="Inline" />
+        <HstText v-model="state.locale" title="Locale" />
+        <HstSelect v-model="state.size" title="Size" :options="['', 'sm', 'md', 'lg']" />
         <HstCheckbox v-model="state.disabled" title="Disabled" />
         <HstCheckbox v-model="state.required" title="Required" />
       </template>
 
       <template #default="{ state }">
-        <div style="max-width: 400px">
+        <div style="max-width: 320px; min-height: 420px">
           <DatePicker
-            v-model="value"
-            :label="state.label || 'Date'"
-            :hint="state.hint || undefined"
+            v-model="moveIn"
+            :label="state.label || 'Move-in date'"
+            :hint="state.hint || 'MM/DD/YYYY'"
             :error="state.error || undefined"
-            :date-type="state.dateType || 'date'"
-            :inline="state.inline"
+            :locale="state.locale || 'en-US'"
+            :size="state.size || undefined"
             :disabled="state.disabled"
             :required="state.required"
           />
@@ -41,31 +37,34 @@ const yearEnd = computed(() => `${currentYear}-12-31`);
       </template>
     </Variant>
 
-    <Variant title="Date Types">
-      <div style="display: flex; flex-direction: column; gap: 16px; max-width: 400px">
-        <DatePicker v-model="value" label="Date" date-type="date" />
-        <DatePicker v-model="value" label="Date & Time" date-type="datetime-local" />
-        <DatePicker v-model="value" label="Time" date-type="time" />
-        <DatePicker v-model="value" label="Month" date-type="month" />
+    <Variant title="Open in place">
+      <div style="max-width: 320px; min-height: 420px">
+        <DatePicker
+          v-model="moveIn"
+          label="Move-in date"
+          :open="true"
+          :portal="false"
+          footer="Thu, Nov 12"
+        />
       </div>
     </Variant>
 
-    <Variant title="With Min/Max">
-      <div style="max-width: 400px">
-        <DatePicker
-          v-model="value"
-          label="Booking Date"
-          :min="yearStart"
-          :max="yearEnd"
-          :hint="`Select a date in ${currentYear}`"
-        />
+    <Variant title="Range">
+      <div style="max-width: 360px; min-height: 420px">
+        <DatePicker v-model="stay" mode="range" label="Stay" :disabled-dates="['2026-11-20']" />
+      </div>
+    </Variant>
+
+    <Variant title="Date and time">
+      <div style="max-width: 320px; min-height: 420px">
+        <DatePicker v-model="viewingAt" time time-zone="Europe/Madrid" label="Viewing" />
+      </div>
+    </Variant>
+
+    <Variant title="Right to left">
+      <div dir="rtl" style="max-width: 320px; min-height: 420px">
+        <DatePicker v-model="moveIn" label="Move-in date" :open="true" :portal="false" />
       </div>
     </Variant>
   </Story>
 </template>
-
-<docs lang="md">
-# DatePicker
-
-A date/time picker supporting date, datetime-local, time, month, and week types.
-</docs>

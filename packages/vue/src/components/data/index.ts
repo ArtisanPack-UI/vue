@@ -11,10 +11,24 @@
  */
 
 export { default as Table } from './Table/Table.vue';
-export type { TableProps, TableColumn, SortState } from './Table/types';
+export type {
+  TableProps,
+  TableColumn,
+  TableKey,
+  TablePart,
+  TableSort,
+  SortState,
+} from './Table/types';
 
 export { default as Chart } from './Chart/Chart.vue';
-export type { ChartProps, ChartSeries, ChartDataPoint, ChartType } from './Chart/types';
+export type { ChartProps, ChartSeries, ChartType, ChartPart, ChartNotation } from './Chart/types';
 
 export { default as Calendar } from './Calendar/Calendar.vue';
-export type { CalendarProps, CalendarEvent } from './Calendar/types';
+export type {
+  CalendarProps,
+  CalendarEvent,
+  CalendarColor,
+  CalendarLabels,
+  CalendarPart,
+  CalendarView,
+} from './Calendar/types';

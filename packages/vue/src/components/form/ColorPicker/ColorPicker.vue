@@ -1,125 +1,287 @@
 <script setup lang="ts">
-/** @module ColorPicker */
-import { computed, useId } from 'vue';
-import { cn } from '@artisanpack-ui/tokens';
-import type { ColorPickerProps } from './types';
+/**
+ * @module ColorPicker
+ *
+ * A color field whose swatch opens a popover with a saturation and
+ * brightness area, hue and opacity sliders, a format select (HEX, RGB, HSL,
+ * OKLCH), an eyedropper and preset swatches; the text value stays in the
+ * field, always available for typing. Renders the design-system ColorPicker
+ * markup contract (`.apui-color-picker`, #53) on the shared Zag
+ * color-picker machine (`useColorPicker`).
+ */
+import { computed, getCurrentInstance, mergeProps, ref, useAttrs, useId } from 'vue';
+import { COLOR_FORMATS, useColorPicker } from '@artisanpack-ui/behavior/vue';
+import { DsIcon, flag, part } from '../../_shared/design-system';
+import type { ColorPickerEmits, ColorPickerProps, ColorTextFormat } from './types';
+
+defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(defineProps<ColorPickerProps>(), {
-  clearable: false,
-  random: false,
-  defaultValue: '#000000',
+  modelValue: undefined,
+  format: 'hex',
+  alpha: true,
+  swatches: () => [],
+  size: 'md',
+  label: undefined,
+  hint: undefined,
+  error: undefined,
+  invalid: false,
+  disabled: false,
+  required: false,
+  open: false,
+  portal: true,
+  triggerLabel: 'Choose a color',
+  areaLabel: 'Saturation and brightness',
+  hueLabel: 'Hue',
+  alphaLabel: 'Opacity',
+  formatLabel: 'Format',
+  eyeDropperLabel: 'Pick a color from the screen',
+  swatchesLabel: 'Swatches',
+  classes: undefined,
 });
 
-const emit = defineEmits<{
-  clear: [];
-  randomColor: [color: string];
-}>();
+const emit = defineEmits<ColorPickerEmits>();
 
-const model = defineModel<string>();
-if (model.value === undefined) {
-  model.value = props.defaultValue;
+const FORMAT_NAMES: Record<ColorTextFormat, string> = {
+  hex: 'HEX',
+  rgb: 'RGB',
+  hsl: 'HSL',
+  oklch: 'OKLCH',
+};
+
+const attrs = useAttrs();
+const instance = getCurrentInstance();
+const autoId = useId();
+
+/** Whether the parent passes a prop (`v-model` or `:prop`): then it's controlled. */
+function isBound(name: 'modelValue' | 'open'): boolean {
+  const raw = instance?.vnode.props;
+  return !!raw && (name in raw || (name === 'modelValue' && 'model-value' in raw));
 }
 
-const autoId = useId();
-const inputId = computed(() => props.id ?? autoId);
-const hintId = computed(() => (props.hint && !props.error ? `${inputId.value}-hint` : undefined));
-const errorId = computed(() => (props.error ? `${inputId.value}-error` : undefined));
-const describedBy = computed(
-  () => [hintId.value, errorId.value].filter(Boolean).join(' ') || undefined,
-);
+const localValue = ref<string | undefined>(props.modelValue);
+const localOpen = ref(props.open);
 
-function generateRandomHex(): string {
-  return (
-    '#' +
-    Math.floor(Math.random() * 16777216)
-      .toString(16)
-      .padStart(6, '0')
+function fieldId(): string {
+  const explicit = attrs.id;
+  return typeof explicit === 'string' && explicit !== '' ? explicit : autoId;
+}
+
+const isInvalid = computed(() => props.invalid || (!!props.error && props.error !== ''));
+
+const machine = useColorPicker(() => {
+  const id = fieldId();
+  return {
+    id,
+    ids: {
+      root: `${id}-root`,
+      label: `${id}-label`,
+      control: `${id}-box`,
+      trigger: `${id}-trigger`,
+      positioner: `${id}-positioner`,
+      content: `${id}-content`,
+      area: `${id}-area`,
+      areaThumb: `${id}-area-thumb`,
+      channelSliderTrack: (channel: string) => `${id}-${channel}-track`,
+      channelSliderThumb: (channel: string) => `${id}-${channel}-thumb`,
+    },
+    value: isBound('modelValue') ? props.modelValue : localValue.value,
+    open: isBound('open') ? props.open : localOpen.value,
+    onValueChange: ({ value }) => {
+      if (!isBound('modelValue')) localValue.value = value;
+      emit('update:modelValue', value);
+    },
+    onOpenChange: ({ open }) => {
+      if (!isBound('open')) localOpen.value = open;
+      emit('update:open', open);
+    },
+    format: props.format,
+    onFormatChange: ({ format }) => emit('format-change', format),
+    alpha: props.alpha,
+    disabled: props.disabled,
+    required: props.required,
+    invalid: isInvalid.value,
+    labels: {
+      trigger: props.triggerLabel,
+      area: props.areaLabel,
+      hue: props.hueLabel,
+      alpha: props.alphaLabel,
+      format: props.formatLabel,
+      eyeDropper: props.eyeDropperLabel,
+      swatches: props.swatchesLabel,
+    },
+  };
+});
+
+/** The machine's API, re-wrapped in this package's `computed` for the template type-check. */
+const api = computed(() => machine.value);
+
+const hasHint = () => !!props.hint && props.hint !== '';
+const hasError = () => !!props.error && props.error !== '';
+
+function describedBy(): string | undefined {
+  const id = fieldId();
+  const own = attrs['aria-describedby'];
+  const ids = [
+    hasHint() ? `${id}-hint` : undefined,
+    hasError() ? `${id}-error` : undefined,
+    typeof own === 'string' && own !== '' ? own : undefined,
+  ].filter(Boolean);
+  return ids.length ? ids.join(' ') : undefined;
+}
+
+function rootAttrs(): Record<string, unknown> {
+  return mergeProps(api.value.getRootProps() as Record<string, unknown>, {
+    class: ['apui-color-picker', attrs.class, props.classes?.root],
+    'data-size': props.size,
+    'data-format': api.value.textFormat,
+    'data-invalid': flag(isInvalid.value),
+    'data-disabled': flag(props.disabled),
+  });
+}
+
+/** The text value: the machine's props plus every attribute but `class` and `id`. */
+function controlAttrs(): Record<string, unknown> {
+  const { class: _className, id: _id, 'aria-describedby': _describedBy, ...rest } = attrs;
+  return mergeProps(
+    rest,
+    api.value.getValueInputProps({ id: fieldId() }) as Record<string, unknown>,
+    {
+      class: props.classes?.control,
+      'aria-describedby': describedBy(),
+    },
   );
 }
 
-function handleRandomClick() {
-  if (props.disabled) return;
-  const color = generateRandomHex();
-  model.value = color;
-  emit('randomColor', color);
-}
-
-function handleClear() {
-  if (props.disabled) return;
-  model.value = props.defaultValue;
-  emit('clear');
+/** Zag's props for a part, plus its extra class. */
+function withClass(zagProps: unknown, className: string | undefined): Record<string, unknown> {
+  const own = zagProps as Record<string, unknown>;
+  return className ? mergeProps(own, { class: className }) : own;
 }
 </script>
 
 <template>
-  <fieldset class="fieldset">
-    <legend v-if="label" class="fieldset-legend">
-      {{ label }}
-      <span v-if="required" class="text-error ml-1">*</span>
-    </legend>
+  <div v-bind="rootAttrs()">
     <label
-      :class="cn('input w-full', error && 'input-error')"
-      :for="inputId"
-      :style="{ paddingInlineStart: 0, overflow: 'hidden' }"
+      v-if="label"
+      v-bind="part('color-picker', 'label', classes?.label)"
+      :id="`${fieldId()}-label`"
+      :for="fieldId()"
+      >{{ label
+      }}<span
+        v-if="required"
+        v-bind="part('color-picker', 'required', classes?.required, { 'aria-hidden': 'true' })"
+        >*</span
+      ></label
     >
-      <input
-        :id="inputId"
-        v-model="model"
-        type="color"
-        class="cursor-pointer shrink-0"
-        :style="{
-          WebkitAppearance: 'none',
-          appearance: 'none',
-          width: '2.5rem',
-          height: 'calc(100% + var(--border) * 2)',
-          border: 'none',
-          padding: 0,
-          marginBlock: 'calc(var(--border) * -1)',
-          marginInlineStart: 'calc(var(--border) * -1)',
-          borderStartStartRadius: 'calc(var(--radius-field) - var(--border))',
-          borderEndStartRadius: 'calc(var(--radius-field) - var(--border))',
-          backgroundColor: model,
-        }"
-        :aria-invalid="error ? true : undefined"
-        :aria-describedby="describedBy"
-        :aria-label="label ?? 'Color picker'"
-        :disabled="disabled"
-        :required="required"
-        :aria-required="required || undefined"
-      />
-      <span v-if="$slots.icon" class="opacity-50" aria-hidden="true"><slot name="icon" /></span>
-      <span class="grow font-mono text-sm">{{ model }}</span>
-      <button
-        v-if="random"
-        type="button"
-        class="opacity-50 hover:opacity-100 cursor-pointer"
-        aria-label="Generate random color"
-        :disabled="disabled"
-        @click="handleRandomClick"
-      >
-        <slot name="randomIcon">
-          <svg class="w-4 h-4" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true">
-            <path
-              d="M105.1 202.6c7.7-21.8 20.2-42.3 37.8-59.8c62.5-62.5 163.8-62.5 226.3 0L386.3 160 352 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l111.5 0c0 0 .1 0 .1 0l.4 0c17.7 0 32-14.3 32-32l0-112c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 35.2L414.4 97.6c-87.5-87.5-229.3-87.5-316.8 0C73.2 122 55.6 150.7 44.8 181.4c-5.9 16.7 2.9 34.9 19.5 40.8s34.9-2.9 40.8-19.5zM39 289.3c-5 1.5-9.8 4.2-13.7 8.2c-4 4-6.7 8.8-8.1 14c-.3 1.2-.6 2.5-.8 3.8c-.3 1.7-.4 3.4-.4 5.1L16 432c0 17.7 14.3 32 32 32s32-14.3 32-32l0-35.1l17.6 17.5c0 0 0 0 0 0c87.5 87.4 229.3 87.4 316.7 0c24.4-24.4 42.1-53.1 52.9-83.7c5.9-16.7-2.9-34.9-19.5-40.8s-34.9 2.9-40.8 19.5c-7.7 21.8-20.2 42.3-37.8 59.8c-62.5 62.5-163.8 62.5-226.3 0l-.1-.1L125.6 352l34.4 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-111.5 0c-.1 0-.3 0-.4 0c-5.8-.1-11.9 1.6-17.1 4.3z"
-            />
-          </svg>
-        </slot>
+    <div v-bind="withClass(api.getControlProps(), classes?.box)">
+      <button v-bind="withClass(api.getTriggerProps(), classes?.trigger)">
+        <span v-bind="withClass(api.getSwatchProps({ value: api.value }), classes?.swatch)" />
       </button>
-      <button
-        v-if="clearable"
-        type="button"
-        class="opacity-50 hover:opacity-100 cursor-pointer"
-        aria-label="Clear color"
-        :disabled="disabled"
-        @click="handleClear"
-      >
-        &#x2715;
-      </button>
-      <span v-if="$slots.iconRight" class="opacity-50" aria-hidden="true">
-        <slot name="iconRight" />
-      </span>
-    </label>
-    <p v-if="hint && !error" :id="hintId" class="fieldset-label">{{ hint }}</p>
-    <p v-if="error" :id="errorId" class="fieldset-label text-error" role="alert">{{ error }}</p>
-  </fieldset>
+      <input v-bind="controlAttrs()" />
+    </div>
+    <p
+      v-if="hasHint()"
+      v-bind="part('color-picker', 'hint', classes?.hint)"
+      :id="`${fieldId()}-hint`"
+    >
+      {{ hint }}
+    </p>
+    <p
+      v-if="hasError()"
+      v-bind="part('color-picker', 'error', classes?.error)"
+      :id="`${fieldId()}-error`"
+    >
+      <DsIcon name="circle-alert" />{{ error }}
+    </p>
+    <Teleport to="body" :disabled="!portal">
+      <div v-bind="withClass(api.getPositionerProps(), classes?.positioner)">
+        <div v-bind="withClass(api.getContentProps(), classes?.content)">
+          <div v-bind="withClass(api.getAreaProps(), classes?.area)">
+            <div v-bind="withClass(api.getAreaBackgroundProps(), classes?.areaBackground)" />
+            <div v-bind="withClass(api.getAreaThumbProps(), classes?.areaThumb)" />
+          </div>
+          <div
+            v-bind="
+              withClass(api.getChannelSliderProps({ channel: 'hue' }), classes?.channelSlider)
+            "
+          >
+            <div
+              v-bind="
+                withClass(
+                  api.getChannelSliderTrackProps({ channel: 'hue' }),
+                  classes?.channelSliderTrack,
+                )
+              "
+            >
+              <div
+                v-bind="
+                  withClass(
+                    api.getChannelSliderThumbProps({ channel: 'hue' }),
+                    classes?.channelSliderThumb,
+                  )
+                "
+              />
+            </div>
+          </div>
+          <div
+            v-if="alpha"
+            v-bind="
+              withClass(api.getChannelSliderProps({ channel: 'alpha' }), classes?.channelSlider)
+            "
+          >
+            <div v-bind="withClass(api.getTransparencyGridProps(), classes?.transparencyGrid)" />
+            <div
+              v-bind="
+                withClass(
+                  api.getChannelSliderTrackProps({ channel: 'alpha' }),
+                  classes?.channelSliderTrack,
+                )
+              "
+            >
+              <div
+                v-bind="
+                  withClass(
+                    api.getChannelSliderThumbProps({ channel: 'alpha' }),
+                    classes?.channelSliderThumb,
+                  )
+                "
+              />
+            </div>
+          </div>
+          <div v-bind="withClass(api.getRowProps(), classes?.row)">
+            <select
+              v-bind="
+                withClass(
+                  api.getFormatSelectProps({ id: `${fieldId()}-format` }),
+                  classes?.formatSelect,
+                )
+              "
+            >
+              <option v-for="option in COLOR_FORMATS" :key="option" :value="option">
+                {{ FORMAT_NAMES[option] }}
+              </option>
+            </select>
+            <button v-bind="withClass(api.getEyeDropperTriggerProps(), classes?.eyeDropperTrigger)">
+              <DsIcon name="pipette" />
+            </button>
+          </div>
+          <div
+            v-if="swatches.length"
+            v-bind="withClass(api.getSwatchGroupProps(), classes?.swatchGroup)"
+          >
+            <button
+              v-for="swatch in swatches"
+              :key="swatch"
+              v-bind="
+                withClass(api.getSwatchTriggerProps({ value: swatch }), classes?.swatchTrigger)
+              "
+            >
+              <span v-bind="withClass(api.getSwatchProps({ value: swatch }), classes?.swatch)" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+  </div>
 </template>

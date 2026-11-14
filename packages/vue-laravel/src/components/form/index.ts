@@ -10,6 +10,8 @@ export { default as InertiaTextarea } from './InertiaTextarea.vue';
 export { default as InertiaCheckbox } from './InertiaCheckbox.vue';
 export { default as InertiaToggle } from './InertiaToggle.vue';
 export { default as InertiaPassword } from './InertiaPassword.vue';
+/** @deprecated Use InertiaRadioGroup. */
 export { default as InertiaRadio } from './InertiaRadio.vue';
+export { default as InertiaRadioGroup } from './InertiaRadioGroup.vue';
 export { INERTIA_FORM_KEY } from './keys';
 export type { InertiaFormContext } from './keys';

@@ -1,56 +1,37 @@
 <script setup lang="ts">
-/** @module Grid */
+/**
+ * @module Grid
+ *
+ * A layout primitive (#58): its children in equal columns, with the gap from
+ * the space scale. With `minItemWidth` the columns drop as the grid narrows,
+ * down to one. Renders `.apui-grid` from `@artisanpack-ui/css`; no Tailwind.
+ */
 import { computed } from 'vue';
-import { cn } from '@artisanpack-ui/tokens';
-import type { ColCount, GapSize, GridProps } from './types';
+import type { GridProps } from './types';
 
 const props = withDefaults(defineProps<GridProps>(), {
-  gap: 4,
+  columns: 1,
+  minItemWidth: undefined,
+  gap: '4',
+  align: 'stretch',
+  justify: 'stretch',
 });
 
-const COL_COUNTS: ColCount[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-const GAP_SIZES: GapSize[] = [0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 16];
-
-function makeColsMap(prefix: string): Record<ColCount, string> {
-  return Object.fromEntries(COL_COUNTS.map((n) => [n, `${prefix}grid-cols-${n}`])) as Record<
-    ColCount,
-    string
-  >;
-}
-
-function makeGapMap(prefix: string): Record<GapSize, string> {
-  return Object.fromEntries(GAP_SIZES.map((n) => [n, `${prefix}${n}`])) as Record<GapSize, string>;
-}
-
-const colsMap = makeColsMap('');
-const smColsMap = makeColsMap('sm:');
-const mdColsMap = makeColsMap('md:');
-const lgColsMap = makeColsMap('lg:');
-const xlColsMap = makeColsMap('xl:');
-
-const gapMap = makeGapMap('gap-');
-const gapXMap = makeGapMap('gap-x-');
-const gapYMap = makeGapMap('gap-y-');
-
-const gridClasses = computed(() => {
-  const hasAxisGap = props.gapX !== undefined || props.gapY !== undefined;
-
-  return cn(
-    'grid',
-    props.cols && colsMap[props.cols],
-    props.colsSm && smColsMap[props.colsSm],
-    props.colsMd && mdColsMap[props.colsMd],
-    props.colsLg && lgColsMap[props.colsLg],
-    props.colsXl && xlColsMap[props.colsXl],
-    !hasAxisGap && gapMap[props.gap],
-    props.gapX !== undefined && gapXMap[props.gapX],
-    props.gapY !== undefined && gapYMap[props.gapY],
-  );
-});
+const columns = computed(() => Math.min(12, Math.max(1, Math.round(Number(props.columns) || 1))));
+const style = computed(() =>
+  props.minItemWidth ? { '--apui-grid-min-item-width': props.minItemWidth } : undefined,
+);
 </script>
 
 <template>
-  <div :class="gridClasses">
+  <div
+    class="apui-grid"
+    :data-columns="columns"
+    :data-gap="String(gap)"
+    :data-align="align"
+    :data-justify="justify"
+    :style="style"
+  >
     <slot />
   </div>
 </template>

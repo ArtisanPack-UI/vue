@@ -1,33 +1,38 @@
 <script setup lang="ts">
-/** @module DropdownItem */
+/**
+ * @module DropdownItem
+ *
+ * @deprecated Use DropdownMenuItem inside a DropdownMenu (#50). DropdownItem
+ * is a thin alias that renders a DropdownMenuItem with a generated `value`
+ * (pass `value` to name it in the menu's `select` event) and keeps the 2.x
+ * `click` event, which is also fired when the item is chosen from the
+ * keyboard. A disabled item emits nothing.
+ */
+import { useId } from 'vue';
+import DropdownMenuItem from '../DropdownMenu/DropdownMenuItem.vue';
+import { warnOnce } from '../../_shared/design-system';
 import type { DropdownItemProps } from './types';
 
 const props = withDefaults(defineProps<DropdownItemProps>(), {
   disabled: false,
+  value: undefined,
 });
 
 const emit = defineEmits<{
   click: [e: MouseEvent];
 }>();
 
-function handleClick(e: MouseEvent) {
-  if (!props.disabled) {
-    emit('click', e);
-  }
+warnOnce('DropdownItem', 'DropdownItem is deprecated; use DropdownMenuItem.');
+
+const autoValue = useId();
+
+function handleClick(e: MouseEvent): void {
+  if (!props.disabled) emit('click', e);
 }
 </script>
 
 <template>
-  <li role="none">
-    <button
-      role="menuitem"
-      type="button"
-      :disabled="disabled"
-      :aria-disabled="disabled || undefined"
-      :class="disabled ? 'disabled' : ''"
-      @click="handleClick"
-    >
-      <slot />
-    </button>
-  </li>
+  <DropdownMenuItem :value="value ?? autoValue" :disabled="disabled" @click="handleClick">
+    <slot />
+  </DropdownMenuItem>
 </template>

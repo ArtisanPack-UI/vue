@@ -1,5 +1,18 @@
 <script setup lang="ts">
 import Button from './Button.vue';
+
+const variants = ['solid', 'soft', 'outline', 'ghost', 'link'] as const;
+const colors = [
+  'primary',
+  'secondary',
+  'accent',
+  'neutral',
+  'success',
+  'warning',
+  'error',
+  'info',
+] as const;
+const sizes = ['xs', 'sm', 'md', 'lg', 'xl'] as const;
 </script>
 
 <template>
@@ -7,105 +20,76 @@ import Button from './Button.vue';
     <Variant title="Playground">
       <template #controls="{ state }">
         <HstText v-model="state.label" title="Label" />
-        <HstSelect
-          v-model="state.color"
-          title="Color"
-          :options="[
-            '',
-            'primary',
-            'secondary',
-            'accent',
-            'neutral',
-            'info',
-            'success',
-            'warning',
-            'error',
-            'ghost',
-            'outline',
-          ]"
-        />
-        <HstSelect v-model="state.size" title="Size" :options="['', 'xs', 'sm', 'md', 'lg']" />
+        <HstSelect v-model="state.variant" title="Variant" :options="['', ...variants]" />
+        <HstSelect v-model="state.color" title="Color" :options="['', ...colors]" />
+        <HstSelect v-model="state.size" title="Size" :options="['', ...sizes]" />
+        <HstText v-model="state.leadingIcon" title="Leading icon" />
+        <HstText v-model="state.trailingIcon" title="Trailing icon" />
         <HstCheckbox v-model="state.loading" title="Loading" />
         <HstCheckbox v-model="state.disabled" title="Disabled" />
-        <HstCheckbox v-model="state.responsive" title="Responsive" />
-        <HstText v-model="state.tooltip" title="Tooltip" />
-        <HstText v-model="state.badge" title="Badge" />
       </template>
 
       <template #default="{ state }">
         <Button
-          :label="state.label || undefined"
+          :variant="state.variant || undefined"
           :color="state.color || undefined"
           :size="state.size || undefined"
+          :leading-icon="state.leadingIcon || undefined"
+          :trailing-icon="state.trailingIcon || undefined"
           :loading="state.loading"
           :disabled="state.disabled"
-          :responsive="state.responsive"
-          :tooltip="state.tooltip || undefined"
-          :badge="state.badge || undefined"
         >
-          {{ state.label ? '' : 'Click Me' }}
+          {{ state.label || 'Click Me' }}
         </Button>
       </template>
     </Variant>
 
+    <Variant title="Variants">
+      <div style="display: flex; gap: 8px; flex-wrap: wrap">
+        <Button v-for="variant in variants" :key="variant" :variant="variant">
+          {{ variant }}
+        </Button>
+      </div>
+    </Variant>
+
     <Variant title="Colors">
       <div style="display: flex; gap: 8px; flex-wrap: wrap">
-        <Button color="primary">Primary</Button>
-        <Button color="secondary">Secondary</Button>
-        <Button color="accent">Accent</Button>
-        <Button color="neutral">Neutral</Button>
-        <Button color="info">Info</Button>
-        <Button color="success">Success</Button>
-        <Button color="warning">Warning</Button>
-        <Button color="error">Error</Button>
-        <Button color="ghost">Ghost</Button>
-        <Button color="outline">Outline</Button>
+        <Button v-for="color in colors" :key="color" :color="color">{{ color }}</Button>
       </div>
     </Variant>
 
     <Variant title="Sizes">
       <div style="display: flex; gap: 8px; align-items: center">
-        <Button size="xs" color="primary">Extra Small</Button>
-        <Button size="sm" color="primary">Small</Button>
-        <Button size="md" color="primary">Medium</Button>
-        <Button size="lg" color="primary">Large</Button>
+        <Button v-for="size in sizes" :key="size" :size="size">{{ size }}</Button>
       </div>
     </Variant>
 
     <Variant title="Loading">
       <div style="display: flex; gap: 8px">
-        <Button color="primary" :loading="true">Saving...</Button>
-        <Button color="secondary" :loading="true">Loading</Button>
+        <Button :loading="true">Saving</Button>
+        <Button variant="outline" :loading="true">Loading</Button>
       </div>
     </Variant>
 
-    <Variant title="With Badge">
+    <Variant title="Icons">
       <div style="display: flex; gap: 8px">
-        <Button color="primary" badge="99+" badge-color="secondary">Inbox</Button>
-        <Button color="neutral" badge="New" badge-color="accent">Updates</Button>
-      </div>
-    </Variant>
-
-    <Variant title="With Tooltip">
-      <div style="display: flex; gap: 8px">
-        <Button color="primary" tooltip="Save your changes">Save</Button>
-        <Button color="error" tooltip="This action cannot be undone" tooltip-position="bottom"
-          >Delete</Button
-        >
+        <Button leading-icon="plus">New item</Button>
+        <Button variant="soft" trailing-icon="arrow-right">Next</Button>
+        <Button :icon-only="true" leading-icon="trash" color="error" aria-label="Delete" />
       </div>
     </Variant>
 
     <Variant title="As Link">
       <div style="display: flex; gap: 8px">
-        <Button color="primary" link="https://example.com">Internal Link</Button>
-        <Button color="accent" link="https://example.com" :external="true">External Link</Button>
+        <Button href="https://example.com">Link</Button>
+        <Button href="https://example.com" :disabled="true">Disabled link</Button>
       </div>
     </Variant>
 
     <Variant title="Disabled">
       <div style="display: flex; gap: 8px">
-        <Button color="primary" :disabled="true">Disabled</Button>
-        <Button color="secondary" :disabled="true">Disabled</Button>
+        <Button :disabled="true">Disabled</Button>
+        <Button variant="outline" :disabled="true">Disabled</Button>
       </div>
     </Variant>
   </Story>
@@ -114,13 +98,15 @@ import Button from './Button.vue';
 <docs lang="md">
 # Button
 
-A versatile button component supporting colors, sizes, loading states, tooltips, badges, and link behavior.
+Triggers an action. The design-system Button (`.apui-button`): variants, colors, sizes, icons
+by name (or the `icon` / `iconEnd` slots), a loading state, and anchor rendering with `href`.
 
 ## Usage
 
 ```vue
-<Button color="primary" size="md">Click Me</Button>
-<Button color="error" :loading="true">Saving...</Button>
-<Button color="info" tooltip="More info" badge="3">Notifications</Button>
+<Button>Save</Button>
+<Button variant="outline" color="error" leading-icon="trash">Delete</Button>
+<Button :loading="true">Saving</Button>
+<Button href="/docs" trailing-icon="arrow-right">Read the docs</Button>
 ```
 </docs>

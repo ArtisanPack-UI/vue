@@ -7,6 +7,7 @@ import {
   Code,
   Diff,
   Progress,
+  ProgressRadial,
   Sparkline,
   Stat,
   Timeline,
@@ -15,7 +16,7 @@ import {
 describe('Display components accessibility', () => {
   it('Avatar has no a11y violations', async () => {
     const { container } = render(Avatar, {
-      props: { alt: 'User avatar' },
+      props: { name: 'Olivia Rhye', status: 'online' },
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -23,7 +24,8 @@ describe('Display components accessibility', () => {
 
   it('Badge has no a11y violations', async () => {
     const { container } = render(Badge, {
-      props: { value: 'New' },
+      props: { color: 'success', dot: true },
+      slots: { default: 'New' },
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -39,7 +41,7 @@ describe('Display components accessibility', () => {
 
   it('Diff has no a11y violations', async () => {
     const { container } = render(Diff, {
-      props: { before: 'Original text', after: 'Modified text' },
+      props: { oldContent: 'Original text', newContent: 'Modified text', fileName: 'notes.txt' },
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -47,7 +49,15 @@ describe('Display components accessibility', () => {
 
   it('Progress has no a11y violations', async () => {
     const { container } = render(Progress, {
-      props: { value: 75, max: 100 },
+      props: { value: 75, max: 100, label: 'Uploading photos' },
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('ProgressRadial has no a11y violations', async () => {
+    const { container } = render(ProgressRadial, {
+      props: { value: 68, label: 'complete' },
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -63,7 +73,13 @@ describe('Display components accessibility', () => {
 
   it('Stat has no a11y violations', async () => {
     const { container } = render(Stat, {
-      props: { title: 'Revenue', value: '$12,345' },
+      props: {
+        label: 'Revenue',
+        value: '$12,345',
+        icon: 'wallet',
+        change: 4.2,
+        description: 'vs last month',
+      },
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -73,8 +89,8 @@ describe('Display components accessibility', () => {
     const { container } = render(Timeline, {
       props: {
         items: [
-          { id: '1', title: 'Event 1', description: 'First event' },
-          { id: '2', title: 'Event 2', description: 'Second event' },
+          { title: 'Event 1', time: 'Nov 7', datetime: '2026-11-07', description: 'First event' },
+          { title: 'Event 2', icon: 'house', color: 'success', card: 'Second event' },
         ],
       },
     });

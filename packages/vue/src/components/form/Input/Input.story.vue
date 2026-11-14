@@ -18,8 +18,7 @@ const value = ref('');
           title="Type"
           :options="['text', 'email', 'number', 'password', 'search', 'tel', 'url']"
         />
-        <HstCheckbox v-model="state.clearable" title="Clearable" />
-        <HstCheckbox v-model="state.inline" title="Inline" />
+        <HstSelect v-model="state.size" title="Size" :options="['', 'sm', 'md', 'lg']" />
         <HstCheckbox v-model="state.disabled" title="Disabled" />
         <HstCheckbox v-model="state.readonly" title="Readonly" />
         <HstCheckbox v-model="state.required" title="Required" />
@@ -34,8 +33,7 @@ const value = ref('');
             :hint="state.hint || undefined"
             :error="state.error || undefined"
             :type="state.type || 'text'"
-            :clearable="state.clearable"
-            :inline="state.inline"
+            :size="state.size || undefined"
             :disabled="state.disabled"
             :readonly="state.readonly"
             :required="state.required"
@@ -50,7 +48,7 @@ const value = ref('');
           v-model="value"
           label="Email"
           placeholder="you@example.com"
-          hint="We'll never share your email."
+          hint="We never share it."
           type="email"
         />
       </div>
@@ -59,45 +57,40 @@ const value = ref('');
     <Variant title="With Error">
       <div style="max-width: 400px">
         <Input
-          v-model="value"
-          label="Username"
-          placeholder="Enter username"
-          error="Username is already taken"
+          label="Email"
+          model-value="not-an-email"
+          type="email"
+          :required="true"
+          error="Enter a valid email address."
         />
       </div>
     </Variant>
 
-    <Variant title="Clearable">
-      <div style="max-width: 400px">
-        <Input
-          v-model="value"
-          label="Search"
-          placeholder="Type to search..."
-          :clearable="true"
-          type="search"
-        />
+    <Variant title="Prefix, Suffix and Icons">
+      <div style="max-width: 400px; display: grid; gap: 16px">
+        <Input label="Recipient" prefix="to:" suffix="@work" leading-icon="mail" />
+        <Input label="Search" type="search" trailing-icon="search" />
       </div>
     </Variant>
 
-    <Variant title="Inline">
+    <Variant title="Readonly">
       <div style="max-width: 400px">
-        <Input v-model="value" label="Inline Input" placeholder="Inline layout" :inline="true" />
+        <Input label="Account ID" model-value="ACC-1042" :readonly="true" />
       </div>
     </Variant>
 
     <Variant title="Disabled">
       <div style="max-width: 400px">
-        <Input model-value="Cannot edit" label="Disabled" :disabled="true" />
+        <Input label="Disabled" placeholder="Cannot edit" :disabled="true" />
       </div>
     </Variant>
 
     <Variant title="Input Types">
-      <div style="display: flex; flex-direction: column; gap: 16px; max-width: 400px">
-        <Input v-model="value" label="Text" type="text" placeholder="Text input" />
-        <Input v-model="value" label="Email" type="email" placeholder="email@example.com" />
-        <Input v-model="value" label="Number" type="number" placeholder="0" />
-        <Input v-model="value" label="URL" type="url" placeholder="https://example.com" />
-        <Input v-model="value" label="Tel" type="tel" placeholder="+1 (555) 000-0000" />
+      <div style="max-width: 400px; display: grid; gap: 16px">
+        <Input label="Email" type="email" placeholder="you@example.com" />
+        <Input label="Password" type="password" placeholder="Enter password" />
+        <Input label="Number" type="number" placeholder="0" />
+        <Input label="URL" type="url" placeholder="https://example.com" />
       </div>
     </Variant>
   </Story>
@@ -106,12 +99,14 @@ const value = ref('');
 <docs lang="md">
 # Input
 
-A form input component with label, hint, error, clearable, and inline layout support.
+Single-line text entry with a visible label, hint and error (`.apui-input`). Bind the value
+with `v-model`. `class` goes to the root; every other attribute goes to the native input.
 
 ## Usage
 
 ```vue
-<Input v-model="name" label="Name" placeholder="Enter name" />
-<Input v-model="email" label="Email" type="email" error="Invalid email" />
+<Input v-model="email" label="Email" type="email" hint="We never share it." />
+<Input v-model="price" label="Price" prefix="$" suffix="USD" />
+<Input v-model="name" label="Name" :required="true" :error="errors.name" />
 ```
 </docs>

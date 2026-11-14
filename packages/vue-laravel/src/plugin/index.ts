@@ -15,6 +15,7 @@
  */
 import type { App, Plugin, Component } from 'vue';
 import type { ArtisanPackUILaravelOptions } from '../types';
+import { FLASH_COLOR_MAP_KEY } from '../composables/useFlashMessages';
 
 // Navigation
 import InertiaMenu from '../components/navigation/InertiaMenu.vue';
@@ -30,6 +31,7 @@ import InertiaCheckbox from '../components/form/InertiaCheckbox.vue';
 import InertiaToggle from '../components/form/InertiaToggle.vue';
 import InertiaPassword from '../components/form/InertiaPassword.vue';
 import InertiaRadio from '../components/form/InertiaRadio.vue';
+import InertiaRadioGroup from '../components/form/InertiaRadioGroup.vue';
 
 // Layout
 import AppLayout from '../components/layout/AppLayout.vue';
@@ -53,6 +55,7 @@ const components: Record<string, Component> = {
   InertiaToggle,
   InertiaPassword,
   InertiaRadio,
+  InertiaRadioGroup,
   AppLayout,
   AuthLayout,
   GuestLayout,
@@ -63,7 +66,8 @@ const components: Record<string, Component> = {
 /**
  * Creates the ArtisanPack UI Laravel Vue plugin.
  *
- * Registers all adapter components globally with an optional prefix.
+ * Registers all adapter components globally with an optional prefix, and
+ * provides `flashColorMap` to `useFlashMessages()` and `FlashToasts`.
  *
  * @param options - Plugin configuration options.
  * @returns A Vue plugin instance.
@@ -78,10 +82,12 @@ const components: Record<string, Component> = {
  * ```
  */
 export function createArtisanPackUILaravel(options: ArtisanPackUILaravelOptions = {}): Plugin {
-  const { prefix = 'Ap' } = options;
+  const { prefix = 'Ap', flashColorMap } = options;
 
   return {
     install(app: App) {
+      if (flashColorMap) app.provide(FLASH_COLOR_MAP_KEY, flashColorMap);
+
       for (const [name, component] of Object.entries(components)) {
         app.component(`${prefix}${name}`, component);
       }

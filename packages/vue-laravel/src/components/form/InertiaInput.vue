@@ -19,7 +19,6 @@ const props = defineProps<{
 }>();
 
 const model = defineModel<string>();
-const emit = defineEmits<{ clear: [] }>();
 
 const formContext = inject(INERTIA_FORM_KEY, null);
 const page = usePage<SharedPageProps>();
@@ -32,9 +31,9 @@ const resolvedError = computed(() => {
 </script>
 
 <template>
-  <Input v-bind="{ ...$attrs, name, error: resolvedError }" v-model="model" @clear="emit('clear')">
+  <Input v-bind="{ ...$attrs, name, error: resolvedError }" v-model="model">
     <template v-if="$slots.icon" #icon><slot name="icon" /></template>
-    <template v-if="$slots.iconRight" #iconRight><slot name="iconRight" /></template>
+    <template v-if="$slots.iconEnd" #iconEnd><slot name="iconEnd" /></template>
     <template v-if="$slots.prefix" #prefix><slot name="prefix" /></template>
     <template v-if="$slots.suffix" #suffix><slot name="suffix" /></template>
   </Input>

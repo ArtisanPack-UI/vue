@@ -5,5 +5,5 @@
  */
 export { useInertiaForm } from './useInertiaForm';
 export { useFlashMessages } from './useFlashMessages';
-export type { UseFlashMessagesOptions } from './useFlashMessages';
+export type { FlashToastColor, UseFlashMessagesOptions } from './useFlashMessages';
 export { useAuth } from './useAuth';

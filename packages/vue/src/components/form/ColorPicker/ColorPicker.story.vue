@@ -2,44 +2,50 @@
 import { ref } from 'vue';
 import ColorPicker from './ColorPicker.vue';
 
-const value = ref('#3b82f6');
+const primary = ref('#1f74bf');
+const accent = ref('#de9d16');
+const brand = [
+  '#1f74bf',
+  '#0b9488',
+  '#1f6f3d',
+  '#de9d16',
+  '#e88761',
+  '#c92f33',
+  '#91256c',
+  '#23272b',
+];
 </script>
 
 <template>
   <Story title="Form/ColorPicker" group="form">
-    <Variant title="Playground">
-      <template #controls="{ state }">
-        <HstText v-model="state.label" title="Label" />
-        <HstText v-model="state.hint" title="Hint" />
-        <HstText v-model="state.error" title="Error" />
-        <HstCheckbox v-model="state.clearable" title="Clearable" />
-        <HstCheckbox v-model="state.random" title="Random Default" />
-        <HstCheckbox v-model="state.disabled" title="Disabled" />
-      </template>
-
-      <template #default="{ state }">
-        <div style="max-width: 400px">
-          <ColorPicker
-            v-model="value"
-            :label="state.label || 'Color'"
-            :hint="state.hint || undefined"
-            :error="state.error || undefined"
-            :clearable="state.clearable"
-            :random="state.random"
-            :disabled="state.disabled"
-          />
-        </div>
-      </template>
+    <Variant title="Default">
+      <ColorPicker v-model="primary" label="Primary color" />
     </Variant>
 
-    <Variant title="Clearable">
-      <div style="max-width: 400px">
+    <Variant title="Swatches">
+      <ColorPicker v-model="accent" label="Accent color" hint="Brand swatches" :swatches="brand" />
+    </Variant>
+
+    <Variant title="Open, OKLCH">
+      <ColorPicker
+        v-model="accent"
+        label="Accent color"
+        format="oklch"
+        :swatches="brand"
+        :open="true"
+        :portal="false"
+      />
+    </Variant>
+
+    <Variant title="States">
+      <div style="display: grid; gap: 16px">
         <ColorPicker
-          v-model="value"
-          label="Brand Color"
-          :clearable="true"
-          hint="Click X to clear"
+          label="Brand color"
+          :alpha="false"
+          model-value="#c92f33"
+          error="Enter a color, such as #1f74bf."
         />
+        <ColorPicker label="Locked color" model-value="#23272b" disabled />
       </div>
     </Variant>
   </Story>
@@ -48,5 +54,13 @@ const value = ref('#3b82f6');
 <docs lang="md">
 # ColorPicker
 
-A color picker with clearable and random default options.
+A color field (`.apui-color-picker`): a swatch that opens a popover (area, hue and opacity sliders,
+format select, eyedropper, swatches), and a text value that is always available for typing. Bind it
+with `v-model`; `format` picks HEX, RGB, HSL or OKLCH.
+
+## Usage
+
+```vue
+<ColorPicker v-model="accent" label="Accent color" :swatches="brand" />
+```
 </docs>

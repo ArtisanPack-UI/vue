@@ -1,18 +1,30 @@
 <script setup lang="ts">
-/** @module GuestLayout */
+/**
+ * @module GuestLayout
+ *
+ * A page shell for guest pages (sign in, register): the `logo` slot and the
+ * default slot in a column up to 28rem wide, centered in the viewport by a
+ * design-system Stack. Needs only `@artisanpack-ui/css`, not Tailwind.
+ */
 import { Head } from '@inertiajs/vue3';
-import { cn } from '@artisanpack-ui/tokens';
+import { Stack } from '@artisanpack-ui/vue';
 import type { GuestLayoutProps } from '../../types';
 
 const props = defineProps<GuestLayoutProps>();
 </script>
 
 <template>
-  <div :class="cn('min-h-screen flex items-center justify-center', props.className)">
+  <Stack
+    gap="0"
+    align="center"
+    justify="center"
+    :class="props.className"
+    style="min-block-size: 100vh"
+  >
     <Head v-if="props.title" :title="props.title" />
-    <div class="w-full max-w-md">
+    <Stack gap="0" style="inline-size: 100%; max-inline-size: 28rem">
       <slot name="logo" />
       <slot />
-    </div>
-  </div>
+    </Stack>
+  </Stack>
 </template>

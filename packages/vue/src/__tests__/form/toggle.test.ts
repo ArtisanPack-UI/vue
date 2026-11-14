@@ -1,52 +1,55 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/vue';
+import { fireEvent, render } from '@testing-library/vue';
 import { Toggle } from '../../components/form';
 
+const partOf = (container: Element, name: string) =>
+  container.querySelector(`[data-scope="toggle"][data-part="${name}"]`);
+
 describe('Toggle', () => {
-  it('renders with label', () => {
-    render(Toggle, { props: { label: 'Notifications' } });
-    expect(screen.getByText('Notifications')).toBeTruthy();
+  it('renders a native switch in the checkbox anatomy', () => {
+    const { container } = render(Toggle, {
+      props: { label: 'Dark mode', description: 'Follows the system.', error: 'Nope' },
+      attrs: { id: 't' },
+    });
+    const root = container.querySelector('.apui-toggle')!;
+    expect(root.getAttribute('data-state')).toBe('unchecked');
+    expect(root.getAttribute('data-size')).toBe('md');
+    expect(root.getAttribute('data-color')).toBe('primary');
+    expect([...root.children].map((el) => el.getAttribute('data-part'))).toEqual([
+      'track',
+      'label',
+      'description',
+      'error',
+    ]);
+    const control = partOf(container, 'control')!;
+    expect(control.getAttribute('type')).toBe('checkbox');
+    expect(control.getAttribute('role')).toBe('switch');
+    expect(control.getAttribute('aria-describedby')).toBe('t-description t-error');
+    expect(partOf(container, 'thumb')!.getAttribute('aria-hidden')).toBe('true');
   });
 
-  it('renders a checkbox with role="switch"', () => {
-    render(Toggle, { props: { label: 'Toggle' } });
-    expect(screen.getByRole('switch')).toBeTruthy();
+  it('emits update:checked and updates data-state', async () => {
+    const { container, emitted } = render(Toggle, { props: { label: 'Dark mode' } });
+    await fireEvent.click(partOf(container, 'control')!);
+    expect(emitted()['update:checked']).toEqual([[true]]);
+    expect(container.querySelector('.apui-toggle')!.getAttribute('data-state')).toBe('checked');
   });
 
-  it('applies color variant class', () => {
-    render(Toggle, { props: { label: 'Color', color: 'success' } });
-    expect(screen.getByRole('switch').classList.contains('toggle-success')).toBe(true);
+  it('follows the checked prop', async () => {
+    const { container, rerender } = render(Toggle, { props: { label: 'A', checked: true } });
+    expect((partOf(container, 'control') as HTMLInputElement).checked).toBe(true);
+    await rerender({ checked: false });
+    expect(container.querySelector('.apui-toggle')!.getAttribute('data-state')).toBe('unchecked');
   });
 
-  it('shows required indicator', () => {
-    render(Toggle, { props: { label: 'Required', required: true } });
-    expect(screen.getByText('*')).toBeTruthy();
-  });
-
-  it('reverses order with right prop', () => {
-    const { container } = render(Toggle, { props: { label: 'Right', right: true } });
-    const label = container.querySelector('label');
-    expect(label?.classList.contains('flex-row-reverse')).toBe(true);
-  });
-
-  it('shows hint text', () => {
-    render(Toggle, { props: { hint: 'Toggle this' } });
-    expect(screen.getByText('Toggle this')).toBeTruthy();
-  });
-
-  it('shows error and hides hint', () => {
-    render(Toggle, { props: { hint: 'Help', error: 'Error' } });
-    expect(screen.getByText('Error')).toBeTruthy();
-    expect(screen.queryByText('Help')).toBeNull();
-  });
-
-  it('sets aria-invalid on error', () => {
-    render(Toggle, { props: { error: 'Error' } });
-    expect(screen.getByRole('switch').getAttribute('aria-invalid')).toBe('true');
-  });
-
-  it('supports v-model', () => {
-    render(Toggle, { props: { label: 'Toggle', modelValue: true } });
-    expect((screen.getByRole('switch') as HTMLInputElement).checked).toBe(true);
+  it('flags color, size, disabled and invalid', () => {
+    const { container } = render(Toggle, {
+      props: { label: 'A', color: 'success', size: 'lg', disabled: true, invalid: true },
+    });
+    const root = container.querySelector('.apui-toggle')!;
+    expect(root.getAttribute('data-color')).toBe('success');
+    expect(root.getAttribute('data-size')).toBe('lg');
+    expect(root.hasAttribute('data-disabled')).toBe(true);
+    expect(partOf(container, 'control')!.getAttribute('aria-invalid')).toBe('true');
   });
 });

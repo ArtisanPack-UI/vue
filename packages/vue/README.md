@@ -4,111 +4,53 @@
 [![npm](https://img.shields.io/npm/v/@artisanpack-ui/vue)](https://www.npmjs.com/package/@artisanpack-ui/vue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/ArtisanPack-UI/vue/blob/main/LICENSE)
 
-56+ Vue 3 UI components for building modern web applications, styled with [DaisyUI](https://daisyui.com/) and [Tailwind CSS](https://tailwindcss.com/). Part of the [ArtisanPack UI](https://github.com/ArtisanPack-UI/vue) ecosystem.
+Vue 3 components for the [ArtisanPack UI design system](https://docs.artisanpackui.dev/documentation/design-system/home): forms, layout, navigation, data display, feedback and utilities, styled by `@artisanpack-ui/css` and driven by the shared behavior engine, with the same API as the React and Livewire packages.
 
-## Installation
-
-```bash
-npm install @artisanpack-ui/vue @artisanpack-ui/tokens
-```
-
-### Peer Dependencies
+## Install
 
 ```bash
-npm install vue
+npm install @artisanpack-ui/vue @artisanpack-ui/css
 ```
 
-Optional peers for chart components:
-
-```bash
-npm install apexcharts vue3-apexcharts
-```
-
-## Setup
-
-Import the tokens CSS in your Tailwind entry file:
-
-```css
-@import "tailwindcss";
-@import "@artisanpack-ui/tokens/css";
-```
-
-Register the plugin:
+Vue 3.5 or later is a peer dependency. Load the CSS once, in your app's entry:
 
 ```ts
-import { createApp } from 'vue';
-import { createArtisanPackUI } from '@artisanpack-ui/vue';
-import App from './App.vue';
-
-const app = createApp(App);
-app.use(createArtisanPackUI());
-app.mount('#app');
+import '@artisanpack-ui/css';
 ```
 
-## Usage
+With Tailwind v4, import it from your Tailwind stylesheet instead; see [Getting Started](https://docs.artisanpackui.dev/documentation/vue/getting-started).
+
+## Use
 
 ```vue
 <script setup lang="ts">
-import { Button, Input, Card } from '@artisanpack-ui/vue';
+import { ref } from 'vue';
+import { Button, Dialog, Input } from '@artisanpack-ui/vue';
+
+const open = ref(false);
+const email = ref('');
 </script>
 
 <template>
-  <Card>
-    <template #header>Sign In</template>
-    <Input label="Email" type="email" v-model="email" />
-    <Button color="primary" @click="submit">Log In</Button>
-  </Card>
+  <Button color="primary" @click="open = true">Invite</Button>
+  <Dialog v-model:open="open" title="Invite member">
+    <Input v-model="email" label="Email" type="email" name="email" />
+  </Dialog>
 </template>
 ```
 
-### Tree-Shakeable Imports
-
-Import from specific categories to minimize bundle size:
-
-```ts
-import { Button, Input, Select } from '@artisanpack-ui/vue/form';
-import { Card, Modal, Tabs } from '@artisanpack-ui/vue/layout';
-import { Menu, Breadcrumbs } from '@artisanpack-ui/vue/navigation';
-import { Table, Calendar } from '@artisanpack-ui/vue/data';
-import { Avatar, Badge, Progress } from '@artisanpack-ui/vue/display';
-import { Alert, Toast, Loading } from '@artisanpack-ui/vue/feedback';
-import { Icon, ThemeToggle, Tooltip } from '@artisanpack-ui/vue/utility';
-import { useTheme, useBreakpoint } from '@artisanpack-ui/vue/composables';
-```
-
-## Component Categories
-
-- **Form** - Button, Input, Select, Checkbox, Toggle, DatePicker, ColorPicker, RichTextEditor, Password, Pin, and more
-- **Layout** - Card, Modal, Tabs, Accordion, Drawer, Dropdown, Grid, Stack, Popover, Collapse, Divider
-- **Navigation** - Menu, Breadcrumbs, Pagination, Steps, Navbar, Sidebar, SpotlightSearch
-- **Display** - Avatar, Badge, Progress, Stat, Timeline, Carousel, Code, Diff, Sparkline
-- **Data** - Table, Calendar, Chart
-- **Feedback** - Alert, Toast, Loading, Skeleton, EmptyState, Error
-- **Utility** - Icon, ThemeToggle, Tooltip, Clipboard, Markdown
-
-## Theming
-
-All components support DaisyUI's 31 built-in themes plus custom themes via the `ThemeToggle` component.
-
-## Vue Compatibility
-
-Requires Vue 3.5+.
+Every component is a named export of the package and of one category subpath (`/form`, `/layout`, `/navigation`, `/display`, `/data`, `/feedback`, `/utility`), plus `/composables` and `/ai`. The package is side-effect free, so unused components tree-shake. Built-in text is set through `*Label` (or `labels`) props with English defaults, so you can translate it.
 
 ## Documentation
 
-- [Getting Started](https://github.com/ArtisanPack-UI/vue/wiki/Getting-Started)
-- [Component API Reference](https://github.com/ArtisanPack-UI/vue/wiki/Component-API-Reference)
-- [Theming Guide](https://github.com/ArtisanPack-UI/vue/wiki/Theming)
-- [Composables Reference](https://github.com/ArtisanPack-UI/vue/wiki/Composables)
-
-## Part of ArtisanPack UI
-
-| Package | Description |
-|---------|-------------|
-| [`@artisanpack-ui/tokens`](https://www.npmjs.com/package/@artisanpack-ui/tokens) | Design tokens, color resolver, glass helpers |
-| [`@artisanpack-ui/vue`](https://www.npmjs.com/package/@artisanpack-ui/vue) | 56+ Vue 3 UI components |
-| [`@artisanpack-ui/vue-laravel`](https://www.npmjs.com/package/@artisanpack-ui/vue-laravel) | Inertia.js adapter wrappers |
+- [Getting Started](https://docs.artisanpackui.dev/documentation/vue/getting-started)
+- [Components](https://docs.artisanpackui.dev/documentation/vue/components)
+- [Theming](https://docs.artisanpackui.dev/documentation/vue/theming)
+- [Composables](https://docs.artisanpackui.dev/documentation/vue/composables)
+- [TypeScript](https://docs.artisanpackui.dev/documentation/vue/typescript)
+- [AI Components](https://docs.artisanpackui.dev/documentation/vue/ai-components)
+- [Upgrading from 1.x](https://docs.artisanpackui.dev/documentation/vue/upgrading): 1.x components such as `Modal`, `Dropdown` and `ToastProvider` still work as deprecated aliases of their replacements.
 
 ## License
 
-[MIT](https://github.com/ArtisanPack-UI/vue/blob/main/LICENSE) - Jacob Martella
+[MIT](https://github.com/ArtisanPack-UI/vue/blob/main/LICENSE)
