@@ -38,7 +38,7 @@ createInertiaApp({
 });
 ```
 
-To register the adapter components globally, add `app.use(createArtisanPackUILaravel())`. It registers them with a prefix (`Ap` by default, so `<ApInertiaInput>`), set with the `prefix` option. It registers every component on this page except `InertiaRadioGroup`.
+To register the adapter components globally, add `app.use(createArtisanPackUILaravel())`. It registers them with a prefix (`Ap` by default, so `<ApInertiaInput>`), set with the `prefix` option. It registers every component on this page. Pass `flashColorMap` to set the flash toast colors app-wide; see [As toasts](#as-toasts).
 
 The `<head>` of an Inertia app is in the Blade root template, so apply the stored theme choice there: inline the output of `themeScript()` from `@artisanpack-ui/behavior` first in `<head>` of `app.blade.php`. If the app also has Livewire UI Components, its `@apuiThemeScript` directive renders the same script. See [Theming](Theming).
 
@@ -94,7 +94,7 @@ import { InertiaForm, InertiaInput, InertiaPassword } from '@artisanpack-ui/vue-
 | `method`  | `'get' \| 'post' \| 'put' \| 'patch' \| 'delete'` | `'post'` | The HTTP method                                           |
 | `options` | `{ resetOnSuccess?: boolean }`                    |          | `resetOnSuccess` defaults to `true`                       |
 
-It emits `success` and `error` after a submission. Its default slot receives `form` (the Inertia form), `getError`, `clearErrors`, `processing`, `recentlySuccessful`, `isDirty` and `submit`, and the same are exposed on a template ref.
+It emits `success` and `error` after a submission. Its default slot receives `form` (the Inertia form), `getError`, `clearErrors`, `processing`, `recentlySuccessful`, `isDirty` and `submit`, and the same are exposed on a template ref. `processing`, `recentlySuccessful` and `isDirty` arrive as plain booleans, so `:loading="processing"` follows the submission.
 
 | Wrapper             | Wraps              | Binding                            |
 | ------------------- | ------------------ | ---------------------------------- |
@@ -199,7 +199,19 @@ Each item has a `name`, a `label` and optionally `href`, `active`, `disabled`, `
 
 ### InertiaBreadcrumbs
 
-Renders a breadcrumb trail of Inertia links from `items` (`{ label, href? }`), with the last item marked as the current page and an `item` slot for custom content. It's a plain list, not the design-system [Breadcrumbs](https://docs.artisanpackui.dev/documentation/design-system/components/breadcrumbs), so style it through `className`.
+Renders the design-system [Breadcrumbs](https://docs.artisanpackui.dev/documentation/design-system/components/breadcrumbs) with its links as Inertia `<Link>`s:
+
+```vue
+<InertiaBreadcrumbs
+  :items="[
+    { label: 'Users', href: '/users' },
+    { label: 'Ada Lovelace', href: '/users/1' },
+    { label: 'Edit' },
+  ]"
+/>
+```
+
+Each item is `{ label, href? }`. The last item is the current page and is never a link. The scoped `item` slot (`{ item, index, isLast }`) replaces an item's text. `className` and every other attribute, including Breadcrumbs' own props (`label`, `maxItems`, `overflowLabel`, `classes`), go to the Breadcrumbs. Like Breadcrumbs, it collapses the middle of a trail longer than `maxItems` (default `4`) behind an overflow button; set `:max-items="0"` to never collapse.
 
 ## Flash messages
 
@@ -215,29 +227,37 @@ It takes `dismissible` (default `true`) and `className` for the wrapper.
 
 ### As toasts
 
-`FlashToasts` and `useFlashMessages()` show flash messages as toasts through `ToastProvider`, which is deprecated in 2.0 and must wrap them. With the 2.0 `Toaster`, watch the flash props yourself:
+`FlashToasts` shows each flash message as a design-system [Toast](https://docs.artisanpackui.dev/documentation/design-system/components/toast) and renders the `Toaster` that displays them, after its default slot:
 
 ```vue
 <script setup lang="ts">
-import { watch } from 'vue';
-import { usePage } from '@inertiajs/vue3';
-import { Toaster, toast } from '@artisanpack-ui/vue';
-import type { SharedPageProps } from '@artisanpack-ui/vue-laravel';
+import { FlashToasts } from '@artisanpack-ui/vue-laravel';
+</script>
 
-const page = usePage<SharedPageProps>();
-const colors = { success: 'success', error: 'error', warning: 'warning', info: 'info' } as const;
+<template>
+  <FlashToasts placement="top-end">
+    <slot />
+  </FlashToasts>
+</template>
+```
 
-watch(
-  () => page.props.flash,
-  (flash) => {
-    for (const [key, message] of Object.entries(flash ?? {})) {
-      if (message) {
-        toast.create({ title: message, color: colors[key as keyof typeof colors] ?? 'info' });
-      }
-    }
-  },
-  { immediate: true },
-);
+| Prop       | Type                              | Default | Description                                                                         |
+| ---------- | --------------------------------- | ------- | ----------------------------------------------------------------------------------- |
+| `colorMap` | `Record<string, FlashToastColor>` |         | Flash key to toast color, merged over the plugin's `flashColorMap` and the defaults |
+| `duration` | `number`                          | `5000`  | Milliseconds before each toast dismisses itself. `0` keeps it                       |
+| `toaster`  | `ToasterInstance`                 |         | A toaster from `createToaster()`. Defaults to the page's `toast`                    |
+| `region`   | `boolean`                         | `true`  | Renders the `Toaster`. Set `:region="false"` when the page already has one          |
+
+Every other attribute, including the Toaster's own props (`placement`, `label`, `closeLabel`), goes to the Toaster.
+
+`useFlashMessages()` is the composable underneath. It takes the same `colorMap`, `duration` and `toaster` options and returns `{ toast }`. Use it when you render the `Toaster` yourself:
+
+```vue
+<script setup lang="ts">
+import { Toaster } from '@artisanpack-ui/vue';
+import { useFlashMessages } from '@artisanpack-ui/vue-laravel';
+
+useFlashMessages({ colorMap: { status: 'success' } });
 </script>
 
 <template>
@@ -245,6 +265,8 @@ watch(
   <Toaster />
 </template>
 ```
+
+Each non-empty flash value becomes one toast when the page loads and after each visit. The colors come from `colorMap`, then the plugin's `flashColorMap` (`app.use(createArtisanPackUILaravel({ flashColorMap: { status: 'success' } }))`), then the defaults: `success`, `error`, `warning` and `info` keep their color, `message` shows as `info`, and any other key shows as `info`. A color is a `FlashToastColor`, any toast color: `primary`, `secondary`, `accent`, `neutral`, `success`, `warning`, `error` or `info`.
 
 ## The signed-in user
 
@@ -279,11 +301,11 @@ It returns `user`, `isAuthenticated` and `isGuest` as computed refs.
 | `AuthLayout`  | `header`, `sidebar`, default (in `<main>`), `footer` |
 | `GuestLayout` | `logo`, default, in a centered column                |
 
-They lay themselves out with Tailwind utility classes, so they need Tailwind. For an application frame built on the design system, use [AppShell](https://docs.artisanpackui.dev/documentation/design-system/components/app-shell).
+Each is a design-system [Stack](https://docs.artisanpackui.dev/documentation/design-system/components/stack) that fills the viewport, with `<main>` taking the free space, so they need only `@artisanpack-ui/css`, not Tailwind. For an application frame with a sidebar, use [AppShell](https://docs.artisanpackui.dev/documentation/design-system/components/app-shell).
 
 ## Types
 
-`@artisanpack-ui/vue-laravel` exports types for Laravel's responses and the shared props: `LaravelPaginator`, `LaravelSimplePaginator`, `PaginationLink`, `FlashMessages`, `AuthUser`, `AuthProps`, `SharedPageProps`, `InertiaFormOptions`, `InertiaFormContext`, `UseFlashMessagesOptions`, `ArtisanPackUILaravelOptions`, `AppLayoutProps`, `AuthLayoutProps` and `GuestLayoutProps`.
+`@artisanpack-ui/vue-laravel` exports types for Laravel's responses and the shared props: `LaravelPaginator`, `LaravelSimplePaginator`, `PaginationLink`, `FlashMessages`, `FlashToastColor`, `AuthUser`, `AuthProps`, `SharedPageProps`, `InertiaFormOptions`, `InertiaFormContext`, `UseFlashMessagesOptions`, `ArtisanPackUILaravelOptions`, `AppLayoutProps`, `AuthLayoutProps` and `GuestLayoutProps`.
 
 ```ts
 import type { SharedPageProps } from '@artisanpack-ui/vue-laravel';
