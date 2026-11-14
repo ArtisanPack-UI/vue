@@ -75,6 +75,9 @@ let loadSeq = 0;
 // Bumped whenever the credentials change, so a probe only reports on the
 // credentials it actually tested.
 let testSeq = 0;
+// Bumped on every save and every load, so a save answered after the client
+// changed (or after a newer save) can't put the old settings in the form.
+let saveSeq = 0;
 
 function toFormState(response: AiSettingsResponse): void {
   form.provider = response.credentials.provider;
@@ -114,6 +117,7 @@ const isOllama = computed(() => form.provider === 'ollama');
 async function loadSettings(): Promise<void> {
   const seq = ++loadSeq;
   invalidateTest();
+  retireSave();
   loading.value = true;
   loadError.value = null;
   initial.value = null;
@@ -136,7 +140,14 @@ watch(() => props.client, loadSettings, { immediate: true });
 onScopeDispose(() => {
   loadSeq++;
   testSeq++;
+  saveSeq++;
 });
+
+/** Retires an in-flight save, so its response is ignored. */
+function retireSave(): void {
+  saveSeq++;
+  saving.value = false;
+}
 
 /** Clears any probe result, and retires an in-flight probe, when credentials change. */
 function invalidateTest(): void {
@@ -156,17 +167,20 @@ function handleProviderChange(provider: string): void {
 }
 
 async function handleSubmit(): Promise<void> {
+  const seq = ++saveSeq;
   saving.value = true;
   errors.value = {};
   status.value = null;
   try {
     const response = await props.client.updateSettings(toUpdatePayload());
+    if (seq !== saveSeq) return;
     invalidateTest();
     initial.value = response;
     toFormState(response);
     status.value = text.value.saved;
     statusVariant.value = 'success';
   } catch (err) {
+    if (seq !== saveSeq) return;
     statusVariant.value = 'error';
     if (err instanceof AiApiError && err.status === 422) {
       const body = err.body as { errors?: Record<string, string[]>; message?: string };
@@ -176,7 +190,7 @@ async function handleSubmit(): Promise<void> {
       status.value = errorMessage(err, text.value.genericError);
     }
   } finally {
-    saving.value = false;
+    if (seq === saveSeq) saving.value = false;
   }
 }
 

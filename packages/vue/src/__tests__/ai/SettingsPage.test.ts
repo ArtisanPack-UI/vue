@@ -259,6 +259,62 @@ describe('SettingsPage', () => {
     expect(screen.queryByText('Connected')).toBeNull();
   });
 
+  it("ignores the old client's save response when the client changes mid-save", async () => {
+    const save = deferred<AiSettingsResponse>();
+    const first = createMockClient({
+      getSettings: vi.fn().mockResolvedValue(baseResponse),
+      updateSettings: vi.fn().mockReturnValue(save.promise),
+    });
+    const second = createMockClient({
+      getSettings: vi.fn().mockResolvedValue({
+        ...baseResponse,
+        credentials: {
+          ...baseResponse.credentials,
+          provider: 'anthropic',
+          default_model: 'claude',
+        },
+      }),
+    });
+
+    const { rerender } = render(SettingsPage, { props: { client: first } });
+    await screen.findByDisplayValue('gpt-4o-mini');
+    await fireEvent.click(screen.getByRole('button', { name: 'Save settings' }));
+
+    await rerender({ client: second });
+    await screen.findByDisplayValue('claude');
+    save.resolve({
+      ...baseResponse,
+      credentials: { ...baseResponse.credentials, default_model: 'stale-model' },
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(screen.queryByDisplayValue('stale-model')).toBeNull();
+    expect((screen.getByDisplayValue('claude') as HTMLInputElement).value).toBe('claude');
+    expect(screen.queryByText('Settings saved.')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Save settings' }).hasAttribute('data-loading')).toBe(
+      false,
+    );
+  });
+
+  it("ignores the old client's save failure when the client changes mid-save", async () => {
+    const save = deferred<AiSettingsResponse>();
+    const first = createMockClient({
+      getSettings: vi.fn().mockResolvedValue(baseResponse),
+      updateSettings: vi.fn().mockReturnValue(save.promise),
+    });
+    const second = createMockClient({ getSettings: vi.fn().mockResolvedValue(baseResponse) });
+
+    const { rerender } = render(SettingsPage, { props: { client: first } });
+    await screen.findByDisplayValue('gpt-4o-mini');
+    await fireEvent.click(screen.getByRole('button', { name: 'Save settings' }));
+    await rerender({ client: second });
+    await screen.findByDisplayValue('gpt-4o-mini');
+    save.reject(new Error('Old client failed'));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(screen.queryByText('Old client failed')).toBeNull();
+  });
+
   it('translates its built-in text through labels, keeping the defaults it leaves out', async () => {
     const client = createMockClient({ getSettings: vi.fn().mockResolvedValue(baseResponse) });
 
