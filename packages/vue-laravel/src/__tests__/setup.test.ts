@@ -27,15 +27,6 @@ vi.mock('@inertiajs/vue3', () => ({
 }));
 
 vi.mock('@artisanpack-ui/vue', () => ({
-  useToast: () => ({
-    show: vi.fn(),
-    success: vi.fn(),
-    error: vi.fn(),
-    warning: vi.fn(),
-    info: vi.fn(),
-    dismiss: vi.fn(),
-    dismissAll: vi.fn(),
-  }),
   Menu: { name: 'Menu', template: '<ul><slot /></ul>' },
   Breadcrumbs: { name: 'Breadcrumbs', template: '<nav><slot /></nav>' },
   Pagination: { name: 'Pagination', template: '<nav><slot /></nav>' },
@@ -47,6 +38,11 @@ vi.mock('@artisanpack-ui/vue', () => ({
   Password: { name: 'Password', template: '<input type="password" />' },
   Radio: { name: 'Radio', template: '<div />' },
   Alert: { name: 'Alert', template: '<div role="alert"><slot /></div>' },
+  RadioGroup: { name: 'RadioGroup', template: '<fieldset />' },
+  Stack: { name: 'Stack', template: '<div><slot /></div>' },
+  BreadcrumbsItem: { name: 'BreadcrumbsItem', template: '<li><slot /></li>' },
+  Toaster: { name: 'Toaster', template: '<div />' },
+  toast: { create: vi.fn() },
 }));
 
 describe('vue-laravel package setup', () => {

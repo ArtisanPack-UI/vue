@@ -1,17 +1,20 @@
 /**
- * Composable that reads Inertia flash page props and integrates with
- * the ArtisanPack UI Toast system.
+ * Composable that reads Inertia flash page props and shows them as
+ * design-system toasts.
  *
  * @module composables/useFlashMessages
  */
-import { watch } from 'vue';
+import { inject, watch, type InjectionKey } from 'vue';
 import { usePage } from '@inertiajs/vue3';
-import { useToast } from '@artisanpack-ui/vue';
+import { toast as defaultToast } from '@artisanpack-ui/vue';
+import type { ToasterInstance, ToastInput } from '@artisanpack-ui/vue';
 import type { FlashMessages, SharedPageProps } from '../types';
-import type { ToastColor } from '@artisanpack-ui/vue';
 
-/** Map from Laravel flash key to DaisyUI toast color. */
-const DEFAULT_COLOR_MAP: Record<string, ToastColor> = {
+/** A toast color: `primary`, `secondary`, `accent`, `neutral`, `success`, `warning`, `error` or `info`. */
+export type FlashToastColor = NonNullable<ToastInput['color']>;
+
+/** Map from Laravel flash key to toast color. Keys it doesn't list show as `info`. */
+const DEFAULT_COLOR_MAP: Record<string, FlashToastColor> = {
   success: 'success',
   error: 'error',
   warning: 'warning',
@@ -19,42 +22,70 @@ const DEFAULT_COLOR_MAP: Record<string, ToastColor> = {
   message: 'info',
 };
 
+/**
+ * The app-wide flash color map, provided by `createArtisanPackUILaravel({ flashColorMap })`.
+ *
+ * @internal
+ */
+export const FLASH_COLOR_MAP_KEY: InjectionKey<Record<string, FlashToastColor>> =
+  Symbol('apui-flash-color-map');
+
 export interface UseFlashMessagesOptions {
   /**
-   * Map of flash keys to toast colors.
+   * Map of flash keys to toast colors, merged over the plugin's
+   * `flashColorMap` and the defaults. Keys none of them list show as `info`.
    *
    * @defaultValue `{ success: 'success', error: 'error', warning: 'warning', info: 'info', message: 'info' }`
    */
-  colorMap?: Record<string, ToastColor>;
+  colorMap?: Record<string, FlashToastColor>;
 
   /**
-   * Duration in milliseconds for each flash toast.
+   * Milliseconds before each flash toast dismisses itself. `0` keeps it.
    *
    * @defaultValue `5000`
    */
   duration?: number;
+
+  /**
+   * The toaster to show the toasts in, from `createToaster()`. Defaults to
+   * the page's `toast`, which a `<Toaster>` renders.
+   */
+  toaster?: ToasterInstance;
 }
 
 /**
- * Watches Inertia page props for flash messages and automatically triggers
- * toasts via the ArtisanPack UI Toast system.
+ * Watches Inertia page props for flash messages and shows each one as a toast
+ * with `toast.create()`. Render a `<Toaster>` on the page (or `FlashToasts`,
+ * which renders one) to show them.
  *
- * Must be called inside a component that is a descendant of `<ToastProvider>`.
+ * The colors come from `options.colorMap`, then the plugin's `flashColorMap`,
+ * then the defaults.
  *
  * @example
  * ```vue
  * <script setup lang="ts">
+ * import { Toaster } from '@artisanpack-ui/vue';
  * import { useFlashMessages } from '@artisanpack-ui/vue-laravel';
  *
  * useFlashMessages();
  * </script>
+ *
+ * <template>
+ *   <slot />
+ *   <Toaster />
+ * </template>
  * ```
  */
 export function useFlashMessages(options: UseFlashMessagesOptions = {}) {
-  const { colorMap = DEFAULT_COLOR_MAP, duration = 5000 } = options;
+  const { duration = 5000 } = options;
+  const toast = options.toaster ?? defaultToast;
+  const colorMap: Record<string, FlashToastColor> = {
+    ...DEFAULT_COLOR_MAP,
+    ...inject(FLASH_COLOR_MAP_KEY, {}),
+    ...options.colorMap,
+  };
 
   const page = usePage<SharedPageProps>();
-  const toast = useToast();
 
   watch(
     () => page.props.flash as FlashMessages | undefined,
@@ -64,9 +95,7 @@ export function useFlashMessages(options: UseFlashMessagesOptions = {}) {
       for (const [key, message] of Object.entries(flash)) {
         if (!message) continue;
 
-        const color: ToastColor = colorMap[key] ?? 'info';
-
-        toast.show({ message, color, duration });
+        toast.create({ title: message, color: colorMap[key] ?? 'info', duration });
       }
     },
     { immediate: true },
