@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/vue';
-import { nextTick } from 'vue';
+import { defineComponent, h, nextTick, ref } from 'vue';
 import { SpotlightSearch } from '../../components/navigation';
 
 const testItems = [
@@ -11,160 +11,92 @@ const testItems = [
   { id: 'disabled', label: 'Disabled Action', disabled: true },
 ];
 
-// SpotlightSearch uses Teleport to body, so we must query document.body
-function queryBody(selector: string) {
-  return document.body.querySelector(selector);
-}
+const partOf = (name: string, root: ParentNode = document.body) =>
+  root.querySelector<HTMLElement>(`[data-scope="spotlight"][data-part="${name}"]`);
+const panel = () => document.body.querySelector<HTMLElement>('.apui-spotlight')!;
 
-function queryAllBody(selector: string) {
-  return document.body.querySelectorAll(selector);
-}
-
-/** Wait for Vue reactivity + post-flush dialog updates. */
-async function waitForDialog() {
+/** Lets the machines settle. */
+const settle = async () => {
   await nextTick();
+  await new Promise((resolve) => setTimeout(resolve, 0));
   await nextTick();
-}
+};
 
-describe('SpotlightSearch', () => {
-  // Mock HTMLDialogElement methods
-  beforeEach(() => {
-    HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) {
-      this.setAttribute('open', '');
-    });
-    HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
-      this.removeAttribute('open');
-    });
-  });
-
-  it('renders dialog element', () => {
+describe('SpotlightSearch (deprecated alias of Spotlight)', () => {
+  it('warns once in development that it is deprecated', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     render(SpotlightSearch, { props: { items: testItems } });
-    expect(queryBody('dialog')).toBeTruthy();
-  });
-
-  it('shows modal when open is true', async () => {
-    render(SpotlightSearch, {
-      props: { items: testItems, open: true },
-      global: { stubs: { teleport: true } },
-    });
-    await waitForDialog();
-    expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled();
-  });
-
-  it('renders search input', async () => {
-    render(SpotlightSearch, { props: { items: testItems, open: true } });
-    await waitForDialog();
-    const input = queryBody('input[type="text"]');
-    expect(input).toBeTruthy();
-  });
-
-  it('uses custom placeholder', async () => {
-    render(SpotlightSearch, {
-      props: { items: testItems, open: true, placeholder: 'Type a command…' },
-    });
-    await waitForDialog();
-    const input = queryBody('input[type="text"]') as HTMLInputElement;
-    expect(input.placeholder).toBe('Type a command…');
-  });
-
-  it('displays all non-disabled items when no query', async () => {
-    render(SpotlightSearch, { props: { items: testItems, open: true } });
-    await waitForDialog();
-    expect(screen.getByText('Go to Home')).toBeTruthy();
-    expect(screen.getByText('Open Settings')).toBeTruthy();
-    expect(screen.getByText('View Profile')).toBeTruthy();
-    expect(screen.getByText('Log Out')).toBeTruthy();
-  });
-
-  it('filters items based on query', async () => {
-    render(SpotlightSearch, { props: { items: testItems, open: true } });
-    await waitForDialog();
-    const input = queryBody('input[type="text"]') as HTMLInputElement;
-    await fireEvent.update(input, 'settings');
-    await nextTick();
-    expect(screen.getByText('Open Settings')).toBeTruthy();
-    expect(screen.queryByText('Go to Home')).toBeFalsy();
-  });
-
-  it('shows no results message when nothing matches', async () => {
-    render(SpotlightSearch, { props: { items: testItems, open: true } });
-    await waitForDialog();
-    const input = queryBody('input[type="text"]') as HTMLInputElement;
-    await fireEvent.update(input, 'xyznonexistent');
-    await nextTick();
-    expect(screen.getByText('No results found.')).toBeTruthy();
-  });
-
-  it('excludes disabled items from results', async () => {
-    render(SpotlightSearch, { props: { items: testItems, open: true } });
-    await waitForDialog();
-    expect(screen.queryByText('Disabled Action')).toBeFalsy();
-  });
-
-  it('displays group headers', async () => {
-    render(SpotlightSearch, { props: { items: testItems, open: true } });
-    await waitForDialog();
-    expect(screen.getByText('Account')).toBeTruthy();
-  });
-
-  it('renders item descriptions', async () => {
-    render(SpotlightSearch, { props: { items: testItems, open: true } });
-    await waitForDialog();
-    expect(screen.getByText('Navigate to the home page')).toBeTruthy();
-  });
-
-  it('emits select when item is clicked', async () => {
-    const { emitted } = render(SpotlightSearch, {
-      props: { items: testItems, open: true },
-    });
-    await waitForDialog();
-    const homeItem = screen.getByText('Go to Home');
-    await fireEvent.click(homeItem.closest('[role="option"]')!);
-    const selectEvents = emitted().select as Array<[(typeof testItems)[0]]>;
-    expect(selectEvents).toBeTruthy();
-    expect(selectEvents[0][0]).toEqual(testItems[0]);
-  });
-
-  it('has combobox role on input', async () => {
-    render(SpotlightSearch, { props: { items: testItems, open: true } });
-    await waitForDialog();
-    expect(queryBody('[role="combobox"]')).toBeTruthy();
-  });
-
-  it('has listbox role on results', async () => {
-    render(SpotlightSearch, { props: { items: testItems, open: true } });
-    await waitForDialog();
-    expect(queryBody('[role="listbox"]')).toBeTruthy();
-  });
-
-  it('has option role on items', async () => {
-    render(SpotlightSearch, { props: { items: testItems, open: true } });
-    await waitForDialog();
-    const options = queryAllBody('[role="option"]');
-    expect(options.length).toBe(4); // 4 non-disabled items
-  });
-
-  it('highlights first item by default', async () => {
-    render(SpotlightSearch, { props: { items: testItems, open: true } });
-    await waitForDialog();
-    const options = queryAllBody('[role="option"]');
-    expect(options[0].getAttribute('aria-selected')).toBe('true');
-  });
-
-  it('has aria-modal on dialog', () => {
     render(SpotlightSearch, { props: { items: testItems } });
-    const dialog = queryBody('dialog');
-    expect(dialog?.getAttribute('aria-modal')).toBe('true');
+    const calls = warn.mock.calls.filter(([m]) => String(m).includes('SpotlightSearch'));
+    expect(calls).toHaveLength(1);
+    expect(calls[0]![0]).toContain('SpotlightSearch is deprecated; use Spotlight.');
+    warn.mockRestore();
   });
 
-  it('closes dialog on Escape keydown', async () => {
-    const { emitted } = render(SpotlightSearch, {
-      props: { items: testItems, open: true },
+  it('renders the design-system Spotlight, with no DaisyUI markup', async () => {
+    render(SpotlightSearch, { props: { items: testItems, open: true } });
+    await settle();
+    expect(panel().getAttribute('data-scope')).toBe('spotlight');
+    expect(panel().getAttribute('aria-label')).toBe('Search');
+    expect(document.body.querySelector('dialog, .modal, .modal-box, .kbd, .input')).toBeNull();
+    expect((partOf('query') as HTMLInputElement).placeholder).toBe('Search…');
+  });
+
+  it('maps ariaLabel, placeholder and className', async () => {
+    render(SpotlightSearch, {
+      props: {
+        items: testItems,
+        open: true,
+        ariaLabel: 'Commands',
+        placeholder: 'Type a command',
+        className: 'my-palette',
+      },
     });
-    await waitForDialog();
-    const dialog = queryBody('dialog') as HTMLDialogElement;
-    await fireEvent.keyDown(dialog, { key: 'Escape' });
-    expect(emitted()['update:open']).toBeTruthy();
-    expect(emitted()['update:open'][0]).toEqual([false]);
+    await settle();
+    expect(panel().getAttribute('aria-label')).toBe('Commands');
+    expect(panel().classList.contains('my-palette')).toBe(true);
+    expect((partOf('query') as HTMLInputElement).placeholder).toBe('Type a command');
+  });
+
+  it('groups items by their group, ungrouped first, with id as the value', async () => {
+    render(SpotlightSearch, { props: { items: testItems, open: true } });
+    await settle();
+    const values = [...document.body.querySelectorAll('[data-part="item"]')].map((el) =>
+      el.getAttribute('data-value'),
+    );
+    expect(values).toEqual(['home', 'settings', 'disabled', 'profile', 'logout']);
+    expect(screen.getByRole('group', { name: 'Account' })).toBeTruthy();
+    expect(
+      document.body.querySelector('[data-value="disabled"]')!.hasAttribute('data-disabled'),
+    ).toBe(true);
+  });
+
+  it('emits select with the 2.x item and closes', async () => {
+    const open = ref(true);
+    const selected: unknown[] = [];
+    render(
+      defineComponent({
+        setup: () => () =>
+          h(SpotlightSearch, {
+            items: testItems,
+            open: open.value,
+            'onUpdate:open': (value: boolean) => (open.value = value),
+            onSelect: (item: unknown) => selected.push(item),
+          }),
+      }),
+    );
+    await settle();
+    await fireEvent.click(document.body.querySelector('[data-value="profile"]')!);
+    await settle();
+    expect(selected).toEqual([testItems[2]]);
+    expect(open.value).toBe(false);
+  });
+
+  it('toggles with Ctrl+K', async () => {
+    const { emitted } = render(SpotlightSearch, { props: { items: testItems } });
+    await settle();
+    await fireEvent.keyDown(window, { key: 'k', code: 'KeyK', ctrlKey: true });
+    await settle();
+    expect(emitted('update:open')!.at(-1)).toEqual([true]);
   });
 });

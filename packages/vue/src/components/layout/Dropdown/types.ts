@@ -1,27 +1,31 @@
 /**
- * Props for the Dropdown component.
+ * Props for the deprecated Dropdown component.
  *
- * A trigger + popover menu with keyboard navigation and ARIA semantics.
+ * @deprecated Use `DropdownMenu` (#50). Dropdown renders a DropdownMenu:
+ * `end` is its `align="end"` and the `trigger` slot its `label` slot.
+ * DropdownMenu's own props pass through.
  */
 export interface DropdownProps {
-  /** Text label for the default trigger button. @defaultValue `'Options'` */
+  /** The trigger button's text. The `trigger` slot overrides it. @defaultValue `'Options'` */
   label?: string;
-  /** When true, aligns the dropdown menu to the right. @defaultValue `false` */
+  /** Lines the menu's end edge up with the trigger's. DropdownMenu's `align="end"`. @defaultValue `false` */
   end?: boolean;
-  /** When true, opens the dropdown above the trigger. @defaultValue `false` */
+  /** Ignored: DropdownMenu has no prop to open above the trigger. @defaultValue `false` */
   top?: boolean;
-  /** When true, opens on hover instead of click. @defaultValue `false` */
+  /** Ignored: the menu opens on click and from the keyboard only. @defaultValue `false` */
   hover?: boolean;
   /** Whether the dropdown is open. Use with `v-model:open`. */
   open?: boolean;
 }
 
 /**
- * Props for the DropdownItem component.
+ * Props for the deprecated DropdownItem component.
  *
- * A single item within a Dropdown menu.
+ * @deprecated Use `DropdownMenuItem` (#50), which needs a `value`.
  */
 export interface DropdownItemProps {
   /** When true, disables the item. @defaultValue `false` */
   disabled?: boolean;
+  /** The value the menu's `select` event reports. Defaults to a generated id. */
+  value?: string;
 }

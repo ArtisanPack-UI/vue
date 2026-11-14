@@ -121,6 +121,10 @@ describe('useBreakpoint', () => {
     expect(screen.getByTestId('current').textContent).toBe('xl');
     expect(screen.getByTestId('is-xl').textContent).toBe('true');
 
-    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1024, writable: true });
+    Object.defineProperty(window, 'innerWidth', {
+      configurable: true,
+      value: 1024,
+      writable: true,
+    });
   });
 });

@@ -3,292 +3,78 @@
  * @module SpotlightSearch
  *
  * @deprecated Use Spotlight, the design-system replacement (#57).
+ * SpotlightSearch is a thin alias that renders a Spotlight and maps its 2.x
+ * props: `items` are grouped by their `group` into Spotlight `groups` (each
+ * item's `id` becomes its `value`), `ariaLabel` → `label`, `className` →
+ * `class`, and `select` still reports the 2.x item. ⌘K / Ctrl+K toggles it,
+ * as before. The 2.x `item` slot is gone: results render from the items.
+ * Every other attribute, including Spotlight's own props, passes through.
  */
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue';
-import { cn } from '@artisanpack-ui/tokens';
-import type { SpotlightSearchProps, SpotlightItem } from './types';
+import { computed, getCurrentInstance } from 'vue';
+import Spotlight from '../Spotlight/Spotlight.vue';
+import { warnOnce } from '../../_shared/design-system';
+import type { SpotlightGroup, SpotlightResult } from '../Spotlight/types';
+import type { SpotlightItem, SpotlightSearchProps } from './types';
 
-const props = withDefaults(defineProps<Omit<SpotlightSearchProps, 'open'>>(), {
+const props = withDefaults(defineProps<SpotlightSearchProps>(), {
+  open: false,
   placeholder: 'Search…',
   ariaLabel: 'Search',
+  className: undefined,
 });
 
-const openModel = defineModel<boolean>('open', { default: false });
-
 const emit = defineEmits<{
+  'update:open': [value: boolean];
   select: [item: SpotlightItem];
 }>();
 
-const autoId = useId();
-const dialogId = `spotlight-${autoId}`;
-const inputId = `spotlight-input-${autoId}`;
-const listboxId = `spotlight-listbox-${autoId}`;
+warnOnce('SpotlightSearch', 'SpotlightSearch is deprecated; use Spotlight.');
 
-const dialogRef = ref<HTMLDialogElement | null>(null);
-const inputRef = ref<HTMLInputElement | null>(null);
-const previousActiveElement = ref<HTMLElement | null>(null);
+const instance = getCurrentInstance();
 
-const query = ref('');
-const activeIndex = ref(0);
-
-const filteredItems = computed(() => {
-  const q = query.value.toLowerCase().trim();
-  if (!q) return props.items.filter((item) => !item.disabled);
-  return props.items.filter(
-    (item) =>
-      !item.disabled &&
-      (item.label.toLowerCase().includes(q) ||
-        (item.description && item.description.toLowerCase().includes(q))),
-  );
+/** `open` only when the parent passes it, so an unbound palette keeps its own state. */
+const openBinding = computed(() => {
+  const raw = instance?.vnode.props;
+  return raw && 'open' in raw ? { open: props.open } : {};
 });
 
-const groupedItems = computed(() => {
-  const groups = new Map<string, SpotlightItem[]>();
-  for (const item of filteredItems.value) {
-    const group = item.group ?? '';
-    if (!groups.has(group)) {
-      groups.set(group, []);
+/** The 2.x items as Spotlight groups, in first-seen group order; ungrouped items first. */
+const groups = computed<SpotlightGroup[]>(() => {
+  const byName = new Map<string, SpotlightGroup>();
+  for (const item of props.items) {
+    const name = item.group ?? '';
+    let group = byName.get(name);
+    if (!group) {
+      group = { id: name || 'ungrouped', label: name || undefined, items: [] };
+      byName.set(name, group);
     }
-    groups.get(group)!.push(item);
-  }
-  return groups;
-});
-
-const itemIndexMap = computed(() => {
-  const map = new Map<string, number>();
-  filteredItems.value.forEach((item, i) => map.set(item.id, i));
-  return map;
-});
-
-function getItemIndex(item: SpotlightItem): number {
-  return itemIndexMap.value.get(item.id) ?? -1;
-}
-
-function open() {
-  openModel.value = true;
-}
-
-function close() {
-  openModel.value = false;
-}
-
-function selectItem(item: SpotlightItem) {
-  if (item.disabled) return;
-  emit('select', item);
-  close();
-}
-
-function handleKeydown(e: KeyboardEvent) {
-  const items = filteredItems.value;
-
-  if (e.key === 'Escape') {
-    e.preventDefault();
-    close();
-    return;
-  }
-
-  if (items.length === 0) return;
-
-  if (e.key === 'ArrowDown') {
-    e.preventDefault();
-    activeIndex.value = activeIndex.value < items.length - 1 ? activeIndex.value + 1 : 0;
-  } else if (e.key === 'ArrowUp') {
-    e.preventDefault();
-    activeIndex.value = activeIndex.value > 0 ? activeIndex.value - 1 : items.length - 1;
-  } else if (e.key === 'Enter') {
-    e.preventDefault();
-    const active = items[activeIndex.value];
-    if (active) {
-      selectItem(active);
-    }
-  }
-}
-
-function handleGlobalKeydown(e: KeyboardEvent) {
-  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-    e.preventDefault();
-    if (openModel.value) {
-      close();
-    } else {
-      open();
-    }
-  }
-}
-
-function handleBackdropClick(e: MouseEvent) {
-  if (e.target === dialogRef.value) {
-    close();
-  }
-}
-
-function getItemId(item: SpotlightItem) {
-  return `spotlight-item-${autoId}-${item.id}`;
-}
-
-// Reset active index on query change
-watch(query, () => {
-  activeIndex.value = 0;
-});
-
-// Scroll active item into view on index change
-watch(activeIndex, async () => {
-  await nextTick();
-  const item = filteredItems.value[activeIndex.value];
-  if (!item) return;
-  const el = document.getElementById(getItemId(item));
-  el?.scrollIntoView({ block: 'nearest' });
-});
-
-// Clamp active index when filtered list shrinks
-watch(filteredItems, (items) => {
-  if (items.length === 0) {
-    activeIndex.value = 0;
-  } else if (activeIndex.value >= items.length) {
-    activeIndex.value = items.length - 1;
-  }
-});
-
-watch(
-  openModel,
-  async (isOpen, _oldValue, onCleanup) => {
-    let canceled = false;
-    onCleanup(() => {
-      canceled = true;
+    group.items.push({
+      value: item.id,
+      label: item.label,
+      description: item.description,
+      disabled: item.disabled,
     });
-
-    if (isOpen) {
-      if (typeof document !== 'undefined') {
-        previousActiveElement.value = document.activeElement as HTMLElement;
-      }
-      query.value = '';
-      activeIndex.value = 0;
-      await nextTick();
-      if (canceled) return;
-      if (dialogRef.value && !dialogRef.value.open) {
-        dialogRef.value.showModal();
-      }
-      inputRef.value?.focus();
-    } else {
-      dialogRef.value?.close();
-      if (previousActiveElement.value?.isConnected) {
-        previousActiveElement.value.focus();
-      }
-      previousActiveElement.value = null;
-    }
-  },
-  { immediate: true, flush: 'post' },
-);
-
-onMounted(() => {
-  document.addEventListener('keydown', handleGlobalKeydown);
-});
-
-onBeforeUnmount(() => {
-  document.removeEventListener('keydown', handleGlobalKeydown);
-  if (dialogRef.value?.open) {
-    dialogRef.value.close();
   }
+  const ungrouped = byName.get('');
+  const named = [...byName.entries()].filter(([name]) => name !== '').map(([, group]) => group);
+  return ungrouped ? [ungrouped, ...named] : named;
 });
 
-function handleCancel(_e: Event) {
-  close();
+/** Reports the 2.x item that was chosen. */
+function onSelect(result: SpotlightResult & { value: string }): void {
+  const item = props.items.find((candidate) => candidate.id === result.value);
+  if (item) emit('select', item);
 }
 </script>
 
 <template>
-  <Teleport to="body">
-    <dialog
-      :id="dialogId"
-      ref="dialogRef"
-      class="modal"
-      :aria-label="ariaLabel"
-      aria-modal="true"
-      @click="handleBackdropClick"
-      @cancel="handleCancel"
-      @keydown="handleKeydown"
-    >
-      <div :class="cn('modal-box max-w-lg p-0', props.className)">
-        <div class="flex items-center border-b border-base-300 px-4">
-          <svg
-            class="h-5 w-5 shrink-0 text-base-content/50"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-            />
-          </svg>
-          <input
-            :id="inputId"
-            ref="inputRef"
-            v-model="query"
-            type="text"
-            :placeholder="placeholder"
-            class="input input-ghost w-full border-0 focus:outline-none"
-            role="combobox"
-            :aria-label="ariaLabel"
-            :aria-expanded="filteredItems.length > 0"
-            :aria-controls="listboxId"
-            :aria-activedescendant="
-              filteredItems[activeIndex] ? getItemId(filteredItems[activeIndex]) : undefined
-            "
-            autocomplete="off"
-          />
-          <kbd class="kbd kbd-sm">esc</kbd>
-        </div>
-
-        <ul
-          v-if="filteredItems.length > 0"
-          :id="listboxId"
-          role="listbox"
-          :aria-label="ariaLabel"
-          class="max-h-80 overflow-y-auto p-2"
-        >
-          <template v-for="[group, groupItems] in groupedItems" :key="group">
-            <li
-              v-if="group"
-              role="presentation"
-              class="px-3 py-1.5 text-xs font-semibold text-base-content/50 uppercase"
-            >
-              {{ group }}
-            </li>
-            <li
-              v-for="item in groupItems"
-              :id="getItemId(item)"
-              :key="item.id"
-              role="option"
-              :aria-selected="getItemIndex(item) === activeIndex"
-              :class="
-                cn(
-                  'cursor-pointer rounded-lg px-3 py-2',
-                  getItemIndex(item) === activeIndex && 'bg-base-200',
-                )
-              "
-              @click="selectItem(item)"
-              @mouseenter="activeIndex = getItemIndex(item)"
-            >
-              <slot name="item" :item="item" :is-active="getItemIndex(item) === activeIndex">
-                <div class="font-medium">
-                  {{ item.label }}
-                </div>
-                <div v-if="item.description" class="text-sm text-base-content/60">
-                  {{ item.description }}
-                </div>
-              </slot>
-            </li>
-          </template>
-        </ul>
-
-        <div v-else class="p-8 text-center text-base-content/50">
-          <slot name="empty"> No results found. </slot>
-        </div>
-      </div>
-    </dialog>
-  </Teleport>
+  <Spotlight
+    v-bind="openBinding"
+    :groups="groups"
+    :label="ariaLabel"
+    :placeholder="placeholder"
+    :class="className"
+    @update:open="emit('update:open', $event)"
+    @select="onSelect"
+  />
 </template>

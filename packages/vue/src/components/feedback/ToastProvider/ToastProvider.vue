@@ -2,19 +2,24 @@
 /**
  * @module ToastProvider
  *
- * Context provider that manages the toast notification queue and renders
- * the toast container. Wrap your application (or a subtree) with this
- * provider to enable the useToast composable.
- *
  * @deprecated Use Toaster and `toast.create()`, the design-system
- * replacement (#51). Kept while `@artisanpack-ui/vue-laravel`'s flash
- * toasts still use it.
+ * replacement (#51). ToastProvider is a thin alias: it renders its default
+ * slot and a design-system `Toaster` with its own toaster, and provides the
+ * 2.x `useToast()` API on top of it (also the default slot's `toast` prop).
+ * `defaultDuration` is the toaster's `duration`, `max` its `max` (toasts
+ * past it queue instead of evicting the oldest) and the 2.x `position`
+ * classes map to a `placement` (`toast-middle` has no equivalent and sits at
+ * the bottom). Every other attribute, including Toaster's own props, passes
+ * through to the Toaster.
  */
-import { computed, onUnmounted, provide, ref } from 'vue';
-import { cn } from '@artisanpack-ui/tokens';
+import { provide } from 'vue';
+import { createToaster, type ToasterOptions } from '@artisanpack-ui/behavior/vue';
+import Toaster from '../Toast/Toaster.vue';
+import { warnOnce } from '../../_shared/design-system';
 import { TOAST_KEY } from './keys';
-import ToastMessage from './ToastMessage.vue';
-import type { ToastAPI, ToastItem, ToastOptions, ToastProviderProps } from './types';
+import type { ToastAPI, ToastOptions, ToastPosition, ToastProviderProps } from './types';
+
+defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(defineProps<ToastProviderProps>(), {
   defaultDuration: 5000,
@@ -22,50 +27,32 @@ const props = withDefaults(defineProps<ToastProviderProps>(), {
   position: () => ['toast-end', 'toast-bottom'],
 });
 
-const toasts = ref<ToastItem[]>([]);
-const timers = new Map<string, ReturnType<typeof setTimeout>>();
-let counter = 0;
+warnOnce('ToastProvider', 'ToastProvider is deprecated; use Toaster and toast.create().');
 
-function clearTimer(id: string) {
-  const timer = timers.get(id);
-  if (timer) {
-    clearTimeout(timer);
-    timers.delete(id);
-  }
+/** The Toaster placement for the 2.x DaisyUI position classes. */
+function placementFor(position: ToastPosition[]): NonNullable<ToasterOptions['placement']> {
+  const vertical = position.includes('toast-top') ? 'top' : 'bottom';
+  if (position.includes('toast-start')) return `${vertical}-start`;
+  if (position.includes('toast-center')) return vertical;
+  return `${vertical}-end`;
 }
 
-function dismiss(id: string) {
-  clearTimer(id);
-  toasts.value = toasts.value.filter((t) => t.id !== id);
-}
-
-function dismissAll() {
-  timers.forEach((timer) => clearTimeout(timer));
-  timers.clear();
-  toasts.value = [];
-}
+/**
+ * This provider's own toaster, read once at setup like a Toaster's options,
+ * so `useToast()` below it never reaches the page's `toast`.
+ */
+const toaster = createToaster({
+  placement: placementFor(props.position),
+  max: props.max,
+  duration: props.defaultDuration,
+});
 
 function show(options: ToastOptions): string {
-  const id = `toast-${++counter}`;
-  const duration = options.duration ?? props.defaultDuration;
-
-  toasts.value = [...toasts.value, { ...options, id }];
-
-  // Register timer before eviction so clearTimer can clean it up
-  if (duration > 0) {
-    const timer = setTimeout(() => dismiss(id), duration);
-    timers.set(id, timer);
-  }
-
-  // Evict oldest toasts if over max
-  if (toasts.value.length > props.max) {
-    const evictCount = toasts.value.length - props.max;
-    const evicted = toasts.value.slice(0, evictCount);
-    toasts.value = toasts.value.slice(evictCount);
-    evicted.forEach((t) => clearTimer(t.id));
-  }
-
-  return id;
+  return toaster.create({
+    title: options.message,
+    color: options.color,
+    duration: options.duration,
+  });
 }
 
 const api: ToastAPI = {
@@ -74,29 +61,14 @@ const api: ToastAPI = {
   error: (message, duration?) => show({ message, color: 'error', duration }),
   warning: (message, duration?) => show({ message, color: 'warning', duration }),
   info: (message, duration?) => show({ message, color: 'info', duration }),
-  dismiss,
-  dismissAll,
+  dismiss: (id) => toaster.dismiss(id),
+  dismissAll: () => toaster.dismiss(),
 };
 
 provide(TOAST_KEY, api);
-
-const containerClasses = computed(() => cn('toast z-50', ...props.position));
-
-onUnmounted(() => {
-  timers.forEach((timer) => clearTimeout(timer));
-  timers.clear();
-});
 </script>
 
 <template>
-  <slot />
-  <div
-    v-if="toasts.length > 0"
-    :class="containerClasses"
-    aria-live="polite"
-    aria-label="Notifications"
-    role="log"
-  >
-    <ToastMessage v-for="toast in toasts" :key="toast.id" :toast="toast" @dismiss="dismiss" />
-  </div>
+  <slot :toast="api" />
+  <Toaster v-bind="$attrs" :toaster="toaster" />
 </template>

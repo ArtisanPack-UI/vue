@@ -4,7 +4,11 @@
 export type ToastColor = 'info' | 'success' | 'warning' | 'error';
 
 /**
- * DaisyUI position classes for the toast container.
+ * The 2.x position classes of the deprecated ToastProvider. They map to a
+ * Toaster `placement`: `toast-top` / `toast-bottom` pick the edge and
+ * `toast-start` / `toast-center` / `toast-end` the side.
+ *
+ * @deprecated Use Toaster's `placement` (`top-start` … `bottom-end`).
  */
 export type ToastPosition =
   | 'toast-start'
@@ -54,13 +58,15 @@ export interface ToastAPI {
 }
 
 /**
- * Props for the ToastProvider component.
+ * Props for the deprecated ToastProvider component.
+ *
+ * @deprecated Render one `Toaster` and create toasts with `toast.create()` (#51).
  */
 export interface ToastProviderProps {
   /** Default auto-dismiss duration in milliseconds. @defaultValue `5000` */
   defaultDuration?: number;
-  /** Maximum number of simultaneously visible toasts. @defaultValue `5` */
+  /** At most this many show at once; the rest queue. @defaultValue `5` */
   max?: number;
-  /** DaisyUI position classes applied to the toast container. @defaultValue `['toast-end', 'toast-bottom']` */
+  /** Where the toasts sit, as 2.x position classes; mapped to a Toaster `placement`. @defaultValue `['toast-end', 'toast-bottom']` */
   position?: ToastPosition[];
 }

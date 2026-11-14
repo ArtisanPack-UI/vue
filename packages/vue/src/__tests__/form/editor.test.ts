@@ -1,66 +1,66 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/vue';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/vue';
 import { Editor } from '../../components/form';
 
-describe('Editor', () => {
-  it('renders with label', () => {
-    render(Editor, { props: { label: 'HTML Source' } });
-    expect(screen.getByText('HTML Source')).toBeTruthy();
+const control = () => document.querySelector<HTMLTextAreaElement>('[data-part="control"]')!;
+
+describe('Editor (deprecated alias of CodeEditor)', () => {
+  it('warns once in development that it is deprecated', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    render(Editor, { props: { label: 'One' } });
+    render(Editor, { props: { label: 'Two' } });
+    const calls = warn.mock.calls.filter(([m]) => String(m).includes('Editor is deprecated'));
+    expect(calls).toHaveLength(1);
+    expect(calls[0]![0]).toContain('Editor is deprecated; use CodeEditor.');
+    warn.mockRestore();
   });
 
-  it('renders a textarea element', () => {
-    render(Editor);
-    expect(document.querySelector('textarea')).toBeTruthy();
+  it('renders the design-system CodeEditor, with no DaisyUI markup', () => {
+    const { container } = render(Editor, { props: { label: 'HTML Source' } });
+    expect(container.querySelector('.apui-code-editor')).toBeTruthy();
+    expect(container.querySelector('.textarea, .fieldset, .font-mono')).toBeNull();
+    expect(screen.getByLabelText(/HTML Source/)).toBe(control());
   });
 
-  it('has monospace font class', () => {
-    render(Editor);
-    const textarea = document.querySelector('textarea');
-    expect(textarea?.classList.contains('font-mono')).toBe(true);
+  it('defaults to 12 rows and takes rows', () => {
+    const first = render(Editor, { props: { label: 'Code' } });
+    expect(control().rows).toBe(12);
+    first.unmount();
+    render(Editor, { props: { label: 'Code', rows: 20 } });
+    expect(control().rows).toBe(20);
   });
 
-  it('defaults to 12 rows', () => {
-    render(Editor);
-    const textarea = document.querySelector('textarea');
-    expect(textarea?.getAttribute('rows')).toBe('12');
+  it('carries over id, placeholder, disabled, readonly and required', () => {
+    render(Editor, {
+      props: {
+        label: 'Code',
+        id: 'source',
+        placeholder: 'Paste here',
+        disabled: true,
+        readonly: true,
+        required: true,
+      },
+    });
+    expect(control().id).toBe('source');
+    expect(control().placeholder).toBe('Paste here');
+    expect(control().disabled).toBe(true);
+    expect(control().readOnly).toBe(true);
+    expect(control().required).toBe(true);
   });
 
-  it('accepts custom rows', () => {
-    render(Editor, { props: { rows: 20 } });
-    const textarea = document.querySelector('textarea');
-    expect(textarea?.getAttribute('rows')).toBe('20');
+  it('shows the hint and the error', () => {
+    const { rerender } = render(Editor, { props: { label: 'Code', hint: 'Use HTML' } });
+    expect(screen.getByText('Use HTML')).toBeTruthy();
+    return rerender({ error: 'Invalid markup' }).then(() => {
+      expect(screen.getByText('Invalid markup')).toBeTruthy();
+      expect(control().getAttribute('aria-invalid')).toBe('true');
+    });
   });
 
-  it('shows required indicator', () => {
-    render(Editor, { props: { label: 'Code', required: true } });
-    expect(screen.getByText('*')).toBeTruthy();
-  });
-
-  it('shows hint text', () => {
-    render(Editor, { props: { hint: 'Enter HTML' } });
-    expect(screen.getByText('Enter HTML')).toBeTruthy();
-  });
-
-  it('shows error and hides hint', () => {
-    render(Editor, { props: { hint: 'Help', error: 'Invalid syntax' } });
-    expect(screen.getByText('Invalid syntax')).toBeTruthy();
-    expect(screen.queryByText('Help')).toBeNull();
-  });
-
-  it('applies textarea-error class on error', () => {
-    render(Editor, { props: { error: 'Error' } });
-    const textarea = document.querySelector('textarea');
-    expect(textarea?.classList.contains('textarea-error')).toBe(true);
-  });
-
-  it('sets aria-invalid on error', () => {
-    render(Editor, { props: { error: 'Error' } });
-    const textarea = document.querySelector('textarea');
-    expect(textarea?.getAttribute('aria-invalid')).toBe('true');
-  });
-
-  it('supports v-model', () => {
-    render(Editor, { props: { modelValue: 'const x = 1;' } });
-    expect((document.querySelector('textarea') as HTMLTextAreaElement).value).toBe('const x = 1;');
+  it('supports v-model', async () => {
+    const { emitted } = render(Editor, { props: { label: 'Code', modelValue: '<p>' } });
+    expect(control().value).toBe('<p>');
+    await fireEvent.update(control(), '<div>');
+    expect(emitted()['update:modelValue']).toEqual([['<div>']]);
   });
 });

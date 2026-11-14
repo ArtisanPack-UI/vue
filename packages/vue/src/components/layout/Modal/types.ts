@@ -1,22 +1,26 @@
 /**
- * Props for the Modal component.
+ * Props for the deprecated Modal component.
  *
- * A dialog overlay with focus trapping, keyboard dismissal, and Teleport rendering.
- * Use `v-model:open` to control visibility.
+ * @deprecated Use `Dialog` (#49). Modal renders a Dialog: `subtitle` is its
+ * `description`, `glass` its glass `surface` and the `actions` slot its
+ * `footer`. Dialog's own props pass through.
  */
 export interface ModalProps {
   /** Whether the modal is visible. Use with `v-model:open`. */
   open: boolean;
-  /** Title text rendered as an `<h3>` in the modal header. */
+  /** The dialog's heading. */
   title?: string;
-  /** Subtitle text rendered below the title. */
+  /** Supporting text under the title. Dialog's `description`. */
   subtitle?: string;
-  /** When true, prevents closing via Escape key or backdrop click. @defaultValue `false` */
+  /**
+   * Renders an `alertdialog` without a close button that ignores Escape and
+   * backdrop closes: close it by changing `open`. @defaultValue `false`
+   */
   persistent?: boolean;
-  /** When true, applies glass morphism styling. @defaultValue `false` */
+  /** The glass surface. Dialog's `surface="glass"`. @defaultValue `false` */
   glass?: boolean;
-  /** When true, renders as a bottom sheet on mobile. @defaultValue `false` */
+  /** Ignored: Dialog has no bottom sheet. Use `Drawer` with `side="bottom"`. @defaultValue `false` */
   bottom?: boolean;
-  /** Accessible label for the dialog when no title is provided. */
+  /** Names the dialog when there's no title. @defaultValue `'Dialog'` */
   ariaLabel?: string;
 }
