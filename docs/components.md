@@ -256,21 +256,25 @@ Components can be registered globally with the [Vue plugin](Getting-Started), un
 
 ## Deprecated exports
 
-These 1.x names still work in 2.0 so an app keeps building while you migrate. They're marked `@deprecated` and will be removed in the next major:
+These 1.x names still work in 2.0 so an app keeps building while you migrate. Each is a thin alias: it renders its replacement, maps the 1.x props it can, and warns once in development. They're marked `@deprecated` and will be removed in the next major. Every attribute an alias doesn't map, including the replacement's own props, passes through to the replacement.
 
-| Deprecated                  | Use                                |
-| --------------------------- | ---------------------------------- |
-| `Modal`                     | `Dialog`                           |
-| `Dropdown`, `DropdownItem`  | `DropdownMenu`, `DropdownMenuItem` |
-| `Sidebar`                   | `AppShell`                         |
-| `SpotlightSearch`           | `Spotlight`                        |
-| `Radio`                     | `RadioGroup`                       |
-| `Editor`                    | `CodeEditor`                       |
-| `FileUpload`                | `File`                             |
-| `ErrorDisplay`              | `ErrorState`                       |
-| `ToastProvider`, `useToast` | `Toaster` and `toast`              |
-| `ToastMessage`              | `Toast`                            |
+| Deprecated                  | Renders                            | Mapped                                                                                                                                                                                                               | Ignored                      |
+| --------------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| `Modal`                     | `Dialog`                           | `subtitle` → `description`, `glass` → `surface="glass"`, `ariaLabel` → `aria-label`, the `actions` slot → `footer`. `persistent` gives an `alertdialog` with no close button that ignores Escape and backdrop closes | `bottom` (use a Drawer)      |
+| `Dropdown`, `DropdownItem`  | `DropdownMenu`, `DropdownMenuItem` | `label` and the `trigger` slot → the trigger's `label`, `end` → `align="end"`. `DropdownItem` keeps its `click` event (also fired from the keyboard) and takes an optional `value`                                   | `top`, `hover`               |
+| `Sidebar`                   | `AppShell`                         | The `sidebar` slot, the default slot as the content, `ariaLabel` → `label`                                                                                                                                           | `open`, `side`, `responsive` |
+| `SpotlightSearch`           | `Spotlight`                        | `items` grouped by `group` (each `id` becomes the value), `ariaLabel` → `label`. `select` still sends the 1.x item. The `item` slot is gone                                                                          |                              |
+| `Radio`                     | `RadioGroup`                       | The `optionValue`, `optionLabel` and `optionHint` keys, `inline` → horizontal, `card` → `variant="cards"`, `cardClass` → `classes.item`                                                                              | `color`                      |
+| `Editor`                    | `CodeEditor`                       | All its props carry over                                                                                                                                                                                             |                              |
+| `FileUpload`                | `File`                             | See below                                                                                                                                                                                                            |                              |
+| `ErrorDisplay`              | `ErrorState`                       |                                                                                                                                                                                                                      |                              |
+| `ToastProvider`, `useToast` | `Toaster` and `toast`              | `defaultDuration` → `duration`, `max`, and the 1.x `position` classes → a `placement`. Its default slot also gets `toast`                                                                                            | `toast-middle`               |
+| `ToastMessage`              | `Toast`                            | `message` → `title`, `color`; the close button emits `dismiss` with the item's id                                                                                                                                    |                              |
 
-`FileUpload` takes `File`'s API, not its 1.x one: the `filesSelected` event and the `withDragDrop`, `dragDropText`, `dragDropClass`, `progress` and `hideProgress` props are gone. Keeping the import isn't enough. Bind `v-model` to receive the selected files, and pass progress per file in the entries.
+A few behaviours change:
+
+- `Sidebar` has no mobile drawer or end-side sidebar: it sits at the start edge and stacks above the content on narrow screens.
+- `ToastProvider` has its own toaster, so `useToast()` below it never reaches the page's `toast`. Toasts past `max` now queue instead of evicting the oldest.
+- `FileUpload` takes `File`'s API, not its 1.x one: the `filesSelected` event and the `withDragDrop`, `dragDropText`, `dragDropClass`, `progress` and `hideProgress` props are gone. Keeping the import isn't enough. Bind `v-model` to receive the selected files, and pass progress per file in the entries.
 
 The [codemod](Upgrading) rewrites most of them for you.
