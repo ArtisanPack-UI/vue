@@ -53,5 +53,5 @@ Without Nuxt, render `ThemeScript` from `@artisanpack-ui/vue` first in the docum
 
 - **Toasts.** A `Toaster` starts routing `toast.create()` calls once it has mounted, so nothing is registered during server rendering.
 - **Theme.** `ThemeToggle` reads the stored choice in the browser. The server can't know it, which is why the head script applies it before the page paints.
-- **Breakpoints.** `useBreakpoint()` has no viewport on the server and reports `'md'` there. Don't use it to decide what the server renders, or the markup won't match on hydration.
+- **Breakpoints.** `useBreakpoint()` has no viewport on the server and reports `'md'` there, then reads the real width when the component mounts. Don't use it to decide what the server renders, or the markup won't match on hydration: use CSS media queries for layout, or render breakpoint-dependent markup after mount.
 - **Color scheme.** `provideTheme()` resolves `'system'` to `'light'` on the server, but to the system preference during client setup. With a dark system preference, markup rendered from `resolvedColorScheme` won't match on hydration, and the head script doesn't change that. Style themes with CSS (the `data-theme` attribute the head script sets), or render theme-dependent markup only after mount.

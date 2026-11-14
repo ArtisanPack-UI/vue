@@ -10,9 +10,11 @@ menu_order: 9
 ## How the package is built
 
 - **One entry per subpath.** The root and each subpath (`/form`, `/layout`, `/navigation`, `/display`, `/data`, `/feedback`, `/utility`, `/composables`, `/ai`) is its own module. Code they share is split into shared chunks rather than copied into each.
-- **Dependencies stay external.** Vue, `@artisanpack-ui/behavior`, `@zag-js/vue` and `@artisanpack-ui/tokens` aren't bundled into the package, so your app holds one copy of each, shared with anything else that uses them.
+- **Dependencies stay external.** Vue, `@artisanpack-ui/behavior` and `@zag-js/vue` aren't bundled into the package, so your app holds one copy of each, shared with anything else that uses them.
 - **No chart library.** Chart and Sparkline draw inline SVG from tokens, so there's no charting dependency to load.
 - **No CSS in JavaScript.** The styles live in `@artisanpack-ui/css`, loaded once as a stylesheet.
+- **Free of side effects.** Both `@artisanpack-ui/vue` and `@artisanpack-ui/vue-laravel` declare `"sideEffects": false`, so a bundler can drop every module you don't import, even from a root import.
+- **No DaisyUI or Tailwind.** Neither is a dependency. Tailwind is optional in your app; see [Getting Started](Getting-Started).
 
 ## Importing
 

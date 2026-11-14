@@ -36,7 +36,7 @@ const { current, isLg } = useBreakpoint();
 | `isXl`    | `Ref<boolean>`    | At least 1280px                                   |
 | `is2xl`   | `Ref<boolean>`    | At least 1536px                                   |
 
-On the server there's no viewport, so `current` is `'md'` there.
+On the server there's no viewport, so `current` is `'md'` there. When the component mounts in the browser, it reads the real width, so a server-rendered page reports the right breakpoint as soon as it's interactive.
 
 ## provideTheme and useTheme
 
