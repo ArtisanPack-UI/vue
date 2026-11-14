@@ -5,6 +5,7 @@
   "type": "module",
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
@@ -31,8 +32,7 @@
     "inertia",
     "laravel",
     "ui-components",
-    "daisyui",
-    "tailwindcss",
+    "design-system",
     "artisanpack"
   ],
   "scripts": {

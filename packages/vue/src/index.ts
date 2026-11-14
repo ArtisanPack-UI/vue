@@ -2,7 +2,7 @@
  * @module @artisanpack-ui/vue
  *
  * The main entry point for the ArtisanPack UI Vue component library.
- * Re-exports all components, composables, the plugin, and shared types.
+ * Re-exports all components, composables and the plugin.
  *
  * @packageDocumentation
  */
@@ -35,7 +35,3 @@ export type { Breakpoint, BreakpointContext } from './composables/use-breakpoint
 // Plugin
 export { createArtisanPackUI, DefaultColorSchemeKey } from './plugin';
 export type { ArtisanPackUIOptions } from './plugin';
-
-// Types
-export type * from './types/common';
-export type * from './types/form';

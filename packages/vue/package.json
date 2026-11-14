@@ -1,10 +1,11 @@
 {
   "name": "@artisanpack-ui/vue",
   "version": "1.0.0",
-  "description": "80+ Vue 3 UI components for the ArtisanPack UI ecosystem, styled with DaisyUI and Tailwind CSS",
+  "description": "80+ Vue 3 UI components for the ArtisanPack UI ecosystem, built on the ArtisanPack UI design system and styled by @artisanpack-ui/css",
   "type": "module",
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
@@ -65,9 +66,9 @@
     "vue",
     "vue3",
     "ui-components",
-    "daisyui",
-    "tailwindcss",
     "component-library",
+    "design-system",
+    "accessibility",
     "artisanpack"
   ],
   "scripts": {
@@ -96,7 +97,6 @@
     "@testing-library/vue": "^8.1.0",
     "@vitejs/plugin-vue": "^5.2.0",
     "axe-core": "^4.11.2",
-    "daisyui": "^5.5.19",
     "histoire": "^0.17.17",
     "jsdom": "^27.0.1",
     "tailwindcss": "^4.2.2",
