@@ -3,6 +3,14 @@ import { render, screen, fireEvent } from '@testing-library/vue';
 import { defineComponent, h, nextTick, ref } from 'vue';
 import { SpotlightSearch } from '../../components/navigation';
 
+// jsdom has no CSS.escape; the combobox machine finds the active option with it.
+if (typeof globalThis.CSS?.escape !== 'function') {
+  (globalThis as { CSS?: object }).CSS = {
+    ...(globalThis.CSS ?? {}),
+    escape: (value: string) => value.replace(/[^\w-]/g, (c) => `\\${c}`),
+  };
+}
+
 const testItems = [
   { id: 'home', label: 'Go to Home', description: 'Navigate to the home page' },
   { id: 'settings', label: 'Open Settings', description: 'Manage your preferences' },
