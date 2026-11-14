@@ -90,10 +90,10 @@ Requires Vue 3.5+.
 
 ## Documentation
 
-- [Getting Started](https://github.com/ArtisanPack-UI/vue/wiki/Getting-Started)
-- [Component API Reference](https://github.com/ArtisanPack-UI/vue/wiki/Component-API-Reference)
-- [Theming Guide](https://github.com/ArtisanPack-UI/vue/wiki/Theming)
-- [Composables Reference](https://github.com/ArtisanPack-UI/vue/wiki/Composables)
+- [Getting Started](https://docs.artisanpackui.dev/documentation/vue/getting-started)
+- [Components](https://docs.artisanpackui.dev/documentation/vue/components)
+- [Theming](https://docs.artisanpackui.dev/documentation/vue/theming)
+- [Composables Reference](https://docs.artisanpackui.dev/documentation/vue/composables)
 
 ## Part of ArtisanPack UI
 

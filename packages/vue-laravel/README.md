@@ -81,8 +81,8 @@ Requires Vue 3.5+.
 
 ## Documentation
 
-- [Laravel / Inertia Integration](https://github.com/ArtisanPack-UI/vue/wiki/Laravel-Inertia-Integration)
-- [Getting Started](https://github.com/ArtisanPack-UI/vue/wiki/Getting-Started)
+- [Laravel / Inertia Integration](https://docs.artisanpackui.dev/documentation/vue/laravel-inertia)
+- [Getting Started](https://docs.artisanpackui.dev/documentation/vue/getting-started)
 
 ## Part of ArtisanPack UI
 

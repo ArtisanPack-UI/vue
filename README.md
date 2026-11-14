@@ -70,7 +70,7 @@ import { createArtisanPackUILaravel } from '@artisanpack-ui/vue-laravel';
 app.use(createArtisanPackUILaravel());
 ```
 
-See the [Laravel integration guide](https://github.com/ArtisanPack-UI/vue/wiki/Laravel-Inertia-Integration) for full setup instructions.
+See the [Laravel integration guide](https://docs.artisanpackui.dev/documentation/vue/laravel-inertia) for full setup instructions.
 
 ## Requirements
 
@@ -81,15 +81,14 @@ See the [Laravel integration guide](https://github.com/ArtisanPack-UI/vue/wiki/L
 
 ## Documentation
 
-Full documentation is available on the [GitHub Wiki](https://github.com/ArtisanPack-UI/vue/wiki). Source files live in the [`docs/`](docs/) directory.
+Full documentation is available on the [documentation site](https://docs.artisanpackui.dev/documentation/vue/home). Source files live in the [`docs/`](docs/) directory.
 
-- [Getting Started](https://github.com/ArtisanPack-UI/vue/wiki/Getting-Started)
-- [Component API Reference](https://github.com/ArtisanPack-UI/vue/wiki/Component-API-Reference)
-- [Design Tokens](https://github.com/ArtisanPack-UI/vue/wiki/Design-Tokens)
-- [Theming Guide](https://github.com/ArtisanPack-UI/vue/wiki/Theming)
-- [Composables Reference](https://github.com/ArtisanPack-UI/vue/wiki/Composables)
-- [Laravel / Inertia Integration](https://github.com/ArtisanPack-UI/vue/wiki/Laravel-Inertia-Integration)
-- [Migration from Livewire](https://github.com/ArtisanPack-UI/vue/wiki/Migration-from-Livewire)
+- [Getting Started](https://docs.artisanpackui.dev/documentation/vue/getting-started)
+- [Components](https://docs.artisanpackui.dev/documentation/vue/components)
+- [Theming](https://docs.artisanpackui.dev/documentation/vue/theming)
+- [Composables Reference](https://docs.artisanpackui.dev/documentation/vue/composables)
+- [Laravel / Inertia Integration](https://docs.artisanpackui.dev/documentation/vue/laravel-inertia)
+- [Upgrading from 1.x](https://docs.artisanpackui.dev/documentation/vue/upgrading)
 
 ## Development
 

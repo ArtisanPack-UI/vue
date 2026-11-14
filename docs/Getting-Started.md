@@ -1,129 +1,103 @@
+---
+title: Getting Started
+menu_order: 2
+---
+
 # Getting Started
 
-This guide walks you through installing and configuring ArtisanPack UI for Vue.
-
-## Prerequisites
-
-- Node.js 18+
-- Vue 3.5+
-- Tailwind CSS 4+
-- DaisyUI 5+
-
-## Installation
-
-### 1. Install the package
+## Install
 
 ```bash
-npm install @artisanpack-ui/vue
+npm install @artisanpack-ui/vue @artisanpack-ui/css
 ```
 
-### 2. Install peer dependencies
+Vue 3.5 or later is a peer dependency. The behavior engine (`@artisanpack-ui/behavior`) and `@zag-js/vue` are installed with the package.
 
-Tailwind CSS and DaisyUI must be configured in your project:
+## Load the CSS
 
-```bash
-npm install -D tailwindcss @tailwindcss/vite daisyui
-```
-
-Add Tailwind and DaisyUI to your CSS entry point:
-
-```css
-@import "tailwindcss";
-@plugin "daisyui";
-```
-
-### 3. Register the Vue plugin
-
-In your application entry file (e.g., `main.ts`):
+Load the CSS once, in your app's entry:
 
 ```ts
+// main.ts
+import '@artisanpack-ui/css';
+```
+
+With Tailwind v4, import it from your Tailwind entry stylesheet instead, after declaring the layer order, so Preflight never restyles a component and your utilities still win:
+
+```css
+@layer theme, base, apui, components, utilities;
+@import 'tailwindcss';
+@import '@artisanpack-ui/css';
+@import '@artisanpack-ui/css/tailwind';
+```
+
+The last line is optional: it adds utilities generated from the tokens, such as `bg-surface-page` and `text-muted`. See [With Tailwind](https://docs.artisanpackui.dev/documentation/design-system/getting-started/tailwind). To bring your own component styles, import `@artisanpack-ui/css/headless` instead; see [Headless](https://docs.artisanpackui.dev/documentation/design-system/theming/headless).
+
+## Apply the theme before the first paint
+
+A stored theme choice (light, dark, high contrast or system) has to be applied before the page paints, or the page flashes the wrong theme.
+
+In a single-page app with a static `index.html`, inline the output of `themeScript()` from `@artisanpack-ui/behavior` in a `<script>` first in `<head>`, before any stylesheet. The `ThemeScript` component doesn't help here: in a client-rendered app it only runs once the app mounts, after the first paint.
+
+`@artisanpack-ui/behavior` is a dependency of `@artisanpack-ui/vue`. If you import from it yourself, add it to your own `package.json` too, so strict package managers such as pnpm resolve it.
+
+With server rendering, render the `ThemeScript` component in `<head>` instead. With Nuxt, pass `themeScript()` to `useHead`. See [Nuxt and Server Rendering](Nuxt-And-Server-Rendering) and [Theming](Theming).
+
+## Your first component
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+import { Button, Input } from '@artisanpack-ui/vue';
+
+const email = ref('');
+</script>
+
+<template>
+  <form>
+    <Input v-model="email" label="Email" type="email" name="email" />
+    <Button type="submit" color="primary">Sign in</Button>
+  </form>
+</template>
+```
+
+Import components where you use them. Every component is a named export of `@artisanpack-ui/vue` and of one category subpath; see [Components](Components).
+
+## The Vue plugin (optional)
+
+`createArtisanPackUI()` returns a Vue plugin. It does two things, both optional:
+
+- registers the components you pass globally, with a prefix (`Ap` by default), and
+- sets the default color scheme for [`provideTheme()`](Composables).
+
+```ts
+// main.ts
 import { createApp } from 'vue';
-import { createArtisanPackUI } from '@artisanpack-ui/vue';
+import { Button, Card, Input, createArtisanPackUI } from '@artisanpack-ui/vue';
+import '@artisanpack-ui/css';
 import App from './App.vue';
 
 const app = createApp(App);
-app.use(createArtisanPackUI());
+
+app.use(
+  createArtisanPackUI({
+    components: { Button, Card, Input }, // <ApButton>, <ApCard>, <ApInput>
+  }),
+);
+
 app.mount('#app');
 ```
 
-### 4. Set up the theme provider
+| Option               | Type                            | Default    | Description                                                                |
+| -------------------- | ------------------------------- | ---------- | -------------------------------------------------------------------------- |
+| `components`         | `Record<string, Component>`     | `{}`       | Components to register globally. Nothing is registered unless you pass it. |
+| `prefix`             | `string`                        | `'Ap'`     | Prefix for the registered names.                                           |
+| `defaultColorScheme` | `'light' \| 'dark' \| 'system'` | `'system'` | Default for `provideTheme()`.                                              |
 
-Wrap your root component with `provideTheme()` to enable dark mode support:
+Only the components you pass are registered, so the rest still tree-shake. Without global registration you don't need the plugin at all.
 
-```vue
-<!-- App.vue -->
-<script setup lang="ts">
-import { provideTheme } from '@artisanpack-ui/vue';
+## Next steps
 
-const { resolvedColorScheme } = provideTheme();
-</script>
-
-<template>
-  <div :data-theme="resolvedColorScheme">
-    <RouterView />
-  </div>
-</template>
-```
-
-## Using Components
-
-Import components directly for tree-shaking:
-
-```vue
-<script setup lang="ts">
-import { Button, Input, Card } from '@artisanpack-ui/vue';
-</script>
-
-<template>
-  <Card title="Sign In">
-    <Input label="Email" type="email" v-model="email" />
-    <Input label="Password" type="password" v-model="password" />
-    <Button color="primary" @click="submit">Log In</Button>
-  </Card>
-</template>
-```
-
-### Category imports
-
-Import from specific categories to reduce bundle size:
-
-```ts
-import { Button, Input, Select } from '@artisanpack-ui/vue/form';
-import { Card, Modal, Tabs } from '@artisanpack-ui/vue/layout';
-import { Menu, Breadcrumbs } from '@artisanpack-ui/vue/navigation';
-import { Avatar, Badge, Table } from '@artisanpack-ui/vue/display';
-import { Calendar, Chart } from '@artisanpack-ui/vue/data';
-import { Alert, Loading, ToastProvider } from '@artisanpack-ui/vue/feedback';
-import { Icon, ThemeToggle, Tooltip } from '@artisanpack-ui/vue/utility';
-```
-
-### Global registration (optional)
-
-If you prefer global components instead of imports:
-
-```ts
-import { createArtisanPackUI, Button, Card, Input } from '@artisanpack-ui/vue';
-
-app.use(createArtisanPackUI({
-  prefix: 'Ap',
-  components: { Button, Card, Input },
-}));
-
-// Now available as <ApButton />, <ApCard />, <ApInput />
-```
-
-## Plugin Options
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `prefix` | `string` | `'Ap'` | Prefix for globally registered component names |
-| `defaultColorScheme` | `'light' \| 'dark' \| 'system'` | `'system'` | Initial color scheme for the theme provider |
-| `components` | `Record<string, Component>` | `{}` | Components to register globally |
-
-## What's Next
-
-- [[Component API Reference]] — Full props, slots, and events for every component
-- [[Theming]] — Customize colors and dark mode
-- [[Design Tokens]] — Shared types and values
-- [[Composables]] — `useTheme` and `useBreakpoint`
-- [[Laravel Inertia Integration]] — Set up with Inertia.js
+- [Components](Components): every component, with links to its full reference.
+- [Theming](Theming): the theme toggle, presets and your own brand.
+- [Laravel and Inertia](Laravel-Inertia): the Inertia wrappers.

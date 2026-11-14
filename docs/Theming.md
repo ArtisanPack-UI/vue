@@ -1,141 +1,71 @@
+---
+title: Theming
+menu_order: 4
+---
+
 # Theming
 
-ArtisanPack UI for Vue uses DaisyUI themes and a built-in theme provider for light/dark mode management.
+Everything visual is a design token, exposed as a `--apui-*` CSS custom property by `@artisanpack-ui/css`. Theme, density and preset are attributes that reassign those tokens, on `<html>` or on any element for everything inside it:
 
-## How Theming Works
-
-Components are styled with DaisyUI utility classes, which read color values from the active DaisyUI theme. The active theme is controlled by the `data-theme` attribute on a parent element.
-
-The `provideTheme()` composable manages the current color scheme preference and provides it to the component tree via Vue's dependency injection.
-
-## Setting Up the Theme Provider
-
-Call `provideTheme()` in your root component:
-
-```vue
-<!-- App.vue -->
-<script setup lang="ts">
-import { provideTheme } from '@artisanpack-ui/vue';
-
-const { resolvedColorScheme } = provideTheme();
-</script>
-
-<template>
-  <div :data-theme="resolvedColorScheme">
-    <RouterView />
-  </div>
-</template>
+```html
+<html data-theme="dark" data-preset="ledger">
+  <aside data-theme="light" data-density="compact">…</aside>
+</html>
 ```
 
-### Default color scheme
+Components read tokens and never check the attributes, so theming works the same in Vue as in every other stack. The design-system documentation covers it in full:
 
-Set the default via the plugin:
+- [Theming overview](https://docs.artisanpackui.dev/documentation/design-system/theming): themes, presets, brands, tokens and the visual layer.
+- [Themes](https://docs.artisanpackui.dev/documentation/design-system/theming/themes): light, dark and high contrast.
+- [Presets](https://docs.artisanpackui.dev/documentation/design-system/theming/presets) and [Brand Presets](https://docs.artisanpackui.dev/documentation/design-system/theming/brand-presets): a whole look from one attribute, or generated from your brand colors.
+- [Customizing Tokens](https://docs.artisanpackui.dev/documentation/design-system/theming/customizing-tokens): one token, for the app, a region or a component.
+- [Foundations](https://docs.artisanpackui.dev/documentation/design-system/foundations) and [Design Tokens](https://docs.artisanpackui.dev/documentation/design-system/foundations/design-tokens): every token and its role.
+- [Headless](https://docs.artisanpackui.dev/documentation/design-system/theming/headless): the same markup and behavior with your own styles.
 
-```ts
-app.use(createArtisanPackUI({
-  defaultColorScheme: 'dark', // 'light' | 'dark' | 'system'
-}));
-```
+This page covers the two Vue components for the visitor's theme choice.
 
-Or override directly:
+## ThemeToggle
 
-```ts
-provideTheme('dark');
-```
-
-Priority order: explicit `provideTheme()` argument > plugin config > `'system'`.
-
-## Consuming the Theme
-
-Any descendant component can read and update the theme:
+`ThemeToggle` lets people choose light, dark, high contrast or system. A choice sets `data-theme` on `<html>`, is stored in `localStorage`, and follows the operating system live while it's `system`.
 
 ```vue
 <script setup lang="ts">
-import { useTheme } from '@artisanpack-ui/vue';
-
-const { colorScheme, resolvedColorScheme, setColorScheme } = useTheme();
-</script>
-
-<template>
-  <p>Preference: {{ colorScheme }}</p>
-  <p>Resolved: {{ resolvedColorScheme }}</p>
-
-  <button @click="setColorScheme('light')">Light</button>
-  <button @click="setColorScheme('dark')">Dark</button>
-  <button @click="setColorScheme('system')">System</button>
-</template>
-```
-
-### ThemeToggle component
-
-For a ready-made toggle button:
-
-```vue
-<script setup lang="ts">
-import { ThemeToggle } from '@artisanpack-ui/vue/utility';
+import { ThemeToggle } from '@artisanpack-ui/vue';
 </script>
 
 <template>
   <ThemeToggle />
+  <ThemeToggle variant="icon" />
+  <ThemeToggle variant="menu" :choices="['light', 'dark', 'system']" />
 </template>
 ```
 
-## DaisyUI Themes
+| Variant               | What it renders                                 |
+| --------------------- | ----------------------------------------------- |
+| `segmented` (default) | A radio group of the choices                    |
+| `icon`                | One button that switches between light and dark |
+| `menu`                | A menu button with the choices as radio items   |
 
-DaisyUI ships with 30+ built-in themes. Enable them in your CSS:
+Without `v-model`, the toggle starts on the stored choice, else the one `ThemeScript` applied, else `system`. With `v-model`, a pick only emits `update:modelValue`; the toggle applies and stores a value when the bound value changes to it. Set `:persist="false"` to skip storage, and `storage-key` to change the `localStorage` key (use the same key on `ThemeScript`). Every label is a prop, so you can translate them. See [ThemeToggle](https://docs.artisanpackui.dev/documentation/design-system/components/theme-toggle) for all props.
 
-```css
-@plugin "daisyui" {
-  themes: light, dark, cupcake, dracula;
-}
-```
+To set the theme from code, use `applyTheme()` from `@artisanpack-ui/behavior`; every toggle on the page follows it.
 
-To use a specific DaisyUI theme name instead of `light`/`dark`, set the `data-theme` attribute directly:
+## ThemeScript
 
-```html
-<div data-theme="cupcake">
-  <!-- Components use cupcake colors -->
-</div>
-```
-
-### Custom themes
-
-Define custom themes using the `@plugin "daisyui/theme"` block following the [DaisyUI theme documentation](https://daisyui.com/docs/themes/):
-
-```css
-@plugin "daisyui" {
-  themes: light, dark --default;
-}
-
-@plugin "daisyui/theme" {
-  name: "custom-brand";
-  --color-primary: oklch(0.72 0.11 178);
-  --color-secondary: oklch(0.65 0.15 280);
-  --color-accent: oklch(0.76 0.18 55);
-}
-```
-
-## Color Variants
-
-Most components accept a `color` prop using DaisyUI color names:
+The stored choice has to be applied before the page paints, or the page flashes the wrong theme. `ThemeScript` renders the blocking `<script>` that does it, the same script every stack uses. Put it first in `<head>`, before any stylesheet, in a server-rendered app:
 
 ```vue
-<Button color="primary">Primary</Button>
-<Button color="secondary">Secondary</Button>
-<Button color="accent">Accent</Button>
-<Button color="success">Success</Button>
-<Button color="warning">Warning</Button>
-<Button color="error">Error</Button>
-<Button color="info">Info</Button>
-<Button color="ghost">Ghost</Button>
+<ThemeScript nonce="…" />
 ```
 
-The `DaisyColor` type includes: `'primary'`, `'secondary'`, `'accent'`, `'neutral'`, `'info'`, `'success'`, `'warning'`, `'error'`. Some components (like Button) also accept `'ghost'` and `'outline'` as additional color variants beyond the base `DaisyColor` type.
+| Prop           | Description                                          |
+| -------------- | ---------------------------------------------------- |
+| `storageKey`   | The `localStorage` key; the same one the toggles use |
+| `defaultValue` | The choice to apply when nothing is stored           |
+| `nonce`        | A CSP nonce for the inline script                    |
 
-## System Preference Detection
+In a client-only app with a static `index.html`, `ThemeScript` would run only after the app mounts, too late. Inline the output of `themeScript()` from `@artisanpack-ui/behavior` in `index.html` instead. With Nuxt, pass `themeScript()` to `useHead`; see [Nuxt and Server Rendering](Nuxt-And-Server-Rendering).
 
-When `colorScheme` is set to `'system'`, the theme provider listens to the `prefers-color-scheme` media query and reactively updates `resolvedColorScheme`. Changes to the OS setting are reflected immediately without a page reload.
+## The 1.x theme provider
 
-## Server-Side Rendering
-
-On the server (SSR), `resolvedColorScheme` defaults to `'light'` since `window.matchMedia` is unavailable. After hydration, it resolves to the actual system preference. To avoid a flash of incorrect theme, consider persisting the user's preference in a cookie and reading it server-side.
+`provideTheme()` and `useTheme()` still exist for code that reads a light or dark preference; see [Composables](Composables). They don't apply a theme themselves.

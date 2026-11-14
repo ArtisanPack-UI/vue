@@ -1,30 +1,25 @@
+---
+title: AI Components
+menu_order: 10
+---
+
 # AI Components
 
-Vue 3 components + composables for consuming the [`artisanpack-ui/ai`](https://github.com/ArtisanPack-UI/ai) JSON API. Shipped as the `@artisanpack-ui/vue/ai` subpath in 1.0.1.
+`@artisanpack-ui/vue/ai` is the admin interface for the [`artisanpack-ui/ai`](https://github.com/ArtisanPack-UI/ai) Laravel package in Vue: a settings form, a usage dashboard and a list of feature switches, built from the design-system components (Form, Input, Password, Select, Card, Table, Stat, Toggle, Alert and others), plus the API client they share and a composable for streamed text.
 
-The subpath gives Laravel apps a drop-in replacement for the Livewire admin surfaces (Settings page, Usage dashboard, Feature toggles) so Vue starter kits don't have to depend on Livewire.
-
-## Installation
-
-`@artisanpack-ui/vue/ai` ships inside `@artisanpack-ui/vue` — no extra install needed:
-
-```bash
-npm install @artisanpack-ui/vue
-```
-
-The subpath is optional. If you never import from `@artisanpack-ui/vue/ai`, none of these components are pulled into your bundle.
+It ships inside `@artisanpack-ui/vue`; there's nothing else to install. The components are only exported from this subpath, so none of them reach your bundle unless you import it. They're styled by `@artisanpack-ui/css` like every other component and follow the theme, preset and density.
 
 ## Quick start
 
 ```vue
 <script setup lang="ts">
 import {
-  createAiApiClient,
+  FeatureToggles,
   SettingsPage,
   UsageDashboard,
-  FeatureToggles,
+  createAiApiClient,
 } from '@artisanpack-ui/vue/ai';
-import { Stack } from '@artisanpack-ui/vue/layout';
+import { Stack } from '@artisanpack-ui/vue';
 
 const client = createAiApiClient({
   baseUrl: '/api/artisanpack-ai',
@@ -37,16 +32,16 @@ const client = createAiApiClient({
 
 <template>
   <Stack gap="8">
-    <SettingsPage :client="client" heading="AI Settings" />
+    <SettingsPage :client="client" heading="AI settings" />
     <UsageDashboard :client="client" :refresh-interval="15000" heading="Usage" />
     <FeatureToggles :client="client" heading="Features" />
   </Stack>
 </template>
 ```
 
-## `createAiApiClient`
+## createAiApiClient
 
-Builds a small `fetch` wrapper implementing the `AiApiClient` contract every component depends on.
+Builds the `AiApiClient` every component takes, as a small wrapper around `fetch`:
 
 ```ts
 const client = createAiApiClient({
@@ -56,43 +51,51 @@ const client = createAiApiClient({
 });
 ```
 
-| Option      | Type                       | Notes                                                                                        |
-|-------------|----------------------------|----------------------------------------------------------------------------------------------|
-| `baseUrl`   | `string`                   | Prefix for every request. Match the ai package's route prefix (default `/api/artisanpack-ai`). |
-| `headers`   | `Record<string, string>`   | Merged into every request. Use for CSRF, Sanctum bearer, or custom headers.                  |
-| `fetchImpl` | `typeof fetch`             | Override the global `fetch`. Use for tests or to set `credentials: 'include'` on cross-origin Sanctum. |
+| Option      | Type                     | Description                                                        |
+| ----------- | ------------------------ | ------------------------------------------------------------------ |
+| `baseUrl`   | `string`                 | The prefix of the AI package's routes. Required                    |
+| `headers`   | `Record<string, string>` | Merged into every request: a CSRF token, a bearer token            |
+| `fetchImpl` | `typeof fetch`           | Replaces the global `fetch`, for tests or cross-origin credentials |
 
-Non-2xx responses reject with `AiApiError`, which exposes `.status` and the parsed `.body` — perfect for surfacing Laravel's 422 `{ message, errors }` envelope inline.
+Every request sends `Accept: application/json`, and a JSON `Content-Type` only when it has a body. A response that isn't 2xx rejects with `AiApiError`, which carries the `status` and the parsed `body`, so a 422 response's `{ message, errors }` is available.
 
-If your app has its own HTTP layer (Axios, Ky, a Sanctum-aware wrapper), implement the `AiApiClient` interface directly rather than using `createAiApiClient`. Every component depends on the interface, not on `fetch`.
+The components depend on the `AiApiClient` interface, not on `fetch`. If your app has its own HTTP layer, implement the interface (`getSettings`, `updateSettings`, `testConnection`, `getFeatures`, `toggleFeature`, `getUsage`) instead.
 
-## `<SettingsPage>`
+## Shared behavior
 
-Admin form backed by `GET/PUT /settings` and `POST /test-connection`. Renders provider credentials, per-feature model/instruction overrides, and a probe button that surfaces `test-connection` results inline.
+- **Changing `client` reloads.** Each component loads its data when it mounts and again whenever the `client` prop changes.
+- **The latest request wins.** A response to a request that has been replaced (by a new client, a new date range, or a newer load) is ignored, so a slow response never overwrites newer data.
+- **Failures are shown, not thrown.** Load and save errors appear in an Alert with the error's message. A rejection that isn't an `Error` (a string, `null`) still shows a readable message.
+- **`heading`** adds a heading above the component.
+
+## SettingsPage
+
+The credentials and per-feature overrides form, backed by `GET` and `PUT /settings` and `POST /test-connection`.
 
 ```vue
 <SettingsPage
   :client="client"
-  heading="AI Settings"
+  heading="AI settings"
   :providers="['openai', 'anthropic', 'ollama']"
 />
 ```
 
-| Prop        | Type                      | Default                                    | Notes                                              |
-|-------------|---------------------------|--------------------------------------------|----------------------------------------------------|
-| `client`    | `AiApiClient`             | —                                          | Required.                                          |
-| `providers` | `string[]`                | `['openai', 'anthropic', 'ollama']`        | Options rendered in the provider dropdown.         |
-| `heading`   | `string`                  | —                                          | Optional heading rendered above the form.          |
+| Prop        | Type          | Default                             | Description              |
+| ----------- | ------------- | ----------------------------------- | ------------------------ |
+| `client`    | `AiApiClient` |                                     | Required                 |
+| `providers` | `string[]`    | `['openai', 'anthropic', 'ollama']` | The provider options     |
+| `heading`   | `string`      |                                     | A heading above the form |
 
-Behaviour worth knowing:
+- **Load errors can be retried.** If the settings can't be loaded, the form isn't shown with empty values: an error Alert explains it, with a Retry button that loads them again.
+- **The stored key is never shown.** The API only reports whether a key is stored. The API key field starts empty, and saving it empty keeps the stored key. The field is hidden for Ollama, which takes a base URL instead.
+- **Changing the provider clears the typed key** and the last connection test, so a key is never sent to the wrong provider.
+- **Test connection** checks the credentials as typed, without saving. Editing a credential clears the result, and a result for credentials that have since changed is discarded.
+- **Validation errors** from a 422 response appear under their fields, with the message in an Alert above the form.
+- **Per-feature overrides** (a model and instructions per feature) appear when the API returns any.
 
-- **Never emits the stored key.** The API returns `api_key_present: boolean`, not the plaintext key. The password input renders empty by default so a user can leave it blank to keep whatever's already stored.
-- **Provider switch is safe.** Changing provider clears the typed key + last probe result so an OpenAI key never silently ships to an Ollama base URL.
-- **422 errors render inline.** Field-level messages from the `{ errors: Record<string, string[]> }` envelope render under the offending input; a network error (or other non-422 failure) renders in the top `Alert` with `color="error"` (and `role="alert"`) instead of the success one.
+## UsageDashboard
 
-## `<UsageDashboard>`
-
-Aggregated dashboard backed by `GET /usage`. Renders totals, per-feature breakdown, and daily buckets.
+Totals, a per-feature table and a daily table, backed by `GET /usage`.
 
 ```vue
 <UsageDashboard
@@ -104,83 +107,74 @@ Aggregated dashboard backed by `GET /usage`. Renders totals, per-feature breakdo
 />
 ```
 
-| Prop              | Type          | Default | Notes                                                                                              |
-|-------------------|---------------|---------|----------------------------------------------------------------------------------------------------|
-| `client`          | `AiApiClient` | —       | Required.                                                                                          |
-| `from`            | `string`      | —       | ISO date (`YYYY-MM-DD`). Forwarded to `/usage` as a query param.                                   |
-| `to`              | `string`      | —       | ISO date (`YYYY-MM-DD`). Forwarded to `/usage` as a query param.                                   |
-| `refreshInterval` | `number`      | `0`     | Poll interval in milliseconds. `0` disables polling. `15000` matches the Livewire dashboard cadence.|
-| `heading`         | `string`      | —       | Optional heading rendered above the dashboard.                                                     |
+| Prop              | Type          | Default | Description                                      |
+| ----------------- | ------------- | ------- | ------------------------------------------------ |
+| `client`          | `AiApiClient` |         | Required                                         |
+| `from`            | `string`      |         | Start date, `YYYY-MM-DD`                         |
+| `to`              | `string`      |         | End date, `YYYY-MM-DD`                           |
+| `refreshInterval` | `number`      | `0`     | Milliseconds between refreshes. `0` doesn't poll |
+| `heading`         | `string`      |         | A heading above the dashboard                    |
 
-Behaviour worth knowing:
+- **Polling waits for each response.** The next refresh is scheduled only once the previous one has settled, so a slow response is never overtaken by the one after it.
+- **A failed refresh keeps the figures.** If a refresh fails after data has loaded, the last figures stay, with a warning Alert saying they couldn't be refreshed. The next successful refresh clears it.
+- **A new range starts over.** Changing `client`, `from` or `to` drops the current figures and loads again, so the previous range's totals never show under the new one.
+- Costs are formatted as US dollars, and numbers in the visitor's locale.
 
-- **Sequence-guarded polling.** Every fetch increments an internal request counter; only the most recent response updates state. Under slow networks (`fetch` latency > `refreshInterval`), a stale response can't overwrite a fresher one.
-- **Watches `from`/`to` prop changes.** Wire the dashboard up to a date-range picker and it reloads automatically on every range change.
+## FeatureToggles
 
-## `<FeatureToggles>`
-
-Per-feature enable/disable list backed by `GET /features` and `POST /features/{key}/toggle`. Each row optimistically flips its own switch and rolls back on API failure.
+A switch per registered AI feature, backed by `GET /features` and `POST /features/{key}/toggle`.
 
 ```vue
-<FeatureToggles
-  :client="client"
-  heading="Features"
-  @toggle="handleToggle"
-/>
+<FeatureToggles :client="client" heading="Features" @toggle="onToggle" />
 ```
 
-| Prop / Event   | Type                                                                | Notes                                                                          |
-|----------------|---------------------------------------------------------------------|--------------------------------------------------------------------------------|
-| `client`       | `AiApiClient`                                                       | Required.                                                                      |
-| `heading`      | `string`                                                            | Optional heading — kept visible in loading, empty, and error states.           |
-| `@toggle`      | `(feature: { key; package; enabled }) => void`                      | Emitted after a successful toggle. Not emitted on rollback.                    |
+| Prop      | Type          | Description              |
+| --------- | ------------- | ------------------------ |
+| `client`  | `AiApiClient` | Required                 |
+| `heading` | `string`      | A heading above the list |
 
-Behaviour worth knowing:
+| Event    | Payload                                            | When                    |
+| -------- | -------------------------------------------------- | ----------------------- |
+| `toggle` | `{ key, package, enabled }` as saved by the server | After a switch is saved |
 
-- **Optimistic + reversible.** The switch flips immediately; only if the POST rejects does the row roll back and surface an error banner. A subsequent successful toggle clears the banner.
-- **Empty state keeps context.** When no features are registered, the heading still renders above the "No AI features registered." message.
+- **Switches flip at once** and are disabled while their request runs. If the request fails, the switch flips back and an error Alert explains why; the next successful toggle clears it.
+- **`toggle` follows the save.** It isn't emitted when a toggle fails. An error thrown by your listener is logged, and doesn't roll the switch back, because the change was already saved.
+- When no features are registered, an empty state says so.
 
-## `useStreamingText`
+## useStreamingText
 
-Composable for consuming a long-running `fetch` response body as a UTF-8 text stream — useful for the AI usage dashboard's long-running agent-output surface, chain-of-thought output, or any streamed generation.
+Reads a streamed `fetch` response as UTF-8 text, for output such as a generation in progress:
 
 ```vue
 <script setup lang="ts">
+import { Button } from '@artisanpack-ui/vue';
 import { useStreamingText } from '@artisanpack-ui/vue/ai';
 
-const props = defineProps<{ agentUrl: string }>();
 const { text, streaming, error, start, stop, reset } = useStreamingText();
 </script>
 
 <template>
-  <div>
-    <button :disabled="streaming" @click="start(props.agentUrl)">Run</button>
-    <button :disabled="!streaming" @click="stop">Stop</button>
-    <button @click="reset">Clear</button>
-    <pre>{{ text }}<span v-if="streaming">…</span></pre>
-    <span v-if="error" role="alert">{{ error.message }}</span>
-  </div>
+  <Button :loading="streaming" @click="start('/agents/summary')">Run</Button>
+  <Button variant="ghost" :disabled="!streaming" @click="stop">Stop</Button>
+  <Button variant="ghost" @click="reset">Clear</Button>
+  <pre>{{ text }}</pre>
+  <p v-if="error" role="alert">{{ error.message }}</p>
 </template>
 ```
 
-The composable uses the browser Streams API + an `AbortController`. It aborts the in-flight stream automatically when the calling scope is disposed, and rapidly re-calling `start()` cleanly cancels the previous stream without a race — a stale finally block will never flip `streaming` back to `false` while a newer stream is still reading.
+| Returns             | Description                                                                                                        |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `text`              | The text received so far                                                                                           |
+| `streaming`         | `true` while a stream is being read                                                                                |
+| `error`             | The error that ended the stream, or `null`                                                                         |
+| `start(url, init?)` | Starts a stream, aborting any stream already running. `init` is passed to `fetch`, and its `signal` is honored too |
+| `stop()`            | Aborts the running stream                                                                                          |
+| `reset()`           | Clears `text` and `error`                                                                                          |
 
-> **Note:** `useStreamingText` is a client-side consumer, not a wire protocol. The `artisanpack-ui/ai` package's public REST surface does not include a streaming route — you point the composable at whatever URL your own app exposes (e.g. a custom controller that returns a `StreamedResponse`).
+Only the latest stream writes `text`, `error` and `streaming`: chunks from a stream that was replaced or aborted are dropped. The stream is aborted when the calling component unmounts.
 
-## Exported types
+The AI package's REST API has no streaming route. Point `start()` at an endpoint of your own app that streams a response.
 
-Every wire-level type mirrors the ai package's OpenAPI schema:
+## Types
 
-- `AiApiClient`, `AiApiError`
-- `AiCredentials`, `AiSettingsResponse`, `AiSettingsUpdate`, `AiFeatureOverride`
-- `AiFeature`
-- `AiConnectionTestResult`
-- `AiUsageResponse`, `AiUsageTotals`, `AiUsageByFeature`, `AiUsageDaily`
-- `AiValidationError`
-
-Import them from `@artisanpack-ui/vue/ai` if you write your own client or components.
-
-## Related
-
-- [artisanpack-ui/ai](https://github.com/ArtisanPack-UI/ai) — the Laravel package that ships the REST endpoints
-- [artisanpack-ui/react](https://github.com/ArtisanPack-UI/react) — React port of the same surface
+`@artisanpack-ui/vue/ai` exports the client and response types: `AiApiClient`, `CreateAiApiClientOptions`, `AiCredentials`, `AiSettingsResponse`, `AiSettingsUpdate`, `AiFeatureOverride`, `AiFeature`, `AiConnectionTestResult`, `AiUsageResponse`, `AiUsageTotals`, `AiUsageByFeature`, `AiUsageDaily`, `AiValidationError` and `UseStreamingTextResult`, along with the `AiApiError` class.

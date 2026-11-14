@@ -1,32 +1,43 @@
-# ArtisanPack UI Vue
+---
+title: ArtisanPack UI Vue Documentation Home
+menu_order: 1
+---
 
-A comprehensive Vue 3 UI component ecosystem for building modern web applications. Includes 58 components styled with [DaisyUI](https://daisyui.com/) and [Tailwind CSS](https://tailwindcss.com/), a shared design tokens package, and first-class [Laravel](https://laravel.com/) / [Inertia.js](https://inertiajs.com/) integration.
+# ArtisanPack UI for Vue
 
-## Packages
+`@artisanpack-ui/vue` 2.0 renders the [ArtisanPack UI design system](https://docs.artisanpackui.dev/documentation/design-system/home) for Vue. Styling comes from `@artisanpack-ui/css` (design tokens in cascade layers, Tailwind optional), interaction from `@artisanpack-ui/behavior` (Zag state machines through `@zag-js/vue`), and every component shares its props, parts, events and keyboard behavior with the React and Livewire packages.
 
-| Package | Description |
-|---------|-------------|
-| `@artisanpack-ui/vue` | 58 Vue 3 UI components (form, layout, navigation, data display, feedback, utility) |
-| `@artisanpack-ui/vue-laravel` | Inertia.js adapter wrappers for navigation, forms, auth, and toast integration |
+| Package                       | What it is                                                                                                                        |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `@artisanpack-ui/vue`         | The components, the composables, the Vue plugin and the AI admin components (`/ai`)                                               |
+| `@artisanpack-ui/vue-laravel` | Inertia.js wrappers for Laravel: form fields bound to validation errors, pagination, menus, flash messages and the signed-in user |
 
-Both packages depend on `@artisanpack-ui/tokens` for shared design tokens (colors, sizes, types).
+Each component has its own page in the design-system documentation, with a Vue tab, live examples and tables of its props, parts, slots and events. These pages cover what is specific to Vue.
 
-## Guides
+## Requirements
 
-- [[Getting Started]] — Installation, setup, and basic usage
-- [[Design Tokens]] — Colors, spacing, typography, and shared types
-- [[Theming]] — ThemeProvider, DaisyUI themes, dark mode, and custom themes
-- [[Composables]] — useTheme, provideTheme, and useBreakpoint
-- [[Laravel Inertia Integration]] — Forms, navigation, auth, and toast with Inertia.js
-- [[Migration from Livewire]] — Side-by-side migration guide from Livewire components
+- Vue 3.5 or later
+- `@artisanpack-ui/css` for the styles
+- `@inertiajs/vue3` 2.0 or later, for `@artisanpack-ui/vue-laravel` only
 
-## Component Reference
+Coming from 1.x? DaisyUI is no longer used. See [Upgrading from 1.x](Upgrading).
 
-- [[Component API Reference]] — Overview and common props
-- [[Form Components]] — Button, Input, Select, Checkbox, Toggle, DatePicker, ColorPicker, RichTextEditor, and more
-- [[Layout Components]] — Card, Dialog, DropdownMenu, Tabs, Accordion, Drawer, Grid, Stack, Popover (plus the deprecated Modal and Dropdown)
-- [[Navigation Components]] — Menu, Breadcrumbs, Link, Pagination, Steps, Navbar, Sidebar, Spotlight (SpotlightSearch is deprecated)
-- [[Data Display Components]] — Table, Chart, Calendar, Avatar, Badge, Progress, Stat, Timeline, Carousel, Code, Diff, Sparkline
-- [[Feedback Components]] — Alert, Toast and Toaster, Loading, Skeleton, EmptyState, ErrorDisplay
-- [[Utility Components]] — Icon, ThemeToggle, Tooltip, Clipboard, Markdown
-- [[AI Components]] — SettingsPage, UsageDashboard, FeatureToggles, `createAiApiClient`, `useStreamingText` (`@artisanpack-ui/vue/ai` subpath)
+## Table of Contents
+
+- [Getting Started](Getting-Started)
+- [Components](Components)
+- [Theming](Theming)
+- [Composables](Composables)
+- [Laravel and Inertia](Laravel-Inertia)
+- [Nuxt and Server Rendering](Nuxt-And-Server-Rendering)
+- [TypeScript](Typescript)
+- [Bundle Size](Bundle-Size)
+- [AI Components](Ai-Components)
+- [Upgrading from 1.x](Upgrading)
+
+## Getting help
+
+- **Issues:** [GitHub](https://github.com/ArtisanPack-UI/vue/issues)
+- **Source:** [ArtisanPack-UI/vue](https://github.com/ArtisanPack-UI/vue)
+
+The packages are MIT licensed.
