@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** @module ai/FeatureToggles */
-import { onScopeDispose, ref, watch } from 'vue';
+import { computed, onScopeDispose, ref, watch } from 'vue';
 import Alert from '../../feedback/Alert/Alert.vue';
 import EmptyState from '../../feedback/EmptyState/EmptyState.vue';
 import Loading from '../../feedback/Loading/Loading.vue';
@@ -11,15 +11,20 @@ import Stack from '../../layout/Stack/Stack.vue';
 import Text from '../../layout/Text/Text.vue';
 import type { AiApiClient, AiFeature } from '../types';
 import { errorMessage } from '../errorMessage';
+import { FEATURE_TOGGLES_LABELS, type FeatureTogglesLabels } from '../labels';
 
 interface Props {
   /** API client wrapping the artisanpack-ui/ai JSON endpoints. */
   client: AiApiClient;
   /** Optional heading rendered above the list. */
   heading?: string;
+  /** Built-in text, merged over the English defaults; translate it. */
+  labels?: Partial<FeatureTogglesLabels>;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), { heading: undefined, labels: undefined });
+
+const text = computed<FeatureTogglesLabels>(() => ({ ...FEATURE_TOGGLES_LABELS, ...props.labels }));
 const emit = defineEmits<{
   toggle: [feature: Pick<AiFeature, 'key' | 'package' | 'enabled'>];
 }>();
@@ -40,7 +45,7 @@ async function loadFeatures(): Promise<void> {
     const response = await props.client.getFeatures();
     if (current === generation) features.value = response.features;
   } catch (err) {
-    if (current === generation) error.value = errorMessage(err);
+    if (current === generation) error.value = errorMessage(err, text.value.genericError);
   }
 }
 
@@ -70,7 +75,7 @@ async function handleToggle(feature: AiFeature): Promise<void> {
     if (current === generation) {
       // Roll back on failure
       setEnabled(feature.key, feature.enabled);
-      error.value = errorMessage(err);
+      error.value = errorMessage(err, text.value.genericError);
     }
     return;
   } finally {
@@ -101,9 +106,9 @@ async function handleToggle(feature: AiFeature): Promise<void> {
 
     <Alert v-if="error && !features" color="error" :description="error" />
 
-    <Loading v-else-if="!features" size="sm"> Loading features… </Loading>
+    <Loading v-else-if="!features" size="sm">{{ text.loading }}</Loading>
 
-    <EmptyState v-else-if="features.length === 0" size="sm" title="No AI features registered." />
+    <EmptyState v-else-if="features.length === 0" size="sm" :title="text.empty" />
 
     <template v-else>
       <Alert v-if="error" color="error" :description="error" />

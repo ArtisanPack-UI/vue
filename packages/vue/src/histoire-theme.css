@@ -4,8 +4,6 @@
 @layer theme, base, apui, components, utilities;
 @import 'tailwindcss';
 @import '@artisanpack-ui/css';
-@import '@artisanpack-ui/tokens/css';
-@plugin "daisyui";
 
 /*
  * Histoire's sandbox ships its own unlayered preflight (border-width: 0,

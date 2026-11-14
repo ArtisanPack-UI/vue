@@ -2,11 +2,15 @@
 /**
  * @module ToastMessage
  *
- * @deprecated Use Toast, the design-system replacement (#51).
+ * @deprecated Use Toast, the design-system replacement (#51). ToastMessage
+ * is a thin alias that renders a static Toast from a 2.x `toast` item:
+ * `message` → `title`, `color` as is, and the close button emits `dismiss`
+ * with the item's id. Every other attribute, including Toast's own props,
+ * passes through.
  */
-import { computed } from 'vue';
-import { cn } from '@artisanpack-ui/tokens';
-import type { ToastColor, ToastItem } from './types';
+import Toast from '../Toast/Toast.vue';
+import { warnOnce } from '../../_shared/design-system';
+import type { ToastItem } from './types';
 
 const props = defineProps<{
   /** The toast data object to render. */
@@ -17,34 +21,13 @@ const emit = defineEmits<{
   dismiss: [id: string];
 }>();
 
-const toastColorMap: Record<ToastColor, string> = {
-  info: 'alert-info',
-  success: 'alert-success',
-  warning: 'alert-warning',
-  error: 'alert-error',
-};
-
-const isUrgent = computed(() => props.toast.color === 'error' || props.toast.color === 'warning');
-
-const toastClasses = computed(() =>
-  cn('alert', props.toast.color && toastColorMap[props.toast.color]),
-);
+warnOnce('ToastMessage', 'ToastMessage is deprecated; use Toast.');
 </script>
 
 <template>
-  <div
-    :role="isUrgent ? 'alert' : 'status'"
-    :aria-live="isUrgent ? 'assertive' : 'polite'"
-    :class="toastClasses"
-  >
-    <span>{{ toast.message }}</span>
-    <button
-      type="button"
-      aria-label="Dismiss notification"
-      class="btn btn-sm btn-ghost"
-      @click="emit('dismiss', toast.id)"
-    >
-      &#x2715;
-    </button>
-  </div>
+  <Toast
+    :title="props.toast.message"
+    :color="props.toast.color"
+    @open-change="emit('dismiss', props.toast.id)"
+  />
 </template>

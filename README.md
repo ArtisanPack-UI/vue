@@ -3,105 +3,62 @@
 [![CI](https://github.com/ArtisanPack-UI/vue/actions/workflows/ci.yml/badge.svg)](https://github.com/ArtisanPack-UI/vue/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A comprehensive Vue 3 UI component library for the ArtisanPack UI ecosystem, styled with DaisyUI and Tailwind CSS.
+Vue 3 components for the [ArtisanPack UI design system](https://docs.artisanpackui.dev/documentation/design-system/home). Styling comes from `@artisanpack-ui/css` (design tokens in cascade layers, Tailwind optional) and interaction from `@artisanpack-ui/behavior`, so every component shares its props, parts, events and keyboard behavior with the React and Livewire packages.
 
 ## Packages
 
-| Package | Description |
-|---------|-------------|
-| [`@artisanpack-ui/vue`](packages/vue) | 58 Vue 3 UI components organized by category (form, layout, navigation, display, data, feedback, utility) |
-| [`@artisanpack-ui/vue-laravel`](packages/vue-laravel) | Inertia.js adapter wrappers for seamless Laravel integration |
+| Package                                               | What it is                                                                                                  |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| [`@artisanpack-ui/vue`](packages/vue)                 | The components, the composables, the Vue plugin and the AI admin components (`/ai`)                         |
+| [`@artisanpack-ui/vue-laravel`](packages/vue-laravel) | Inertia.js wrappers for Laravel: validation-aware form fields, pagination, menus, flash toasts and the user |
 
-## Quick Start
-
-### Install the core package
+## Quick start
 
 ```bash
-npm install @artisanpack-ui/vue
+npm install @artisanpack-ui/vue @artisanpack-ui/css
 ```
-
-### Register the plugin
 
 ```ts
-import { createApp } from 'vue';
-import { createArtisanPackUI } from '@artisanpack-ui/vue';
-import App from './App.vue';
-
-const app = createApp(App);
-app.use(createArtisanPackUI());
-app.mount('#app');
+// main.ts
+import '@artisanpack-ui/css';
 ```
-
-### Use components
 
 ```vue
 <script setup lang="ts">
-import { Button, Input, Card } from '@artisanpack-ui/vue';
+import { ref } from 'vue';
+import { Button, Input } from '@artisanpack-ui/vue';
+
+const email = ref('');
 </script>
 
 <template>
-  <Card>
-    <template #header>Sign In</template>
-    <Input label="Email" type="email" v-model="email" />
-    <Button color="primary" @click="submit">Log In</Button>
-  </Card>
+  <Input v-model="email" label="Email" type="email" name="email" />
+  <Button type="submit" color="primary">Sign in</Button>
 </template>
 ```
 
-### Tree-shakeable sub-path imports
-
-Import only the categories you need to keep bundle sizes small:
-
-```ts
-import { Button, Input } from '@artisanpack-ui/vue/form';
-import { Card, Modal } from '@artisanpack-ui/vue/layout';
-import { Table } from '@artisanpack-ui/vue/data';
-```
-
-## Laravel / Inertia.js Integration
-
-```bash
-npm install @artisanpack-ui/vue-laravel
-```
-
-```ts
-import { createArtisanPackUILaravel } from '@artisanpack-ui/vue-laravel';
-
-app.use(createArtisanPackUILaravel());
-```
-
-See the [Laravel integration guide](https://docs.artisanpackui.dev/documentation/vue/laravel-inertia) for full setup instructions.
-
-## Requirements
-
-- Vue 3.5+
-- Tailwind CSS 4+
-- DaisyUI 5+
-- Node.js 18+
+Requires Vue 3.5 or later. Coming from 1.x? DaisyUI is no longer used; see [Upgrading from 1.x](https://docs.artisanpackui.dev/documentation/vue/upgrading).
 
 ## Documentation
-
-Full documentation is available on the [documentation site](https://docs.artisanpackui.dev/documentation/vue/home). Source files live in the [`docs/`](docs/) directory.
 
 - [Getting Started](https://docs.artisanpackui.dev/documentation/vue/getting-started)
 - [Components](https://docs.artisanpackui.dev/documentation/vue/components)
 - [Theming](https://docs.artisanpackui.dev/documentation/vue/theming)
-- [Composables Reference](https://docs.artisanpackui.dev/documentation/vue/composables)
-- [Laravel / Inertia Integration](https://docs.artisanpackui.dev/documentation/vue/laravel-inertia)
-- [Upgrading from 1.x](https://docs.artisanpackui.dev/documentation/vue/upgrading)
+- [Laravel and Inertia](https://docs.artisanpackui.dev/documentation/vue/laravel-inertia)
+- [Nuxt and Server Rendering](https://docs.artisanpackui.dev/documentation/vue/nuxt-and-server-rendering)
+- [All topics](https://docs.artisanpackui.dev/documentation/vue/home)
 
 ## Development
 
 ```bash
-git clone https://github.com/ArtisanPack-UI/vue.git
-cd vue
-npm install
+scripts/checkout-design-system.sh --build   # the design-system packages, at ../design-system
+npm ci
 npm run build
-npm run test
-npm run story:dev   # Launch Histoire component playground
+npm test
+npm run story:dev                           # the Histoire playground
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the full contributor guide.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the contributor guide.
 
 ## License
 

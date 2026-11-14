@@ -2,73 +2,38 @@
 /**
  * @module Sidebar
  *
- * @deprecated Use AppShell (#58): the sidebar is a part of the application frame.
+ * @deprecated Use AppShell (#58): the sidebar is a part of the application
+ * frame. Sidebar is a thin alias that renders an AppShell and maps its 2.x
+ * API: the `sidebar` slot → AppShell's `sidebar` slot, the default slot →
+ * its content, `ariaLabel` → `label` and `className` → `class`. AppShell
+ * has no mobile drawer or end-side sidebar, so `open` (and `v-model:open`),
+ * `side` and `responsive` are ignored: the sidebar sits at the start edge and
+ * stacks above the content on narrow screens. Every other attribute,
+ * including AppShell's own props, passes through.
  */
-import { computed, useId } from 'vue';
-import { cn } from '@artisanpack-ui/tokens';
+import AppShell from '../../layout/AppShell/AppShell.vue';
+import { warnOnce } from '../../_shared/design-system';
 import type { SidebarProps } from './types';
 
-const props = withDefaults(defineProps<SidebarProps>(), {
+withDefaults(defineProps<SidebarProps>(), {
+  open: false,
   side: 'left',
   responsive: true,
   ariaLabel: 'Sidebar navigation',
+  className: undefined,
 });
 
-const openModel = defineModel<boolean>('open', { default: false });
+defineEmits<{
+  /** Never emitted: AppShell has no drawer to open or close. Kept so `v-model:open` compiles. */
+  'update:open': [value: boolean];
+}>();
 
-const autoId = useId();
-const drawerId = `sidebar-${autoId}`;
-
-const drawerClasses = computed(() =>
-  cn(
-    'drawer',
-    props.side === 'right' && 'drawer-end',
-    props.responsive && 'lg:drawer-open',
-    props.className,
-  ),
-);
-
-function handleOverlayClose() {
-  openModel.value = false;
-}
-
-function handleOverlayKeydown(e: KeyboardEvent) {
-  if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault();
-    handleOverlayClose();
-  }
-}
+warnOnce('Sidebar', 'Sidebar is deprecated; use AppShell.');
 </script>
 
 <template>
-  <div :class="drawerClasses">
-    <input
-      :id="drawerId"
-      type="checkbox"
-      class="drawer-toggle"
-      :checked="openModel"
-      :aria-hidden="true"
-      @change="openModel = ($event.target as HTMLInputElement).checked"
-    />
-    <div class="drawer-content">
-      <slot />
-    </div>
-    <div class="drawer-side">
-      <div
-        class="drawer-overlay"
-        aria-label="Close sidebar"
-        role="button"
-        tabindex="0"
-        @click="handleOverlayClose"
-        @keydown="handleOverlayKeydown"
-      />
-      <aside
-        :class="cn('menu bg-base-200 min-h-full w-80 p-4')"
-        :aria-label="ariaLabel"
-        role="navigation"
-      >
-        <slot name="sidebar" />
-      </aside>
-    </div>
-  </div>
+  <AppShell :label="ariaLabel" :class="className">
+    <template v-if="$slots.sidebar" #sidebar><slot name="sidebar" /></template>
+    <slot />
+  </AppShell>
 </template>

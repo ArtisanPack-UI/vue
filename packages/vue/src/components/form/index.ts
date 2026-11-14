@@ -2,8 +2,9 @@
  * @module form
  *
  * Form components for the ArtisanPack UI Vue component library.
- * Provides a comprehensive set of form inputs and controls built on DaisyUI
- * with consistent styling, accessibility, and error handling patterns.
+ * Provides form inputs and controls on the ArtisanPack UI design system,
+ * styled by `@artisanpack-ui/css`, with shared accessibility and error
+ * handling patterns.
  *
  * @example
  * ```vue

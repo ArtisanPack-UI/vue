@@ -46,8 +46,8 @@ export type {
   ToastProps,
 } from './Toast/types';
 
-// Deprecated: replaced by Toast, Toaster and toast.create() (#51). Kept
-// while @artisanpack-ui/vue-laravel's flash toasts still use them.
+// Deprecated: replaced by Toast, Toaster and toast.create() (#51).
+// ToastProvider and ToastMessage are aliases on them; removed in a later major.
 export { default as ToastProvider } from './ToastProvider/ToastProvider.vue';
 export { default as ToastMessage } from './ToastProvider/ToastMessage.vue';
 export { useToast } from './ToastProvider/use-toast';

@@ -1,88 +1,87 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/vue';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/vue';
 import { Radio } from '../../components/form';
 
 const options = [
-  { id: 'sm', name: 'Small' },
+  { id: 'sm', name: 'Small', hint: 'Up to 2 people' },
   { id: 'md', name: 'Medium' },
-  { id: 'lg', name: 'Large' },
+  { id: 'lg', name: 'Large', disabled: true },
 ];
 
-describe('Radio', () => {
-  it('renders with group label', () => {
-    render(Radio, { props: { label: 'Size', options } });
+describe('Radio (deprecated alias of RadioGroup)', () => {
+  it('warns once in development that it is deprecated', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    render(Radio, { props: { options } });
+    render(Radio, { props: { options } });
+    const calls = warn.mock.calls.filter(([m]) => String(m).includes('Radio is deprecated'));
+    expect(calls).toHaveLength(1);
+    expect(calls[0]![0]).toContain('Radio is deprecated; use RadioGroup.');
+    warn.mockRestore();
+  });
+
+  it('renders the design-system RadioGroup, with no DaisyUI markup', () => {
+    const { container } = render(Radio, { props: { label: 'Size', options } });
+    const root = container.querySelector('fieldset')!;
+    expect(root.className).toBe('apui-radio-group');
+    expect(root.getAttribute('data-variant')).toBe('default');
+    expect(root.getAttribute('data-orientation')).toBe('vertical');
+    expect(container.querySelector('.radio, .fieldset, .fieldset-legend')).toBeNull();
     expect(screen.getByText('Size')).toBeTruthy();
   });
 
-  it('renders all options', () => {
+  it('maps the 2.x option keys to value, label and description', () => {
     render(Radio, { props: { options } });
-    expect(screen.getAllByRole('radio')).toHaveLength(3);
-  });
-
-  it('renders option labels', () => {
-    render(Radio, { props: { options } });
-    expect(screen.getByText('Small')).toBeTruthy();
-    expect(screen.getByText('Medium')).toBeTruthy();
-    expect(screen.getByText('Large')).toBeTruthy();
-  });
-
-  it('has radiogroup role', () => {
-    render(Radio, { props: { label: 'Size', options } });
-    expect(screen.getByRole('radiogroup')).toBeTruthy();
-  });
-
-  it('applies color variant class', () => {
-    render(Radio, { props: { options, color: 'primary' } });
-    const radios = screen.getAllByRole('radio');
-    expect(radios[0].classList.contains('radio-primary')).toBe(true);
-  });
-
-  it('shows hint text', () => {
-    render(Radio, { props: { options, hint: 'Select a size' } });
-    expect(screen.getByText('Select a size')).toBeTruthy();
-  });
-
-  it('shows error and hides hint', () => {
-    render(Radio, { props: { options, hint: 'Help', error: 'Required' } });
-    expect(screen.getByText('Required')).toBeTruthy();
-    expect(screen.queryByText('Help')).toBeNull();
-  });
-
-  it('renders card layout', () => {
-    const { container } = render(Radio, { props: { options, card: true } });
-    const labels = container.querySelectorAll('label');
-    expect(labels[0].classList.contains('p-4')).toBe(true);
-  });
-
-  it('renders inline layout', () => {
-    const { container } = render(Radio, { props: { options, inline: true } });
-    const optionContainer = container.querySelector('.flex.gap-3');
-    expect(optionContainer?.classList.contains('flex-col')).toBe(false);
-  });
-
-  it('disables individual options', () => {
-    const opts = [
-      { id: 'a', name: 'A' },
-      { id: 'b', name: 'B', disabled: true },
-    ];
-    render(Radio, { props: { options: opts } });
     const radios = screen.getAllByRole('radio') as HTMLInputElement[];
-    expect(radios[1].disabled).toBe(true);
+    expect(radios.map((radio) => radio.value)).toEqual(['sm', 'md', 'lg']);
+    expect(screen.getByLabelText(/Small/)).toBe(radios[0]);
+    expect(screen.getByText('Up to 2 people')).toBeTruthy();
+    expect(radios[2]!.disabled).toBe(true);
   });
 
-  it('supports custom option keys', () => {
-    const opts = [
-      { value: '1', text: 'One' },
-      { value: '2', text: 'Two' },
-    ];
-    render(Radio, { props: { options: opts, optionValue: 'value', optionLabel: 'text' } });
-    expect(screen.getByText('One')).toBeTruthy();
-    expect(screen.getByText('Two')).toBeTruthy();
+  it('reads custom option keys and falls back to the index for a missing value', () => {
+    render(Radio, {
+      props: {
+        optionValue: 'code',
+        optionLabel: 'title',
+        options: [{ code: 'a', title: 'Alpha' }, { title: 'Beta' }],
+      },
+    });
+    const radios = screen.getAllByRole('radio') as HTMLInputElement[];
+    expect(radios.map((radio) => radio.value)).toEqual(['a', '1']);
+    expect(screen.getByLabelText('Beta')).toBe(radios[1]);
   });
 
-  it('shows per-option hint text', () => {
-    const opts = [{ id: 'a', name: 'A', hint: 'First option' }];
-    render(Radio, { props: { options: opts } });
-    expect(screen.getByText('First option')).toBeTruthy();
+  it('maps inline, card and cardClass', () => {
+    const { container } = render(Radio, {
+      props: { options, inline: true, card: true, cardClass: 'my-card' },
+    });
+    const root = container.querySelector('fieldset')!;
+    expect(root.getAttribute('data-orientation')).toBe('horizontal');
+    expect(root.getAttribute('data-variant')).toBe('cards');
+    expect(container.querySelectorAll('[data-part="item"].my-card')).toHaveLength(3);
+  });
+
+  it('passes id and name through and consumes color', () => {
+    const { container } = render(Radio, {
+      props: { options, id: 'size', name: 'size', color: 'primary' },
+    });
+    const root = container.querySelector('fieldset')!;
+    expect(root.id).toBe('size');
+    expect(root.hasAttribute('color')).toBe(false);
+    const radios = screen.getAllByRole('radio') as HTMLInputElement[];
+    expect(radios.every((radio) => radio.name === 'size')).toBe(true);
+  });
+
+  it('shows the error and marks the radios invalid', () => {
+    render(Radio, { props: { options, error: 'Pick a size.' } });
+    expect(screen.getByText('Pick a size.')).toBeTruthy();
+    expect(screen.getAllByRole('radio')[0]!.getAttribute('aria-invalid')).toBe('true');
+  });
+
+  it('supports v-model', async () => {
+    const { emitted } = render(Radio, { props: { options, modelValue: 'sm' } });
+    expect((screen.getAllByRole('radio')[0] as HTMLInputElement).checked).toBe(true);
+    await fireEvent.click(screen.getAllByRole('radio')[1]!);
+    expect(emitted()['update:modelValue']).toEqual([['md']]);
   });
 });

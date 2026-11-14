@@ -150,4 +150,23 @@ describe('FeatureToggles', () => {
     expect(secondChat.checked).toBe(true);
     expect(screen.queryByRole('alert')).toBeNull();
   });
+
+  it('translates the loading and empty text through labels', async () => {
+    const load = deferred<{ features: AiFeature[] }>();
+    const client = createMockClient({ getFeatures: vi.fn().mockReturnValue(load.promise) });
+
+    render(FeatureToggles, {
+      props: { client, labels: { loading: 'Chargement…', empty: 'Aucune fonctionnalité.' } },
+    });
+
+    expect(screen.getByText('Chargement…')).toBeTruthy();
+    load.resolve({ features: [] });
+    expect(await screen.findByText('Aucune fonctionnalité.')).toBeTruthy();
+  });
+
+  it('translates the fallback error', async () => {
+    const client = createMockClient({ getFeatures: vi.fn().mockRejectedValue(null) });
+    render(FeatureToggles, { props: { client, labels: { genericError: 'Erreur inconnue.' } } });
+    expect(await screen.findByText('Erreur inconnue.')).toBeTruthy();
+  });
 });

@@ -10,6 +10,7 @@ import type {
 } from '../types';
 import { AiApiError } from '../createAiApiClient';
 import { errorMessage } from '../errorMessage';
+import { SETTINGS_PAGE_LABELS, type SettingsPageLabels } from '../labels';
 import Alert from '../../feedback/Alert/Alert.vue';
 import Loading from '../../feedback/Loading/Loading.vue';
 import Button from '../../form/Button/Button.vue';
@@ -31,12 +32,17 @@ interface Props {
   providers?: string[];
   /** Optional heading rendered above the form. */
   heading?: string;
+  /** Built-in text, merged over the English defaults; translate it. */
+  labels?: Partial<SettingsPageLabels>;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   providers: () => ['openai', 'anthropic', 'ollama'],
   heading: undefined,
+  labels: undefined,
 });
+
+const text = computed<SettingsPageLabels>(() => ({ ...SETTINGS_PAGE_LABELS, ...props.labels }));
 
 interface FormState {
   provider: string;
@@ -69,6 +75,9 @@ let loadSeq = 0;
 // Bumped whenever the credentials change, so a probe only reports on the
 // credentials it actually tested.
 let testSeq = 0;
+// Bumped on every save and every load, so a save answered after the client
+// changed (or after a newer save) can't put the old settings in the form.
+let saveSeq = 0;
 
 function toFormState(response: AiSettingsResponse): void {
   form.provider = response.credentials.provider;
@@ -108,6 +117,7 @@ const isOllama = computed(() => form.provider === 'ollama');
 async function loadSettings(): Promise<void> {
   const seq = ++loadSeq;
   invalidateTest();
+  retireSave();
   loading.value = true;
   loadError.value = null;
   initial.value = null;
@@ -119,7 +129,7 @@ async function loadSettings(): Promise<void> {
     toFormState(response);
   } catch (err) {
     if (seq !== loadSeq) return;
-    loadError.value = errorMessage(err);
+    loadError.value = errorMessage(err, text.value.genericError);
   } finally {
     if (seq === loadSeq) loading.value = false;
   }
@@ -130,7 +140,14 @@ watch(() => props.client, loadSettings, { immediate: true });
 onScopeDispose(() => {
   loadSeq++;
   testSeq++;
+  saveSeq++;
 });
+
+/** Retires an in-flight save, so its response is ignored. */
+function retireSave(): void {
+  saveSeq++;
+  saving.value = false;
+}
 
 /** Clears any probe result, and retires an in-flight probe, when credentials change. */
 function invalidateTest(): void {
@@ -150,27 +167,30 @@ function handleProviderChange(provider: string): void {
 }
 
 async function handleSubmit(): Promise<void> {
+  const seq = ++saveSeq;
   saving.value = true;
   errors.value = {};
   status.value = null;
   try {
     const response = await props.client.updateSettings(toUpdatePayload());
+    if (seq !== saveSeq) return;
     invalidateTest();
     initial.value = response;
     toFormState(response);
-    status.value = 'Settings saved.';
+    status.value = text.value.saved;
     statusVariant.value = 'success';
   } catch (err) {
+    if (seq !== saveSeq) return;
     statusVariant.value = 'error';
     if (err instanceof AiApiError && err.status === 422) {
       const body = err.body as { errors?: Record<string, string[]>; message?: string };
       errors.value = body?.errors ?? {};
       status.value = body?.message ?? err.message;
     } else {
-      status.value = errorMessage(err);
+      status.value = errorMessage(err, text.value.genericError);
     }
   } finally {
-    saving.value = false;
+    if (seq === saveSeq) saving.value = false;
   }
 }
 
@@ -193,7 +213,7 @@ async function handleTest(): Promise<void> {
         message: err.message,
       };
     } else {
-      result = { result: 'error', message: errorMessage(err) };
+      result = { result: 'error', message: errorMessage(err, text.value.genericError) };
     }
   }
   if (seq !== testSeq) return;
@@ -203,16 +223,18 @@ async function handleTest(): Promise<void> {
 </script>
 
 <template>
-  <Loading v-if="loading" size="sm"> Loading AI settings… </Loading>
+  <Loading v-if="loading" size="sm">{{ text.loading }}</Loading>
 
   <Alert
     v-else-if="loadError !== null || initial === null"
     color="error"
-    title="The AI settings couldn't be loaded."
+    :title="text.loadError"
     :description="loadError ?? undefined"
   >
     <template #actions>
-      <Button variant="outline" color="neutral" size="sm" @click="loadSettings"> Retry </Button>
+      <Button variant="outline" color="neutral" size="sm" @click="loadSettings">
+        {{ text.retry }}
+      </Button>
     </template>
   </Alert>
 
@@ -227,9 +249,9 @@ async function handleTest(): Promise<void> {
       :description="status"
     />
 
-    <Fieldset title="Credentials" :disabled="saving">
+    <Fieldset :title="text.credentials" :disabled="saving">
       <Select
-        label="Provider"
+        :label="text.provider"
         :options="props.providers"
         :model-value="form.provider"
         :error="fieldError('provider')"
@@ -239,18 +261,18 @@ async function handleTest(): Promise<void> {
       <Password
         v-if="!isOllama"
         v-model="form.api_key"
-        label="API key"
-        :hint="apiKeyPresent ? 'Leave blank to keep the stored key.' : undefined"
+        :label="text.apiKey"
+        :hint="apiKeyPresent ? text.apiKeyKeepHint : undefined"
         autocomplete="new-password"
-        :placeholder="apiKeyPresent ? '••••••••' : 'sk-…'"
+        :placeholder="apiKeyPresent ? '••••••••' : text.apiKeyPlaceholder"
         :error="fieldError('api_key')"
       />
 
       <Input
         v-model="form.base_url"
         type="url"
-        label="Base URL"
-        :hint="isOllama ? 'Required for Ollama.' : 'Optional.'"
+        :label="text.baseUrl"
+        :hint="isOllama ? text.baseUrlRequiredHint : text.baseUrlOptionalHint"
         :required="isOllama"
         :placeholder="isOllama ? 'http://localhost:11434' : 'https://api.example.com/v1'"
         :error="fieldError('base_url')"
@@ -258,14 +280,14 @@ async function handleTest(): Promise<void> {
 
       <Input
         v-model="form.default_model"
-        label="Default model"
-        placeholder="gpt-4o-mini"
+        :label="text.defaultModel"
+        :placeholder="text.defaultModelPlaceholder"
         :error="fieldError('default_model')"
       />
 
       <Stack orientation="horizontal" gap="2" align="center" wrap>
         <Button variant="outline" color="neutral" size="sm" :loading="testing" @click="handleTest">
-          Test connection
+          {{ text.testConnection }}
         </Button>
         <Text
           v-if="testResult"
@@ -274,12 +296,12 @@ async function handleTest(): Promise<void> {
           role="status"
           :tone="testResult.result === 'ok' ? 'success' : 'error'"
         >
-          {{ testResult.message ?? (testResult.result === 'ok' ? 'OK' : 'Failed') }}
+          {{ testResult.message ?? (testResult.result === 'ok' ? text.testOk : text.testFailed) }}
         </Text>
       </Stack>
     </Fieldset>
 
-    <Fieldset v-if="form.overrides.length > 0" title="Per-feature overrides" :disabled="saving">
+    <Fieldset v-if="form.overrides.length > 0" :title="text.overrides" :disabled="saving">
       <Card
         v-for="override in form.overrides"
         :key="override.feature_key"
@@ -288,13 +310,13 @@ async function handleTest(): Promise<void> {
         <Stack gap="3">
           <Input
             size="sm"
-            label="Model"
-            placeholder="inherit default"
+            :label="text.model"
+            :placeholder="text.modelPlaceholder"
             :model-value="override.model ?? ''"
             @update:model-value="(model) => (override.model = model === '' ? null : model)"
           />
           <Textarea
-            label="Instructions"
+            :label="text.instructions"
             :rows="3"
             :model-value="override.instructions ?? ''"
             @update:model-value="
@@ -306,7 +328,7 @@ async function handleTest(): Promise<void> {
     </Fieldset>
 
     <template #actions>
-      <Button type="submit" color="primary" :loading="saving"> Save settings </Button>
+      <Button type="submit" color="primary" :loading="saving">{{ text.save }}</Button>
     </template>
   </Form>
 </template>

@@ -3,7 +3,8 @@
  *
  * Layout components for the ArtisanPack UI Vue component library.
  * Provides structural containers, grid systems, overlays, and interactive
- * layout primitives built on DaisyUI with consistent styling and accessibility.
+ * layout primitives on the ArtisanPack UI design system, styled by
+ * `@artisanpack-ui/css`.
  *
  * @example
  * ```vue
