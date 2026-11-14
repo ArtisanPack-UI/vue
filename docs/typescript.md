@@ -5,7 +5,7 @@ menu_order: 8
 
 # TypeScript
 
-Both packages are written in TypeScript and ship their declarations. Every entry has its own: the root and each subpath (`/form`, `/layout`, `/navigation`, `/display`, `/data`, `/feedback`, `/utility`, `/composables`, `/ai`), so imports from a subpath are typed too. Use Vue's language tools (Vue - Official in the editor, `vue-tsc` on the command line) to type-check props, events and slots in templates.
+Both packages are written in TypeScript and ship their declarations. Every entry has its own: the root and each subpath (`/form`, `/layout`, `/navigation`, `/display`, `/data`, `/feedback`, `/utility`, `/composables`, `/ai`), so imports from a subpath are typed too. The declarations use explicit relative paths, so they resolve under any `moduleResolution`: `bundler`, `node16` or `nodenext`. Use Vue's language tools (Vue - Official in the editor, `vue-tsc` on the command line) to type-check props, events and slots in templates.
 
 ## Component types
 
@@ -29,6 +29,8 @@ const columns: TableColumn[] = [
 
 const saveButton: ButtonProps = { color: 'primary', leadingIcon: 'check' };
 ```
+
+The 1.x shared types `DaisyColor`, `Size`, `GlassProps`, `ColorProps` and `FormFieldProps` are gone in 2.0; use each component's own types instead.
 
 The composables export `Breakpoint`, `BreakpointContext`, `ColorScheme` and `ThemeContextValue`. The plugin exports `ArtisanPackUIOptions`. The AI subpath exports its API types; see [AI Components](Ai-Components). `@artisanpack-ui/vue-laravel` exports the Laravel types; see [Laravel and Inertia](Laravel-Inertia).
 
