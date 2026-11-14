@@ -36,7 +36,7 @@
     "artisanpack"
   ],
   "scripts": {
-    "build": "tsup && vue-tsc --project tsconfig.build.json",
+    "build": "tsup && vue-tsc --project tsconfig.build.json && node ../../scripts/fix-declaration-specifiers.mjs dist",
     "type-check": "vue-tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
