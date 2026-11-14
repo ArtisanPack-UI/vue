@@ -8,7 +8,7 @@ menu_order: 2
 ## Install
 
 ```bash
-npm install @artisanpack-ui/vue @artisanpack-ui/css
+npm install @artisanpack-ui/vue@^2 @artisanpack-ui/css
 ```
 
 Vue 3.5 or later is a peer dependency. The behavior engine (`@artisanpack-ui/behavior`) and `@zag-js/vue` are installed with the package.
