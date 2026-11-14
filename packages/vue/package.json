@@ -1,6 +1,6 @@
 {
   "name": "@artisanpack-ui/vue",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "80+ Vue 3 UI components for the ArtisanPack UI ecosystem, built on the ArtisanPack UI design system and styled by @artisanpack-ui/css",
   "type": "module",
   "main": "./dist/index.mjs",
