@@ -64,9 +64,10 @@ The components depend on the `AiApiClient` interface, not on `fetch`. If your ap
 ## Shared behavior
 
 - **Changing `client` reloads.** Each component loads its data when it mounts and again whenever the `client` prop changes.
-- **The latest request wins.** A response to a request that has been replaced (by a new client, a new date range, or a newer load) is ignored, so a slow response never overwrites newer data.
+- **The latest request wins.** A response to a request that has been replaced (by a new client, a new date range, or a newer load or save) is ignored, so a slow response never overwrites newer data. This covers saves too: a save answered after `client` changed doesn't overwrite the new client's settings.
 - **Failures are shown, not thrown.** Load and save errors appear in an Alert with the error's message. A rejection that isn't an `Error` (a string, `null`) still shows a readable message.
 - **`heading`** adds a heading above the component.
+- **Every built-in string is a label.** Each component takes a `labels` prop with any of its keys, merged over the English defaults, so you can translate them. See [Translating the text](#translating-the-text).
 
 ## SettingsPage
 
@@ -80,11 +81,12 @@ The credentials and per-feature overrides form, backed by `GET` and `PUT /settin
 />
 ```
 
-| Prop        | Type          | Default                             | Description              |
-| ----------- | ------------- | ----------------------------------- | ------------------------ |
-| `client`    | `AiApiClient` |                                     | Required                 |
-| `providers` | `string[]`    | `['openai', 'anthropic', 'ollama']` | The provider options     |
-| `heading`   | `string`      |                                     | A heading above the form |
+| Prop        | Type                          | Default                             | Description              |
+| ----------- | ----------------------------- | ----------------------------------- | ------------------------ |
+| `client`    | `AiApiClient`                 |                                     | Required                 |
+| `providers` | `string[]`                    | `['openai', 'anthropic', 'ollama']` | The provider options     |
+| `heading`   | `string`                      |                                     | A heading above the form |
+| `labels`    | `Partial<SettingsPageLabels>` |                                     | The built-in text        |
 
 - **Load errors can be retried.** If the settings can't be loaded, the form isn't shown with empty values: an error Alert explains it, with a Retry button that loads them again.
 - **The stored key is never shown.** The API only reports whether a key is stored. The API key field starts empty, and saving it empty keeps the stored key. The field is hidden for Ollama, which takes a base URL instead.
@@ -107,13 +109,14 @@ Totals, a per-feature table and a daily table, backed by `GET /usage`.
 />
 ```
 
-| Prop              | Type          | Default | Description                                      |
-| ----------------- | ------------- | ------- | ------------------------------------------------ |
-| `client`          | `AiApiClient` |         | Required                                         |
-| `from`            | `string`      |         | Start date, `YYYY-MM-DD`                         |
-| `to`              | `string`      |         | End date, `YYYY-MM-DD`                           |
-| `refreshInterval` | `number`      | `0`     | Milliseconds between refreshes. `0` doesn't poll |
-| `heading`         | `string`      |         | A heading above the dashboard                    |
+| Prop              | Type                            | Default | Description                                      |
+| ----------------- | ------------------------------- | ------- | ------------------------------------------------ |
+| `client`          | `AiApiClient`                   |         | Required                                         |
+| `from`            | `string`                        |         | Start date, `YYYY-MM-DD`                         |
+| `to`              | `string`                        |         | End date, `YYYY-MM-DD`                           |
+| `refreshInterval` | `number`                        | `0`     | Milliseconds between refreshes. `0` doesn't poll |
+| `heading`         | `string`                        |         | A heading above the dashboard                    |
+| `labels`          | `Partial<UsageDashboardLabels>` |         | The built-in text                                |
 
 - **Polling waits for each response.** The next refresh is scheduled only once the previous one has settled, so a slow response is never overtaken by the one after it.
 - **A failed refresh keeps the figures.** If a refresh fails after data has loaded, the last figures stay, with a warning Alert saying they couldn't be refreshed. The next successful refresh clears it.
@@ -128,10 +131,11 @@ A switch per registered AI feature, backed by `GET /features` and `POST /feature
 <FeatureToggles :client="client" heading="Features" @toggle="onToggle" />
 ```
 
-| Prop      | Type          | Description              |
-| --------- | ------------- | ------------------------ |
-| `client`  | `AiApiClient` | Required                 |
-| `heading` | `string`      | A heading above the list |
+| Prop      | Type                            | Description              |
+| --------- | ------------------------------- | ------------------------ |
+| `client`  | `AiApiClient`                   | Required                 |
+| `heading` | `string`                        | A heading above the list |
+| `labels`  | `Partial<FeatureTogglesLabels>` | The built-in text        |
 
 | Event    | Payload                                            | When                    |
 | -------- | -------------------------------------------------- | ----------------------- |
@@ -140,6 +144,20 @@ A switch per registered AI feature, backed by `GET /features` and `POST /feature
 - **Switches flip at once** and are disabled while their request runs. If the request fails, the switch flips back and an error Alert explains why; the next successful toggle clears it.
 - **`toggle` follows the save.** It isn't emitted when a toggle fails. An error thrown by your listener is logged, and doesn't roll the switch back, because the change was already saved.
 - When no features are registered, an empty state says so.
+
+## Translating the text
+
+Pass `labels` with the keys you want to change. Anything you leave out keeps its English default. Here the strings come from vue-i18n's `$t`:
+
+```vue
+<SettingsPage
+  :client="client"
+  :labels="{ save: $t('ai.save'), retry: $t('ai.retry'), loading: $t('ai.loading') }"
+/>
+<UsageDashboard :client="client" :labels="{ live: $t('ai.live') }" />
+```
+
+The keys are typed by `SettingsPageLabels`, `UsageDashboardLabels` and `FeatureTogglesLabels`, exported from `@artisanpack-ui/vue/ai`. They cover every visible string: headings, field labels, hints and placeholders, table headers, stat labels, the Retry button, loading and empty states, and the fallback error message. `UsageDashboard`'s `live` status takes a `:seconds` placeholder for the refresh interval.
 
 ## useStreamingText
 
@@ -177,4 +195,4 @@ The AI package's REST API has no streaming route. Point `start()` at an endpoint
 
 ## Types
 
-`@artisanpack-ui/vue/ai` exports the client and response types: `AiApiClient`, `CreateAiApiClientOptions`, `AiCredentials`, `AiSettingsResponse`, `AiSettingsUpdate`, `AiFeatureOverride`, `AiFeature`, `AiConnectionTestResult`, `AiUsageResponse`, `AiUsageTotals`, `AiUsageByFeature`, `AiUsageDaily`, `AiValidationError` and `UseStreamingTextResult`, along with the `AiApiError` class.
+`@artisanpack-ui/vue/ai` exports the client and response types: `AiApiClient`, `CreateAiApiClientOptions`, `AiCredentials`, `AiSettingsResponse`, `AiSettingsUpdate`, `AiFeatureOverride`, `AiFeature`, `AiConnectionTestResult`, `AiUsageResponse`, `AiUsageTotals`, `AiUsageByFeature`, `AiUsageDaily`, `AiValidationError` and `UseStreamingTextResult`, the label types `SettingsPageLabels`, `UsageDashboardLabels` and `FeatureTogglesLabels`, and the `AiApiError` class.
