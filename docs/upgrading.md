@@ -54,4 +54,16 @@ DaisyUI themes become token-based presets. Generate one from your brand colors w
 
 ## 5. Check the renamed components
 
-The codemod renames components for you. The 1.x names that remain as deprecated aliases are listed in [Components](Components), and they'll be removed in the next major.
+The codemod renames components for you. The 1.x names that remain as deprecated aliases are listed in [Components](Components), and they'll be removed in the next major. Each alias renders its 2.0 replacement and warns once in development. Props with no equivalent, such as Modal's `bottom` or Sidebar's `open`, are ignored, so check those screens.
+
+The 1.x shared types `DaisyColor`, `Size`, `GlassProps`, `ColorProps` and `FormFieldProps` are gone. Use each component's own types; see [TypeScript](Typescript).
+
+## 6. Laravel and Inertia
+
+If you use `@artisanpack-ui/vue-laravel`:
+
+- `FlashToasts` renders its own `Toaster` and no longer needs a `ToastProvider` around it. Pass `:region="false"` if the page already renders a `Toaster`.
+- Flash colors are toast colors (`FlashToastColor`). The plugin's `flashColorMap` now applies to every flash toast, and a component's own `colorMap` wins over it.
+- `InertiaBreadcrumbs` and the layouts render design-system markup and no longer need Tailwind. `InertiaBreadcrumbs` collapses trails longer than four items; set `:max-items="0"` to keep the full trail.
+
+See [Laravel and Inertia](Laravel-Inertia).
