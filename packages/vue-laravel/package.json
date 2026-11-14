@@ -42,8 +42,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@artisanpack-ui/vue": "*",
-    "@artisanpack-ui/tokens": "^1.0.1"
+    "@artisanpack-ui/vue": "^1.0.0"
   },
   "devDependencies": {
     "@inertiajs/vue3": "^2.0.0",

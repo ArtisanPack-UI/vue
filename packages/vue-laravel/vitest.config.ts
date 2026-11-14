@@ -9,7 +9,7 @@ export default defineConfig({
         new URL('../vue/src/index.ts', import.meta.url).pathname,
       ),
     },
-    // As in packages/vue: the linked design-system packages share this
+    // As in packages/vue: the design-system packages share this
     // repo's Vue and Zag Vue adapter instead of loading second copies.
     dedupe: ['vue', '@zag-js/vue'],
   },

@@ -7,7 +7,7 @@ export default defineConfig({
   dts: false,
   clean: true,
   sourcemap: true,
-  external: ['vue', '@inertiajs/vue3', '@artisanpack-ui/vue', '@artisanpack-ui/tokens'],
+  external: ['vue', '@inertiajs/vue3', '@artisanpack-ui/vue'],
   outExtension: () => ({ js: '.mjs' }),
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   esbuildPlugins: [vue() as any],

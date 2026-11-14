@@ -4,10 +4,9 @@ import vue from '@vitejs/plugin-vue';
 export default defineConfig({
   plugins: [vue()],
   resolve: {
-    // The design-system packages are linked from outside this repo, so make
-    // them share this repo's Vue (and Zag's Vue adapter, which the behavior
-    // package imports) instead of loading second copies, whose reactivity
-    // wouldn't see this repo's refs.
+    // Make the design-system packages share this repo's Vue (and Zag's Vue
+    // adapter, which the behavior package imports) instead of loading second
+    // copies, whose reactivity wouldn't see this repo's refs.
     dedupe: ['vue', '@zag-js/vue'],
   },
   test: {

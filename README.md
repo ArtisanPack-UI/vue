@@ -51,7 +51,6 @@ Requires Vue 3.5 or later. Coming from 1.x? DaisyUI is no longer used; see [Upgr
 ## Development
 
 ```bash
-scripts/checkout-design-system.sh --build   # the design-system packages, at ../design-system
 npm ci
 npm run build
 npm test
