@@ -46,9 +46,9 @@ import { ThemeToggle } from '@artisanpack-ui/vue';
 | `icon`                | One button that switches between light and dark |
 | `menu`                | A menu button with the choices as radio items   |
 
-Without `v-model`, the toggle starts on the stored choice, else the one `ThemeScript` applied, else `system`. With `v-model`, a pick only emits `update:modelValue`; the toggle applies and stores a value when the bound value changes to it. Set `:persist="false"` to skip storage, and `storage-key` to change the `localStorage` key (use the same key on `ThemeScript`). Every label is a prop, so you can translate them. See [ThemeToggle](https://docs.artisanpackui.dev/documentation/design-system/components/theme-toggle) for all props.
+Without `v-model`, the toggle starts on the stored choice, else the one `ThemeScript` applied, else `system`. Under `provideTheme()` with nothing stored, the provider's preference comes before `ThemeScript`'s choice, and the toggle applies it after mount. With `v-model`, a pick only emits `update:modelValue`; the toggle applies and stores a value when the bound value changes to it. Set `:persist="false"` to skip storage, and `storage-key` to change the `localStorage` key (use the same key on `ThemeScript`). Every label is a prop, so you can translate them. See [ThemeToggle](https://docs.artisanpackui.dev/documentation/design-system/components/theme-toggle) for all props.
 
-To set the theme from code, use `applyTheme()` from `@artisanpack-ui/behavior`; every toggle on the page follows it.
+To set the theme from code, use `applyTheme()` from `@artisanpack-ui/behavior`; every unbound toggle on the page follows it. A toggle bound with `v-model` keeps showing its bound value, so update that value too.
 
 ## ThemeScript
 
