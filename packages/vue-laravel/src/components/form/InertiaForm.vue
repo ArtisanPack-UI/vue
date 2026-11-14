@@ -55,6 +55,23 @@ function handleSubmit() {
 }
 
 defineExpose({ form, getError, clearErrors, processing, recentlySuccessful, isDirty, submit });
+
+defineSlots<{
+  /**
+   * The form's content. `processing`, `recentlySuccessful` and `isDirty` are
+   * plain booleans (the template unwraps the refs), so `:loading="processing"`
+   * follows the submission.
+   */
+  default?: (props: {
+    form: typeof form;
+    getError: typeof getError;
+    clearErrors: typeof clearErrors;
+    processing: boolean;
+    recentlySuccessful: boolean;
+    isDirty: boolean;
+    submit: typeof submit;
+  }) => unknown;
+}>();
 </script>
 
 <template>
