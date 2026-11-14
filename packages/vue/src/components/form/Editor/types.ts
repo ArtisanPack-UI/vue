@@ -1,16 +1,15 @@
 /**
- * Props for the Editor component.
+ * Props for the deprecated Editor component.
  *
- * Provides a monospace-styled textarea suitable for code or structured text editing.
- *
- * @deprecated Use CodeEditor, the design-system replacement (#53).
+ * @deprecated Use `CodeEditor` (#53). Editor renders a CodeEditor with the
+ * same props; CodeEditor's own props pass through.
  */
 export interface EditorProps {
   /** Text label displayed above the editor. */
   label?: string;
-  /** Helper text displayed below the editor. Hidden when `error` is present. */
+  /** Help text under the editor. */
   hint?: string;
-  /** Error message displayed below the editor. Replaces `hint` when present. */
+  /** Validation message. Marks the field invalid. */
   error?: string;
   /** Custom id for the textarea element. */
   id?: string;
@@ -18,7 +17,7 @@ export interface EditorProps {
   required?: boolean;
   /** Placeholder text. */
   placeholder?: string;
-  /** Number of visible text rows. @defaultValue `12` */
+  /** The fewest lines shown; the editor grows with its content. @defaultValue `12` */
   rows?: number;
   /** Whether the field is disabled. */
   disabled?: boolean;

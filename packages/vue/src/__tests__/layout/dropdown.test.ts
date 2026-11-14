@@ -1,245 +1,132 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/vue';
-import { nextTick } from 'vue';
+import { defineComponent, h, nextTick, ref } from 'vue';
 import { Dropdown, DropdownItem } from '../../components/layout';
 
-describe('Dropdown', () => {
-  it('renders with default label', () => {
+const partOf = (name: string) =>
+  document.body.querySelector<HTMLElement>(`[data-scope="dropdown-menu"][data-part="${name}"]`);
+const panel = () => document.body.querySelector<HTMLElement>('.apui-dropdown-menu')!;
+const trigger = () => partOf('trigger')!;
+
+/** Lets the machine's effects run (focus, dismissal listeners). */
+const settle = async () => {
+  await nextTick();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  await nextTick();
+};
+
+describe('Dropdown (deprecated alias of DropdownMenu)', () => {
+  it('warns once per component in development that it is deprecated', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    render(Dropdown, { slots: { default: () => h(DropdownItem, () => 'One') } });
+    render(Dropdown, { slots: { default: () => h(DropdownItem, () => 'Two') } });
+    const messages = warn.mock.calls.map(([message]) => String(message));
+    expect(messages.filter((m) => m.includes('Dropdown is deprecated'))).toHaveLength(1);
+    expect(messages.filter((m) => m.includes('DropdownItem is deprecated'))).toHaveLength(1);
+    warn.mockRestore();
+  });
+
+  it('renders the design-system DropdownMenu, with no DaisyUI markup', () => {
     render(Dropdown);
-    expect(screen.getByText('Options')).toBeTruthy();
+    const button = screen.getByRole('button', { name: 'Options' });
+    expect(button).toBe(trigger());
+    expect(button.classList.contains('apui-button')).toBe(true);
+    expect(button.getAttribute('aria-haspopup')).toBe('menu');
+    expect(button.getAttribute('aria-expanded')).toBe('false');
+    expect(panel().getAttribute('role')).toBe('menu');
+    expect(document.body.querySelector('.dropdown, .dropdown-content, .btn')).toBeNull();
   });
 
-  it('renders with custom label', () => {
-    render(Dropdown, { props: { label: 'Menu' } });
-    expect(screen.getByText('Menu')).toBeTruthy();
+  it('maps label and the trigger slot to the trigger content', () => {
+    const labelled = render(Dropdown, { props: { label: 'Menu' } });
+    expect(screen.getByRole('button', { name: 'Menu' })).toBeTruthy();
+    labelled.unmount();
+    render(Dropdown, { slots: { trigger: 'Actions' } });
+    expect(screen.getByRole('button', { name: 'Actions' })).toBeTruthy();
   });
 
-  it('has correct ARIA attributes on trigger', () => {
-    render(Dropdown);
-    const trigger = screen.getByRole('button');
-    expect(trigger.getAttribute('aria-haspopup')).toBe('menu');
-    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+  it('maps end to align="end" and consumes top and hover', () => {
+    render(Dropdown, { props: { end: true, top: true, hover: true } });
+    expect(panel().getAttribute('data-align')).toBe('end');
+    expect(panel().hasAttribute('top')).toBe(false);
+    expect(panel().hasAttribute('hover')).toBe(false);
   });
 
-  it('has menu role on dropdown content', () => {
-    const { container } = render(Dropdown, {
-      props: { open: true },
-      slots: { default: '<li>Item</li>' },
+  it('passes DropdownMenu props through', () => {
+    render(Dropdown, { attrs: { surface: 'glass' } });
+    expect(panel().getAttribute('data-surface')).toBe('glass');
+  });
+
+  it('opens from the trigger without v-model and reports it', async () => {
+    const { emitted } = render(Dropdown, {
+      slots: { default: () => h(DropdownItem, () => 'Edit') },
     });
-    expect(container.querySelector('[role="menu"]')).toBeTruthy();
+    await fireEvent.click(trigger());
+    await settle();
+    expect(emitted('update:open')).toEqual([[true]]);
+    expect(panel().hidden).toBe(false);
   });
 
-  it('applies dropdown-end class', () => {
-    const { container } = render(Dropdown, { props: { end: true } });
-    expect(container.querySelector('.dropdown-end')).toBeTruthy();
-  });
-
-  it('applies dropdown-top class', () => {
-    const { container } = render(Dropdown, { props: { top: true } });
-    expect(container.querySelector('.dropdown-top')).toBeTruthy();
-  });
-
-  it('opens on hover when hover prop is true', async () => {
-    const { container } = render(Dropdown, { props: { hover: true } });
-    const dropdown = container.firstElementChild!;
-    await fireEvent.mouseEnter(dropdown);
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
-
-    await fireEvent.mouseLeave(dropdown);
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeFalsy();
-  });
-
-  it('toggles open on trigger click in uncontrolled mode', async () => {
-    const { container } = render(Dropdown);
-    const trigger = screen.getByRole('button');
-
-    await fireEvent.click(trigger);
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
-
-    await fireEvent.click(trigger);
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeFalsy();
-  });
-
-  it('renders slot content', () => {
-    render(Dropdown, {
-      props: { open: true },
-      slots: { default: '<li>Test Item</li>' },
-    });
-    expect(screen.getByText('Test Item')).toBeTruthy();
-  });
-
-  it('opens on Enter key and sets aria-expanded', async () => {
-    const { container } = render(Dropdown);
-    const trigger = screen.getByRole('button');
-    await fireEvent.keyDown(trigger, { key: 'Enter' });
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
-    expect(trigger.getAttribute('aria-expanded')).toBe('true');
-  });
-
-  it('opens on Space key', async () => {
-    const { container } = render(Dropdown);
-    const trigger = screen.getByRole('button');
-    await fireEvent.keyDown(trigger, { key: ' ' });
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
-  });
-
-  it('navigates menu items with arrow keys', async () => {
-    const { container } = render(Dropdown, {
-      slots: {
-        default: `
-          <li role="none"><button role="menuitem">A</button></li>
-          <li role="none"><button role="menuitem">B</button></li>
-          <li role="none"><button role="menuitem">C</button></li>
-        `,
-      },
-    });
-    const trigger = screen.getByRole('button');
-    await fireEvent.click(trigger);
-    await nextTick();
-
-    const menu = container.querySelector('[role="menu"]') as HTMLElement;
-    const items = container.querySelectorAll('[role="menuitem"]');
-
-    // First item should be focused after open
-    expect(document.activeElement).toBe(items[0]);
-
-    await fireEvent.keyDown(menu, { key: 'ArrowDown' });
-    expect(document.activeElement).toBe(items[1]);
-
-    await fireEvent.keyDown(menu, { key: 'ArrowDown' });
-    expect(document.activeElement).toBe(items[2]);
-
-    // Wrap around to first
-    await fireEvent.keyDown(menu, { key: 'ArrowDown' });
-    expect(document.activeElement).toBe(items[0]);
-
-    await fireEvent.keyDown(menu, { key: 'End' });
-    expect(document.activeElement).toBe(items[2]);
-
-    await fireEvent.keyDown(menu, { key: 'Home' });
-    expect(document.activeElement).toBe(items[0]);
-
-    await fireEvent.keyDown(menu, { key: 'ArrowUp' });
-    expect(document.activeElement).toBe(items[2]);
-  });
-
-  it('closes on Escape and restores focus to trigger', async () => {
-    const { container } = render(Dropdown, {
-      slots: {
-        default: `
-          <li role="none"><button role="menuitem">Item 1</button></li>
-          <li role="none"><button role="menuitem">Item 2</button></li>
-        `,
-      },
-    });
-    const trigger = screen.getByRole('button');
-    await fireEvent.click(trigger);
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
-
-    const menu = container.querySelector('[role="menu"]') as HTMLElement;
-    await fireEvent.keyDown(menu, { key: 'Escape' });
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeFalsy();
-    expect(document.activeElement).toBe(trigger);
-  });
-
-  it('closes when a menu item is clicked', async () => {
-    const { container } = render(Dropdown, {
-      slots: {
-        default: `
-          <li role="none"><button role="menuitem">Item 1</button></li>
-          <li role="none"><button role="menuitem">Item 2</button></li>
-        `,
-      },
-    });
-    const trigger = screen.getByRole('button');
-    await fireEvent.click(trigger);
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
-
-    const menuItem = screen.getByText('Item 1');
-    await fireEvent.click(menuItem);
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeFalsy();
-  });
-
-  it('closes when a menu item is activated via keyboard', async () => {
-    const { container } = render(Dropdown, {
-      slots: {
-        default: `
-          <li role="none"><button role="menuitem">Action A</button></li>
-          <li role="none"><button role="menuitem">Action B</button></li>
-        `,
-      },
-    });
-    const trigger = screen.getByRole('button');
-    await fireEvent.click(trigger);
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
-
-    const items = container.querySelectorAll('[role="menuitem"]');
-    expect(document.activeElement).toBe(items[0]);
-
-    // Native click fires on Enter keyup for buttons — simulate the click
-    await fireEvent.click(items[0]);
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeFalsy();
-  });
-
-  it('closes on click outside', async () => {
-    const { container } = render(Dropdown);
-    const trigger = screen.getByRole('button');
-    await fireEvent.click(trigger);
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeTruthy();
-
-    await fireEvent.mouseDown(document.body);
-    await nextTick();
-    expect(container.querySelector('.dropdown-open')).toBeFalsy();
+  it('follows v-model:open', async () => {
+    const open = ref(true);
+    render(
+      defineComponent({
+        setup: () => () =>
+          h(Dropdown, { open: open.value, 'onUpdate:open': (v: boolean) => (open.value = v) }, () =>
+            h(DropdownItem, () => 'Edit'),
+          ),
+      }),
+    );
+    await settle();
+    expect(panel().hidden).toBe(false);
+    open.value = false;
+    await settle();
+    expect(panel().hidden).toBe(true);
   });
 });
 
-describe('DropdownItem', () => {
-  it('renders as a button with menuitem role', () => {
-    const { container } = render(DropdownItem, { slots: { default: 'Click me' } });
-    const btn = container.querySelector('[role="menuitem"]');
-    expect(btn).toBeTruthy();
-    expect(btn?.tagName).toBe('BUTTON');
-  });
-
-  it('renders slot content', () => {
-    render(DropdownItem, { slots: { default: 'Item Text' } });
-    expect(screen.getByText('Item Text')).toBeTruthy();
-  });
-
-  it('disables the button when disabled is true', () => {
-    const { container } = render(DropdownItem, {
-      props: { disabled: true },
-      slots: { default: 'Disabled' },
+describe('DropdownItem (deprecated alias of DropdownMenuItem)', () => {
+  it('renders a menu item and emits click when chosen', async () => {
+    const onClick = vi.fn();
+    render(Dropdown, {
+      props: { open: true },
+      slots: { default: () => h(DropdownItem, { onClick }, () => 'Edit') },
     });
-    const btn = container.querySelector('button') as HTMLButtonElement;
-    expect(btn.disabled).toBe(true);
+    await settle();
+    const item = screen.getByRole('menuitem', { name: 'Edit' });
+    expect(item.getAttribute('data-scope')).toBe('dropdown-menu');
+    await fireEvent.click(item);
+    await settle();
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 
-  it('sets aria-disabled when disabled', () => {
-    const { container } = render(DropdownItem, {
-      props: { disabled: true },
-      slots: { default: 'Disabled' },
+  it('reports its value through the menu select event', async () => {
+    const onSelect = vi.fn();
+    render(
+      defineComponent({
+        setup: () => () =>
+          h(Dropdown, { open: true }, () =>
+            h(DropdownItem, { value: 'archive', onSelect }, () => 'Archive'),
+          ),
+      }),
+    );
+    await settle();
+    await fireEvent.click(screen.getByRole('menuitem', { name: 'Archive' }));
+    await settle();
+    expect(onSelect).toHaveBeenCalledWith('archive');
+  });
+
+  it('is disabled and emits no click when disabled', async () => {
+    const onClick = vi.fn();
+    render(Dropdown, {
+      props: { open: true },
+      slots: { default: () => h(DropdownItem, { disabled: true, onClick }, () => 'Locked') },
     });
-    const btn = container.querySelector('[role="menuitem"]');
-    expect(btn?.getAttribute('aria-disabled')).toBe('true');
-  });
-
-  it('wraps button in li with role none', () => {
-    const { container } = render(DropdownItem, { slots: { default: 'Item' } });
-    const li = container.querySelector('li');
-    expect(li?.getAttribute('role')).toBe('none');
+    await settle();
+    const item = screen.getByRole('menuitem', { name: 'Locked' });
+    expect(item.getAttribute('aria-disabled')).toBe('true');
+    await fireEvent.click(item);
+    await settle();
+    expect(onClick).not.toHaveBeenCalled();
   });
 });

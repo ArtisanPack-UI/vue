@@ -9,7 +9,7 @@ import { useForm as inertiaUseForm } from '@inertiajs/vue3';
 import type { InertiaFormOptions } from '../types';
 
 /** Minimal form shape that we rely on from Inertia's useForm return value. */
-interface InertiaFormInstance<T> {
+export interface InertiaFormInstance<T> {
   errors: Partial<Record<keyof T, string>>;
   processing: boolean;
   recentlySuccessful: boolean;

@@ -4,94 +4,46 @@
 [![npm](https://img.shields.io/npm/v/@artisanpack-ui/vue-laravel)](https://www.npmjs.com/package/@artisanpack-ui/vue-laravel)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/ArtisanPack-UI/vue/blob/main/LICENSE)
 
-[Inertia.js](https://inertiajs.com/) adapter wrappers for [ArtisanPack UI Vue](https://www.npmjs.com/package/@artisanpack-ui/vue) components. Provides navigation, forms, feedback integration, and layout helpers for [Laravel](https://laravel.com/) applications.
+[Inertia.js](https://inertiajs.com/) wrappers for [`@artisanpack-ui/vue`](https://www.npmjs.com/package/@artisanpack-ui/vue) in [Laravel](https://laravel.com/) apps: form fields that show Laravel's validation errors, pagination from a Laravel paginator, menus and breadcrumbs that navigate with Inertia links, flash messages as toasts or alerts, and the signed-in user.
 
-## Installation
-
-```bash
-npm install @artisanpack-ui/vue-laravel @artisanpack-ui/vue @artisanpack-ui/tokens
-```
-
-### Peer Dependencies
+## Install
 
 ```bash
-npm install vue @inertiajs/vue3
+npm install @artisanpack-ui/vue-laravel @artisanpack-ui/css
 ```
 
-## Setup
+It depends on `@artisanpack-ui/vue`, and needs `vue` 3.5+ and `@inertiajs/vue3` 2.0+ as peer dependencies. Load `@artisanpack-ui/css` once in your app's entry.
 
-Import the tokens CSS in your Tailwind entry file:
-
-```css
-@import "tailwindcss";
-@import "@artisanpack-ui/tokens/css";
-```
-
-Register the plugin:
-
-```ts
-import { createApp } from 'vue';
-import { createArtisanPackUI } from '@artisanpack-ui/vue';
-import { createArtisanPackUILaravel } from '@artisanpack-ui/vue-laravel';
-import App from './App.vue';
-
-const app = createApp(App);
-app.use(createArtisanPackUI());
-app.use(createArtisanPackUILaravel());
-app.mount('#app');
-```
-
-## Usage
+## Use
 
 ```vue
 <script setup lang="ts">
-import { useInertiaForm } from '@artisanpack-ui/vue-laravel';
-import { Input, Button } from '@artisanpack-ui/vue';
-
-const { form, field } = useInertiaForm({ email: '', password: '' });
-
-function submit() {
-  form.post('/login');
-}
+import { Button } from '@artisanpack-ui/vue';
+import {
+  FlashToasts,
+  InertiaForm,
+  InertiaInput,
+  InertiaPassword,
+} from '@artisanpack-ui/vue-laravel';
 </script>
 
 <template>
-  <form @submit.prevent="submit">
-    <Input label="Email" v-bind="field('email')" />
-    <Input label="Password" type="password" v-bind="field('password')" />
-    <Button color="primary" :loading="form.processing">Log In</Button>
-  </form>
+  <FlashToasts />
+  <InertiaForm v-slot="{ form, processing }" :data="{ email: '', password: '' }" action="/login">
+    <InertiaInput v-model="form.email" name="email" label="Email" type="email" />
+    <InertiaPassword v-model="form.password" name="password" label="Password" />
+    <Button type="submit" color="primary" :loading="processing">Sign in</Button>
+  </InertiaForm>
 </template>
 ```
 
-## Features
-
-- **Navigation** - Inertia-aware Link and Navbar components with active state detection
-- **Forms** - `useInertiaForm` composable bridging Inertia's form helper with ArtisanPack UI inputs
-- **Layouts** - Persistent layout components for Inertia.js pages
-- **Feedback** - Toast provider that captures Inertia flash messages
-
-## Inertia.js Compatibility
-
-Supports Inertia.js v2.
-
-## Vue Compatibility
-
-Requires Vue 3.5+.
+Import components where you use them, or register them all with `app.use(createArtisanPackUILaravel())` (prefixed `Ap`; its `flashColorMap` option sets the flash toast colors app-wide).
 
 ## Documentation
 
-- [Laravel / Inertia Integration](https://github.com/ArtisanPack-UI/vue/wiki/Laravel-Inertia-Integration)
-- [Getting Started](https://github.com/ArtisanPack-UI/vue/wiki/Getting-Started)
-
-## Part of ArtisanPack UI
-
-| Package | Description |
-|---------|-------------|
-| [`@artisanpack-ui/tokens`](https://www.npmjs.com/package/@artisanpack-ui/tokens) | Design tokens, color resolver, glass helpers |
-| [`@artisanpack-ui/vue`](https://www.npmjs.com/package/@artisanpack-ui/vue) | 56+ Vue 3 UI components |
-| [`@artisanpack-ui/vue-laravel`](https://www.npmjs.com/package/@artisanpack-ui/vue-laravel) | Inertia.js adapter wrappers |
+- [Laravel and Inertia](https://docs.artisanpackui.dev/documentation/vue/laravel-inertia)
+- [Getting Started](https://docs.artisanpackui.dev/documentation/vue/getting-started)
 
 ## License
 
-[MIT](https://github.com/ArtisanPack-UI/vue/blob/main/LICENSE) - Jacob Martella
+[MIT](https://github.com/ArtisanPack-UI/vue/blob/main/LICENSE)

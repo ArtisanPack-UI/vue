@@ -3,8 +3,8 @@
  *
  * Navigation components for the ArtisanPack UI Vue component library.
  * Provides menus, breadcrumbs, pagination, step indicators, navbars,
- * sidebars, and command palette search built on DaisyUI with consistent
- * styling and accessibility.
+ * the application frame's sidebar and a command palette, on the ArtisanPack UI
+ * design system, styled by `@artisanpack-ui/css`.
  *
  * @example
  * ```vue

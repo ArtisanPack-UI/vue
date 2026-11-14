@@ -1,24 +1,27 @@
 /**
- * Represents a single searchable command/action in the spotlight.
+ * A searchable item of the deprecated SpotlightSearch.
+ *
+ * @deprecated Use Spotlight's `groups` of `SpotlightResult` items (#57).
  */
 export interface SpotlightItem {
-  /** Unique identifier for the item. */
+  /** Unique identifier for the item. Spotlight's `value`. */
   id: string;
   /** Display label for the item. */
   label: string;
   /** Optional description shown below the label. */
   description?: string;
-  /** Optional group name for categorization. */
+  /** Optional group name: items with the same name share a Spotlight group. */
   group?: string;
   /** Whether the item is disabled. @defaultValue `false` */
   disabled?: boolean;
 }
 
 /**
- * Props for the SpotlightSearch component.
+ * Props for the deprecated SpotlightSearch component.
  *
- * A command palette / search overlay triggered by Cmd+K (Mac) or Ctrl+K (Windows).
- * Provides keyboard navigation, fuzzy filtering, and grouped results.
+ * @deprecated Use `Spotlight` (#57). SpotlightSearch renders a Spotlight:
+ * `items` become its `groups` and `ariaLabel` its `label`. Spotlight's own
+ * props pass through.
  */
 export interface SpotlightSearchProps {
   /** Whether the spotlight is open. Use with `v-model:open`. */
@@ -27,8 +30,8 @@ export interface SpotlightSearchProps {
   items: SpotlightItem[];
   /** Placeholder text for the search input. @defaultValue `'Search…'` */
   placeholder?: string;
-  /** Label for screen readers. @defaultValue `'Search'` */
+  /** The palette's accessible name. Spotlight's `label`. @defaultValue `'Search'` */
   ariaLabel?: string;
-  /** Additional CSS classes for the modal container. */
+  /** Additional CSS classes for the panel. */
   className?: string;
 }

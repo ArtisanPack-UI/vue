@@ -18,3 +18,9 @@ Per-package changelogs are generated automatically by [Changesets](https://githu
 - `@artisanpack-ui/vue-laravel` - `createArtisanPackUILaravel` plugin
 - Root documentation: README, CONTRIBUTING, LICENSE, and `docs/` directory
 - `@artisanpack-ui/vue` - Design-system Dialog, DropdownMenu, Toast and Toaster (design-system #49 to #51); Modal, Dropdown and ToastProvider are deprecated
+- `@artisanpack-ui/vue` - The deprecated Modal, Dropdown, SpotlightSearch, Sidebar, Radio, Editor, ToastProvider and ToastMessage are aliases of their design-system replacements; the AI components take `labels`
+- `@artisanpack-ui/vue-laravel` - Flash toasts on `Toaster` and `toast.create()`, `flashColorMap` wired through, `InertiaRadioGroup` registered, InertiaBreadcrumbs and the layouts on the design system
+
+### Removed
+
+- `@artisanpack-ui/vue` - DaisyUI, and the 1.x `DaisyColor`, `Size`, `GlassProps`, `ColorProps` and `FormFieldProps` types

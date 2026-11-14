@@ -3,6 +3,7 @@
  *
  * @module types
  */
+import type { FlashToastColor } from '../composables/useFlashMessages';
 
 // ---------------------------------------------------------------------------
 // Laravel Pagination
@@ -129,11 +130,13 @@ export interface ArtisanPackUILaravelOptions {
   prefix?: string;
 
   /**
-   * Map of flash message keys to toast colors.
+   * Map of flash message keys to toast colors for `useFlashMessages()` and
+   * `FlashToasts` across the app, merged over the defaults. A component's
+   * own `colorMap` wins over it.
    *
-   * @defaultValue `{ success: 'success', error: 'error', warning: 'warning', info: 'info' }`
+   * @defaultValue `{ success: 'success', error: 'error', warning: 'warning', info: 'info', message: 'info' }`
    */
-  flashColorMap?: Record<string, string>;
+  flashColorMap?: Record<string, FlashToastColor>;
 }
 
 // ---------------------------------------------------------------------------
