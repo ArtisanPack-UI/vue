@@ -56,7 +56,7 @@ A component bound with `v-model:open` follows the value you pass. It reports a c
 
 ## class and classes
 
-`class`, `style` and other attributes fall through to the component. `class` lands on its root part (for overlays, the panel). On form fields, attributes such as `name`, `required` and `autocomplete` go to the native control.
+`class`, `style` and other attributes fall through to the component. `class` lands on its root part (for overlays, the panel). On form fields, attributes such as `name`, `required` and `autocomplete` go to the native control. Combobox is the exception: its attributes land on its root, so an `aria-label` or `autocomplete` doesn't reach the input. Give it an accessible name with the `label` prop, and use its `name` prop to name the hidden inputs it submits.
 
 To style any other part, pass `classes`, keyed by part name:
 
@@ -270,5 +270,7 @@ These 1.x names still work in 2.0 so an app keeps building while you migrate. Th
 | `ErrorDisplay`              | `ErrorState`                       |
 | `ToastProvider`, `useToast` | `Toaster` and `toast`              |
 | `ToastMessage`              | `Toast`                            |
+
+`FileUpload` takes `File`'s API, not its 1.x one: the `filesSelected` event and the `withDragDrop`, `dragDropText`, `dragDropClass`, `progress` and `hideProgress` props are gone. Keeping the import isn't enough. Bind `v-model` to receive the selected files, and pass progress per file in the entries.
 
 The [codemod](Upgrading) rewrites most of them for you.

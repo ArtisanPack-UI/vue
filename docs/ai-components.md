@@ -90,7 +90,7 @@ The credentials and per-feature overrides form, backed by `GET` and `PUT /settin
 - **The stored key is never shown.** The API only reports whether a key is stored. The API key field starts empty, and saving it empty keeps the stored key. The field is hidden for Ollama, which takes a base URL instead.
 - **Changing the provider clears the typed key** and the last connection test, so a key is never sent to the wrong provider.
 - **Test connection** checks the credentials as typed, without saving. Editing a credential clears the result, and a result for credentials that have since changed is discarded.
-- **Validation errors** from a 422 response appear under their fields, with the message in an Alert above the form.
+- **Validation errors** from a 422 response appear under their fields, with the message in an Alert above the form. The form only recognizes them on an `AiApiError` with status 422, so a custom client must reject a validation response with `new AiApiError(422, body, message)` from `@artisanpack-ui/vue/ai`, where `body` is the `{ message, errors }` object; any other error shows only the Alert.
 - **Per-feature overrides** (a model and instructions per feature) appear when the API returns any.
 
 ## UsageDashboard
