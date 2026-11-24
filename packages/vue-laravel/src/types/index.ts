@@ -14,6 +14,11 @@ export interface PaginationLink {
   url: string | null;
   label: string;
   active: boolean;
+  /**
+   * The page number this link goes to, or null for an ellipsis or a disabled
+   * previous/next link. Sent by Laravel 12 and later.
+   */
+  page?: number | null;
 }
 
 /**
@@ -40,6 +45,7 @@ export interface LaravelPaginator<T = Record<string, unknown>> {
 /** Shape of Laravel's `SimplePaginator::toArray()` (no total/last_page). */
 export interface LaravelSimplePaginator<T = Record<string, unknown>> {
   current_page: number;
+  current_page_url: string;
   data: T[];
   first_page_url: string;
   from: number | null;
@@ -48,6 +54,36 @@ export interface LaravelSimplePaginator<T = Record<string, unknown>> {
   per_page: number;
   prev_page_url: string | null;
   to: number | null;
+}
+
+/** Shape of Laravel's `CursorPaginator::toArray()`, from `->cursorPaginate()`. */
+export interface LaravelCursorPaginator<T = Record<string, unknown>> {
+  data: T[];
+  path: string;
+  per_page: number;
+  next_cursor: string | null;
+  next_page_url: string | null;
+  prev_cursor: string | null;
+  prev_page_url: string | null;
+}
+
+/**
+ * The shape of a paginated API resource collection, such as
+ * `UserResource::collection( $users->paginate() )` passed as an Inertia prop.
+ * The rows are in `data`, the page URLs in `links` and the rest in `meta`.
+ */
+export interface LaravelResourcePaginator<T = Record<string, unknown>> {
+  data: T[];
+  links: {
+    first: string | null;
+    last: string | null;
+    prev: string | null;
+    next: string | null;
+  };
+  meta: Omit<
+    LaravelPaginator<T>,
+    'data' | 'first_page_url' | 'last_page_url' | 'next_page_url' | 'prev_page_url'
+  >;
 }
 
 // ---------------------------------------------------------------------------

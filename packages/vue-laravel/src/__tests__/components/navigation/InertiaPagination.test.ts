@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/vue';
 
 vi.mock('@inertiajs/vue3', () => ({
@@ -10,6 +10,7 @@ vi.mock('@inertiajs/vue3', () => ({
 
 import { router } from '@inertiajs/vue3';
 import InertiaPagination from '../../../components/navigation/InertiaPagination.vue';
+import type { LaravelResourcePaginator } from '../../../types';
 
 const basePaginator = {
   current_page: 2,
@@ -110,5 +111,122 @@ describe('InertiaPagination', () => {
     const visitUrl = (router.visit as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
     expect(visitUrl).toContain('page=3');
     expect(visitUrl).not.toContain('page=1');
+  });
+
+  const visitUrl = () =>
+    new URL(
+      (router.visit as ReturnType<typeof vi.fn>).mock.calls[0][0] as string,
+      'http://localhost',
+    );
+
+  it('uses a custom pageParam and passes only for partial reloads', async () => {
+    render(InertiaPagination, {
+      props: { paginator: basePaginator, pageParam: 'p', only: ['items'] },
+    });
+
+    await fireEvent.click(screen.getByLabelText('Page 3'));
+
+    expect(visitUrl().searchParams.get('p')).toBe('3');
+    expect(visitUrl().searchParams.has('page')).toBe(false);
+    expect(router.visit).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ only: ['items'] }),
+    );
+  });
+
+  it('reads the page details from a paginated API resource collection', async () => {
+    const orders: LaravelResourcePaginator<{ id: number }> = {
+      data: [{ id: 1 }],
+      links: {
+        first: '/orders?page=1',
+        last: '/orders?page=6',
+        prev: '/orders?page=3',
+        next: '/orders?page=5',
+      },
+      meta: {
+        current_page: 4,
+        last_page: 6,
+        per_page: 25,
+        total: 150,
+        from: 76,
+        to: 100,
+        path: '/orders',
+        links: [{ url: '/orders?page=3', label: 'Previous', page: 3, active: false }],
+      },
+    };
+    render(InertiaPagination, { props: { paginator: orders } });
+
+    expect(screen.getByLabelText('Page 4').getAttribute('aria-current')).toBe('page');
+
+    await fireEvent.click(screen.getByLabelText('Page 5'));
+
+    expect((router.visit as ReturnType<typeof vi.fn>).mock.calls[0][0]).toBe('/orders?page=5');
+  });
+
+  it('uses top-level page details over an unrelated meta field', () => {
+    const orders = { ...basePaginator, current_page: 4, meta: { description: 'Orders' } };
+    render(InertiaPagination, { props: { paginator: orders } });
+
+    expect(screen.getByLabelText('Page 4').getAttribute('aria-current')).toBe('page');
+  });
+
+  describe('preserveQuery', () => {
+    beforeEach(() => {
+      window.history.replaceState(
+        {},
+        '',
+        '/items?q=shoes&filters%5Bstatus%5D%5B%5D=paid&filters%5Bstatus%5D%5B%5D=open&page=2&sort=total',
+      );
+    });
+
+    afterEach(() => {
+      window.history.replaceState({}, '', '/');
+    });
+
+    it('drops the current query by default', async () => {
+      render(InertiaPagination, { props: { paginator: basePaginator } });
+
+      await fireEvent.click(screen.getByLabelText('Page 3'));
+
+      expect((router.visit as ReturnType<typeof vi.fn>).mock.calls[0][0]).toBe('/items?page=3');
+    });
+
+    it('keeps the current query, including repeated keys, and replaces the page', async () => {
+      render(InertiaPagination, { props: { paginator: basePaginator, preserveQuery: true } });
+
+      await fireEvent.click(screen.getByLabelText('Page 3'));
+
+      const url = visitUrl();
+      expect(url.pathname).toBe('/items');
+      expect(url.searchParams.get('q')).toBe('shoes');
+      expect(url.searchParams.getAll('filters[status][]')).toEqual(['paid', 'open']);
+      expect(url.searchParams.getAll('page')).toEqual(['3']);
+      expect(url.searchParams.get('sort')).toBe('total');
+    });
+
+    it('replaces path values for keys in the current query and keeps the rest', async () => {
+      render(InertiaPagination, {
+        props: {
+          paginator: { ...basePaginator, path: '/items?sort=stale&scope=mine' },
+          preserveQuery: true,
+        },
+      });
+
+      await fireEvent.click(screen.getByLabelText('Page 3'));
+
+      const url = visitUrl();
+      expect(url.searchParams.getAll('sort')).toEqual(['total']);
+      expect(url.searchParams.get('scope')).toBe('mine');
+    });
+
+    it('lets queryParams win over the current query', async () => {
+      render(InertiaPagination, {
+        props: { paginator: basePaginator, preserveQuery: true, queryParams: { sort: 'date' } },
+      });
+
+      await fireEvent.click(screen.getByLabelText('Page 3'));
+
+      expect(visitUrl().searchParams.getAll('sort')).toEqual(['date']);
+    });
   });
 });

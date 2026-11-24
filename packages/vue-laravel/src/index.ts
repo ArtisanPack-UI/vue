@@ -13,6 +13,8 @@
 export type {
   LaravelPaginator,
   LaravelSimplePaginator,
+  LaravelCursorPaginator,
+  LaravelResourcePaginator,
   PaginationLink,
   FlashMessages,
   AuthUser,

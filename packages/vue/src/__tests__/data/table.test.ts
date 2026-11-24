@@ -107,6 +107,38 @@ describe('Table', () => {
     expect(all.closest('.apui-checkbox')!.getAttribute('data-state')).toBe('checked');
   });
 
+  it('names rows by rowLabel in the select and expand labels', () => {
+    render(Table, {
+      props: {
+        headers,
+        rows,
+        selectable: true,
+        expandable: true,
+        rowLabel: (row: Record<string, unknown>) => `order #${String(row.id)}`,
+      },
+    });
+    expect(screen.getByRole('checkbox', { name: 'Select order #2' })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Show details for order #2' })).toBeDefined();
+  });
+
+  it('falls back to the first column when rowLabel is blank', () => {
+    render(Table, { props: { headers, rows, selectable: true, rowLabel: () => '  ' } });
+    expect(screen.getByRole('checkbox', { name: 'Select MTCH' })).toBeDefined();
+  });
+
+  it('inserts row labels literally, including $ patterns', () => {
+    render(Table, { props: { headers, rows, selectable: true, rowLabel: () => 'A $& B' } });
+    expect(screen.getAllByRole('checkbox', { name: 'Select A $& B' })).toHaveLength(3);
+  });
+
+  it('keeps selected keys from other pages when toggling the page', async () => {
+    const { emitted } = render(Table, {
+      props: { headers, rows, selectable: true, modelValue: [99] },
+    });
+    await fireEvent.click(screen.getByRole('checkbox', { name: 'Select all' }));
+    expect(emitted()['update:modelValue']!.at(-1)).toEqual([[99, 1, 2, 3]]);
+  });
+
   it('expands rows with a named button', async () => {
     const { container, emitted } = render(Table, {
       props: { headers, rows, expandable: true },
