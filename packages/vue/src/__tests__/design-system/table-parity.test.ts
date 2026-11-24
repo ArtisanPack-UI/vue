@@ -19,6 +19,8 @@ const expectVueParity = (component: unknown, name: string, options?: VueParityOp
 describe('design-system parity: Table', () => {
   // update:expanded and update:sortBy are the v-model halves of expanded-change
   // and sort-change; the rest are deprecated 1.x props and the 1.x sort event.
+  // rowLabel is a function prop the React and Vue Tables share for the ecommerce
+  // ports (vue#76); drop it here once the manifest lists it (design-system#141).
   // emptyText shows only without rows, actionsLabel only with an actions slot.
   it('Table matches its manifest', () =>
     expectVueParity(Table, 'Table', {
@@ -34,6 +36,7 @@ describe('design-system parity: Table', () => {
         'hoverable',
         'pinRows',
         'pinCols',
+        'rowLabel',
       ],
       ignoreEffects: ['emptyText', 'actionsLabel'],
     }));

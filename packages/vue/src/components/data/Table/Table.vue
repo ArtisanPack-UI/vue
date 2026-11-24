@@ -21,6 +21,7 @@ type Row = Record<string, unknown>;
 
 const props = withDefaults(defineProps<TableProps>(), {
   keyBy: 'id',
+  rowLabel: undefined,
   title: undefined,
   label: undefined,
   density: undefined,
@@ -109,7 +110,7 @@ const sameKey = (a: unknown, b: unknown) => String(a) === String(b);
 const hasKey = (list: readonly unknown[], key: unknown) => list.some((item) => sameKey(item, key));
 const fill = (template: string, values: Record<string, string>) =>
   Object.entries(values).reduce(
-    (text, [name, value]) => text.replaceAll(`{${name}}`, value),
+    (text, [name, value]) => text.replaceAll(`{${name}}`, () => value),
     template,
   );
 const text = (value: unknown): string =>
@@ -225,6 +226,8 @@ function sort(column: TableColumn) {
 }
 
 function rowName(row: Row): string {
+  const named = props.rowLabel ? text(props.rowLabel(row)).trim() : '';
+  if (named) return named;
   const first = visibleColumns.value[0];
   const shown = first ? text(valueAt(row, first.key)).trim() : '';
   return shown || text(rowKey(row));

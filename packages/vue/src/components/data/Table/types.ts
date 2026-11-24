@@ -73,6 +73,11 @@ export interface TableProps {
   rows: Record<string, unknown>[];
   /** Dot path to each row's unique key. @defaultValue `'id'` */
   keyBy?: string;
+  /**
+   * Names a row for the `{row}` in `selectRowLabel` and `expandLabel`, such
+   * as `(order) => 'order #' + order.number`. @defaultValue the first column's text, or the key
+   */
+  rowLabel?: (row: Record<string, unknown>) => string;
   /** The toolbar title; it names the table unless `label` is set. A `title` slot overrides it. */
   title?: string;
   /** The table's accessible name, instead of the title. Translate it. */
