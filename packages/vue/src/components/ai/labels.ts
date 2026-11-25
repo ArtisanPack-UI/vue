@@ -26,6 +26,11 @@ export interface SettingsPageLabels {
   apiKeyKeepHint: string;
   /** The API key's placeholder when no key is stored. */
   apiKeyPlaceholder: string;
+  /**
+   * The API key field's reveal button's name. Optional so complete label objects written for 2.0
+   * still type-check; when left out, the button keeps Password's default name.
+   */
+  apiKeyReveal?: string;
   baseUrl: string;
   /** The base URL's hint for Ollama, which needs one. */
   baseUrlRequiredHint: string;
@@ -108,6 +113,7 @@ export function settingsPageLabels(t: TranslateFunction): SettingsPageLabels {
     apiKey: t('API key'),
     apiKeyKeepHint: t('Leave blank to keep the stored key.'),
     apiKeyPlaceholder: 'sk-…',
+    apiKeyReveal: t('Show password'),
     baseUrl: t('Base URL'),
     baseUrlRequiredHint: t('Required for Ollama.'),
     baseUrlOptionalHint: t('Optional.'),

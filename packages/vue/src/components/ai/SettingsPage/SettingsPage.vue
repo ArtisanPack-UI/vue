@@ -266,6 +266,7 @@ async function handleTest(): Promise<void> {
         v-model="form.api_key"
         :label="text.apiKey"
         :hint="apiKeyPresent ? text.apiKeyKeepHint : undefined"
+        :reveal-label="text.apiKeyReveal"
         autocomplete="new-password"
         :placeholder="apiKeyPresent ? '••••••••' : text.apiKeyPlaceholder"
         :error="fieldError('api_key')"
