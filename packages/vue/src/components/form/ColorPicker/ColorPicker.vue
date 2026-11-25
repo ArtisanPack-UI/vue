@@ -13,6 +13,7 @@ import { computed, getCurrentInstance, mergeProps, ref, useAttrs, useId } from '
 import { COLOR_FORMATS, useColorPicker } from '@artisanpack-ui/behavior/vue';
 import { DsIcon, flag, part } from '../../_shared/design-system';
 import type { ColorPickerEmits, ColorPickerProps, ColorTextFormat } from './types';
+import { useTranslator } from '../../../i18n/translator';
 
 defineOptions({ inheritAttrs: false });
 
@@ -30,13 +31,13 @@ const props = withDefaults(defineProps<ColorPickerProps>(), {
   required: false,
   open: false,
   portal: true,
-  triggerLabel: 'Choose a color',
-  areaLabel: 'Saturation and brightness',
-  hueLabel: 'Hue',
-  alphaLabel: 'Opacity',
-  formatLabel: 'Format',
-  eyeDropperLabel: 'Pick a color from the screen',
-  swatchesLabel: 'Swatches',
+  triggerLabel: undefined,
+  areaLabel: undefined,
+  hueLabel: undefined,
+  alphaLabel: undefined,
+  formatLabel: undefined,
+  eyeDropperLabel: undefined,
+  swatchesLabel: undefined,
   classes: undefined,
 });
 
@@ -50,6 +51,7 @@ const FORMAT_NAMES: Record<ColorTextFormat, string> = {
 };
 
 const attrs = useAttrs();
+const { t } = useTranslator();
 const instance = getCurrentInstance();
 const autoId = useId();
 
@@ -102,13 +104,13 @@ const machine = useColorPicker(() => {
     required: props.required,
     invalid: isInvalid.value,
     labels: {
-      trigger: props.triggerLabel,
-      area: props.areaLabel,
-      hue: props.hueLabel,
-      alpha: props.alphaLabel,
-      format: props.formatLabel,
-      eyeDropper: props.eyeDropperLabel,
-      swatches: props.swatchesLabel,
+      trigger: props.triggerLabel ?? t('Choose a color'),
+      area: props.areaLabel ?? t('Saturation and brightness'),
+      hue: props.hueLabel ?? t('Hue'),
+      alpha: props.alphaLabel ?? t('Opacity'),
+      format: props.formatLabel ?? t('Format'),
+      eyeDropper: props.eyeDropperLabel ?? t('Pick a color from the screen'),
+      swatches: props.swatchesLabel ?? t('Swatches'),
     },
   };
 });

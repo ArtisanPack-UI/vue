@@ -14,10 +14,11 @@
 import { computed, getCurrentInstance } from 'vue';
 import DropdownMenu from '../DropdownMenu/DropdownMenu.vue';
 import { warnOnce } from '../../_shared/design-system';
+import { useTranslator } from '../../../i18n/translator';
 import type { DropdownProps } from './types';
 
 const props = withDefaults(defineProps<DropdownProps>(), {
-  label: 'Options',
+  label: undefined,
   end: false,
   top: false,
   hover: false,
@@ -32,6 +33,8 @@ warnOnce('Dropdown', 'Dropdown is deprecated; use DropdownMenu.');
 
 const instance = getCurrentInstance();
 
+const { t } = useTranslator();
+
 /**
  * `open` only when the parent passes it, so an unbound Dropdown keeps its own
  * state, as in 2.x.
@@ -45,7 +48,7 @@ const openBinding = computed(() => {
 <template>
   <DropdownMenu
     v-bind="openBinding"
-    :label="label"
+    :label="label ?? t('Options')"
     :align="end ? 'end' : undefined"
     @update:open="emit('update:open', $event)"
   >

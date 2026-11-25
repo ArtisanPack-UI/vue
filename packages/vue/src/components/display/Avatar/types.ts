@@ -44,7 +44,7 @@ export interface AvatarProps {
   color?: AvatarColor;
   /** A presence dot, announced in words too. */
   status?: AvatarStatus;
-  /** The status in words, added to the accessible name; translate it. Defaults to Online, Away or Offline. */
+  /** The status in words, added to the accessible name. Defaults to Online, Away or Offline, translated. */
   statusLabel?: string;
   /** Extra classes per part, such as `{ image: '…' }`. */
   classes?: Partial<Record<AvatarPart, string>>;
@@ -66,6 +66,6 @@ export interface AvatarGroupProps {
   size?: AvatarSize;
   /** The group's accessible name, such as "Project members". */
   label?: string;
-  /** The +N avatar's accessible name; `{count}` is the number hidden. @defaultValue `'{count} more'` */
+  /** The +N avatar's accessible name; `{count}` is the number hidden. @defaultValue `'{count} more'`, translated */
   moreLabel?: string;
 }

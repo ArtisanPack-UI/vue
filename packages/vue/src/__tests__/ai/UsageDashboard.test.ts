@@ -173,7 +173,7 @@ describe('UsageDashboard', () => {
   it('keeps the English live status by default', async () => {
     const client = createMockClient({ getUsage: vi.fn().mockResolvedValue(usage) });
     render(UsageDashboard, { props: { client, refreshInterval: 5000 } });
-    expect(await screen.findByText('Live · refreshing every 5s')).toBeTruthy();
+    expect(await screen.findByText('Live · refreshing every 5 s')).toBeTruthy();
   });
 
   it('translates the loading text and the fallback error', async () => {

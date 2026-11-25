@@ -14,6 +14,7 @@ import { timeOptions, toIso, useDatePicker } from '@artisanpack-ui/behavior/vue'
 import Button from '../Button/Button.vue';
 import { DsIcon, flag, part } from '../../_shared/design-system';
 import type { DatePickerEmits, DatePickerProps, DatePickerValue } from './types';
+import { useTranslator } from '../../../i18n/translator';
 
 defineOptions({ inheritAttrs: false });
 
@@ -23,7 +24,7 @@ const props = withDefaults(defineProps<DatePickerProps>(), {
   time: false,
   step: 30,
   timeZone: undefined,
-  locale: 'en-US',
+  locale: undefined,
   min: undefined,
   max: undefined,
   disabledDates: undefined,
@@ -43,12 +44,12 @@ const props = withDefaults(defineProps<DatePickerProps>(), {
   portal: true,
   footer: undefined,
   triggerLabel: undefined,
-  previousLabel: 'Previous month',
-  nextLabel: 'Next month',
-  calendarLabel: 'Calendar',
-  timeLabel: 'Time',
-  endLabel: 'End date',
-  timeZoneLabel: 'Time zone: {zone}',
+  previousLabel: undefined,
+  nextLabel: undefined,
+  calendarLabel: undefined,
+  timeLabel: undefined,
+  endLabel: undefined,
+  timeZoneLabel: undefined,
   classes: undefined,
 });
 
@@ -58,6 +59,17 @@ const attrs = useAttrs();
 const slots = useSlots();
 const instance = getCurrentInstance();
 const autoId = useId();
+const { t, locale: translatorLocale } = useTranslator();
+
+/** The built-in text: each prop, else its translated default. */
+const text = computed(() => ({
+  previous: props.previousLabel ?? t('Previous month'),
+  next: props.nextLabel ?? t('Next month'),
+  calendar: props.calendarLabel ?? t('Calendar'),
+  time: props.timeLabel ?? t('Time'),
+  end: props.endLabel ?? t('End date'),
+  timeZone: props.timeZoneLabel ?? t('Time zone: {zone}'),
+}));
 
 /** Whether the parent passes a prop (`v-model` or `:prop`): then it's controlled. */
 function isBound(name: 'modelValue' | 'open'): boolean {
@@ -78,7 +90,7 @@ const hasTime = computed(() => props.time && !isRange.value);
 const isInvalid = computed(() => props.invalid || (!!props.error && props.error !== ''));
 const zoneText = computed(() =>
   hasTime.value && props.timeZone
-    ? props.timeZoneLabel.replace('{zone}', props.timeZone)
+    ? text.value.timeZone.replace('{zone}', props.timeZone)
     : undefined,
 );
 
@@ -110,7 +122,7 @@ const machine = useDatePicker(() => {
     },
     mode: props.mode,
     time: hasTime.value,
-    locale: props.locale,
+    locale: props.locale ?? translatorLocale.value ?? 'en-US',
     timeZone: props.timeZone,
     min: props.min,
     max: props.max,
@@ -123,10 +135,10 @@ const machine = useDatePicker(() => {
     invalid: isInvalid.value,
     placeholder: props.placeholder,
     labels: {
-      trigger: props.triggerLabel ?? (hasTime.value ? 'Choose date and time' : 'Choose date'),
-      previous: props.previousLabel,
-      next: props.nextLabel,
-      calendar: props.calendarLabel,
+      trigger: props.triggerLabel ?? (hasTime.value ? t('Choose date and time') : t('Choose date')),
+      previous: text.value.previous,
+      next: text.value.next,
+      calendar: text.value.calendar,
     },
   };
 });
@@ -193,7 +205,7 @@ function controlAttrs(): Record<string, unknown> {
 function endAttrs(): Record<string, unknown> {
   return mergeProps(api.value.getInputProps({ index: 1 }) as Record<string, unknown>, {
     class: props.classes?.control,
-    'aria-label': props.endLabel,
+    'aria-label': text.value.end,
     'aria-describedby': describedBy(),
   });
 }
@@ -268,7 +280,7 @@ function withClass(zagProps: unknown, className: string | undefined): Record<str
                 size="sm"
                 icon-only
                 leading-icon="chevron-left"
-                :aria-label="previousLabel"
+                :aria-label="text.previous"
                 v-bind="withClass(api.getPrevTriggerProps(), classes?.prevTrigger)"
               />
               <span v-bind="withClass(api.getRangeTextProps(), classes?.rangeText)">{{
@@ -280,7 +292,7 @@ function withClass(zagProps: unknown, className: string | undefined): Record<str
                 size="sm"
                 icon-only
                 leading-icon="chevron-right"
-                :aria-label="nextLabel"
+                :aria-label="text.next"
                 v-bind="withClass(api.getNextTriggerProps(), classes?.nextTrigger)"
               />
             </div>
@@ -329,12 +341,12 @@ function withClass(zagProps: unknown, className: string | undefined): Record<str
               v-bind="
                 part('date-picker', 'time-label', classes?.timeLabel, { 'aria-hidden': 'true' })
               "
-              >{{ timeLabel }}</span
+              >{{ text.time }}</span
             >
             <div
               v-bind="
                 withClass(
-                  api.getTimeListProps({ label: timeLabel, id: `${fieldId()}-time-list` }),
+                  api.getTimeListProps({ label: text.time, id: `${fieldId()}-time-list` }),
                   classes?.timeList,
                 )
               "

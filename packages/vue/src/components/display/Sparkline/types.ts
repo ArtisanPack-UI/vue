@@ -20,8 +20,8 @@ export interface SparklineProps {
   height?: number;
   /**
    * The accessible label; `{first}`, `{latest}`, `{min}`, `{max}` and
-   * `{count}` are filled in. Translate it.
-   * @defaultValue `'Trend from {first} to {latest}'`
+   * `{count}` are filled in.
+   * @defaultValue `'Trend from {first} to {latest}'`, translated
    */
   label?: string;
   /** Extra classes per part. */

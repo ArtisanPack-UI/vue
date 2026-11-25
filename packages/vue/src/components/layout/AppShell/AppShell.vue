@@ -14,6 +14,7 @@
  */
 import { computed, mergeProps, ref, useAttrs, useId, useSlots, watch } from 'vue';
 import { DsIcon, flag, hasContent, part } from '../../_shared/design-system';
+import { useTranslator } from '../../../i18n/translator';
 import type { AppShellPart, AppShellProps } from './types';
 
 defineOptions({ inheritAttrs: false });
@@ -27,9 +28,9 @@ const props = withDefaults(defineProps<AppShellProps>(), {
   sidebar: undefined,
   header: undefined,
   footer: undefined,
-  label: 'Sidebar',
-  skipLabel: 'Skip to main content',
-  collapseLabel: 'Collapse sidebar',
+  label: undefined,
+  skipLabel: undefined,
+  collapseLabel: undefined,
   classes: undefined,
 });
 
@@ -37,6 +38,8 @@ const emit = defineEmits<{ 'collapsed-change': [collapsed: boolean] }>();
 
 const attrs = useAttrs();
 const slots = useSlots();
+
+const { t } = useTranslator();
 const id = useId();
 const sidebarId = `apui-app-shell-${id}-sidebar`;
 const mainId = `apui-app-shell-${id}-main`;
@@ -83,12 +86,12 @@ function rootAttrs(): Record<string, unknown> {
 <template>
   <div v-bind="rootAttrs()">
     <a v-bind="part('app-shell', 'skip-link', classOf('skipLink'))" :href="`#${mainId}`">{{
-      skipLabel
+      skipLabel ?? t('Skip to main content')
     }}</a>
     <aside
       v-bind="part('app-shell', 'sidebar', classOf('sidebar'))"
       :id="sidebarId"
-      :aria-label="label"
+      :aria-label="label ?? t('Sidebar')"
     >
       <div v-if="has('brand')" v-bind="part('app-shell', 'brand', classOf('brand'))">
         <slot name="brand">{{ brand }}</slot>
@@ -103,7 +106,7 @@ function rootAttrs(): Record<string, unknown> {
           v-if="collapsible"
           v-bind="part('app-shell', 'collapse-trigger', classOf('collapseTrigger'))"
           type="button"
-          :aria-label="collapseLabel"
+          :aria-label="collapseLabel ?? t('Collapse sidebar')"
           :aria-pressed="isCollapsed ? 'true' : 'false'"
           :aria-controls="sidebarId"
           @click="toggle"

@@ -28,9 +28,9 @@ export interface SpotlightSearchProps {
   open?: boolean;
   /** Array of searchable items. */
   items: SpotlightItem[];
-  /** Placeholder text for the search input. @defaultValue `'Search…'` */
+  /** Placeholder text for the search input. @defaultValue `'Search…'`, translated */
   placeholder?: string;
-  /** The palette's accessible name. Spotlight's `label`. @defaultValue `'Search'` */
+  /** The palette's accessible name. Spotlight's `label`. @defaultValue `'Search'`, translated */
   ariaLabel?: string;
   /** Additional CSS classes for the panel. */
   className?: string;

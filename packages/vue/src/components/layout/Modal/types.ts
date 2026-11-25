@@ -21,6 +21,6 @@ export interface ModalProps {
   glass?: boolean;
   /** Ignored: Dialog has no bottom sheet. Use `Drawer` with `side="bottom"`. @defaultValue `false` */
   bottom?: boolean;
-  /** Names the dialog when there's no title. @defaultValue `'Dialog'` */
+  /** Names the dialog when there's no title. @defaultValue `'Dialog'`, translated */
   ariaLabel?: string;
 }

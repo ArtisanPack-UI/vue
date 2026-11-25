@@ -42,7 +42,7 @@ export type FilePart =
 export interface FileProps {
   /** The visible label, for the input. Without it, the title names the input. */
   label?: string;
-  /** The drop zone's main line. @defaultValue `'Drop files here or browse'` */
+  /** The drop zone's main line. @defaultValue `'Drop files here or browse'`, translated */
   title?: string;
   /** The limits under the title, linked with `aria-describedby`. */
   hint?: string;
@@ -64,7 +64,7 @@ export interface FileProps {
   variant?: 'dropzone' | 'compact';
   /** The files to list, bound with `v-model`. Without it, the chosen files are listed. */
   modelValue?: FileItem[];
-  /** The remove buttons' name, with `:name`. @defaultValue `'Remove :name'` */
+  /** The remove buttons' name, with `:name`. @defaultValue `'Remove :name'`, translated */
   removeLabel?: string;
   /** Extra classes per part, such as `{ dropzone: '…' }`. */
   classes?: Partial<Record<FilePart, string>>;

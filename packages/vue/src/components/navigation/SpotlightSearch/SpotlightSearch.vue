@@ -18,8 +18,8 @@ import type { SpotlightItem, SpotlightSearchProps } from './types';
 
 const props = withDefaults(defineProps<SpotlightSearchProps>(), {
   open: false,
-  placeholder: 'Search…',
-  ariaLabel: 'Search',
+  placeholder: undefined,
+  ariaLabel: undefined,
   className: undefined,
 });
 

@@ -17,6 +17,7 @@ import {
 } from '@artisanpack-ui/behavior/vue';
 import { DsIcon, flag, part } from '../../_shared/design-system';
 import type { ComboboxPart, ComboboxProps, ComboboxValue } from './types';
+import { useTranslator } from '../../../i18n/translator';
 
 defineOptions({ inheritAttrs: false });
 
@@ -29,7 +30,7 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   invalid: false,
   disabled: false,
   required: false,
-  placeholder: 'Search…',
+  placeholder: undefined,
   modelValue: undefined,
   multiple: false,
   max: undefined,
@@ -41,13 +42,13 @@ const props = withDefaults(defineProps<ComboboxProps>(), {
   open: false,
   portal: true,
   leadingIcon: undefined,
-  emptyLabel: 'No matches for “{search}”.',
-  loadingLabel: 'Loading…',
-  createLabel: 'Create “{value}”',
-  removeLabel: 'Remove {label}',
-  removedLabel: 'Removed {label}.',
-  clearLabel: 'Clear',
-  triggerLabel: 'Show options',
+  emptyLabel: undefined,
+  loadingLabel: undefined,
+  createLabel: undefined,
+  removeLabel: undefined,
+  removedLabel: undefined,
+  clearLabel: undefined,
+  triggerLabel: undefined,
   classes: undefined,
 });
 
@@ -59,6 +60,19 @@ const emit = defineEmits<{
 }>();
 
 const attrs = useAttrs();
+const { t } = useTranslator();
+
+/** The built-in text: each prop, else its translated default. */
+const text = computed(() => ({
+  placeholder: props.placeholder ?? t('Search…'),
+  empty: props.emptyLabel ?? t('No matches for “{search}”.'),
+  loading: props.loadingLabel ?? t('Loading…'),
+  create: props.createLabel ?? t('Create “{value}”'),
+  remove: props.removeLabel ?? t('Remove {label}'),
+  removed: props.removedLabel ?? t('Removed {label}.'),
+  clear: props.clearLabel ?? t('Clear'),
+  trigger: props.triggerLabel ?? t('Show options'),
+}));
 const autoId = useId();
 const instance = getCurrentInstance();
 
@@ -178,12 +192,12 @@ const machine = useCombobox(() => ({
   invalid: isInvalid(),
   required: props.required,
   loading: props.loading,
-  placeholder: props.placeholder,
+  placeholder: text.value.placeholder,
   remote: props.remote,
   allowCreate: props.allowCreate,
   max: props.max,
   defaultInputValue: props.search,
-  translations: { triggerLabel: props.triggerLabel, clearTriggerLabel: props.clearLabel },
+  translations: { triggerLabel: text.value.trigger, clearTriggerLabel: text.value.clear },
   onValueChange: ({ value }) => setValues(toArray(value)),
   onCreate: ({ value }) => {
     created.value = [...created.value, { value, label: value }];
@@ -247,7 +261,7 @@ function remove(value: string): void {
   const current = shownValues.value;
   if (!current.includes(value)) return;
   setValues(current.filter((entry) => entry !== value));
-  status.value = formatLabel(props.removedLabel, { label: labelOf(value) });
+  status.value = formatLabel(text.value.removed, { label: labelOf(value) });
 }
 
 /** Backspace in the empty input removes the last chip. */
@@ -287,7 +301,7 @@ const chips = computed(() =>
 );
 
 const emptyText = () =>
-  props.loading ? props.loadingLabel : formatLabel(props.emptyLabel, { search: query.value });
+  props.loading ? text.value.loading : formatLabel(text.value.empty, { search: query.value });
 </script>
 
 <template>
@@ -324,7 +338,7 @@ const emptyText = () =>
           type="button"
           v-bind="
             part('combobox', 'chip-remove', classOf('chipRemove'), {
-              'aria-label': formatLabel(removeLabel, { label: chip.label }),
+              'aria-label': formatLabel(text.remove, { label: chip.label }),
               disabled: disabled || undefined,
             })
           "
@@ -376,7 +390,7 @@ const emptyText = () =>
             </span>
             <span v-bind="withClass(combo.getItemTextProps({ item }), 'itemText')">
               <template v-if="item.create">{{
-                formatLabel(createLabel, { value: item.label })
+                formatLabel(text.create, { value: item.label })
               }}</template>
               <slot v-else name="item" :option="item"
                 ><template v-for="(segment, index) in highlight(item.label, query)" :key="index"
@@ -393,7 +407,7 @@ const emptyText = () =>
             </span>
           </div>
           <div v-bind="withClass(combo.getEmptyProps(), 'empty')">
-            <template v-if="loading">{{ loadingLabel }}</template>
+            <template v-if="loading">{{ text.loading }}</template>
             <slot v-else name="empty">{{ emptyText() }}</slot>
           </div>
         </div>

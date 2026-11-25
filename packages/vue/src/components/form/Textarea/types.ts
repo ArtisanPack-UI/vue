@@ -43,7 +43,7 @@ export interface TextareaProps {
   modelValue?: string;
   /**
    * The counter's announcement near the limit; `{count}` is replaced with the
-   * characters left. Pass a translated string. @defaultValue `'Characters left: {count}'`
+   * characters left. Pass a translated string. @defaultValue `'Characters left: {count}'`, translated
    */
   remainingLabel?: string;
   /** Extra classes per part, such as `{ label: '…', control: '…' }`. */

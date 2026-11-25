@@ -10,6 +10,7 @@
 import { computed } from 'vue';
 import { DsIcon, part, safeMediaUrl } from '../../_shared/design-system';
 import { avatarColor, avatarInitials } from './identity';
+import { useTranslator } from '../../../i18n/translator';
 import type { AvatarProps, AvatarStatus } from './types';
 
 const props = withDefaults(defineProps<AvatarProps>(), {
@@ -26,11 +27,19 @@ const props = withDefaults(defineProps<AvatarProps>(), {
   classes: undefined,
 });
 
-const STATUS_WORDS: Record<AvatarStatus, string> = {
-  online: 'Online',
-  away: 'Away',
-  offline: 'Offline',
-};
+const { t } = useTranslator();
+
+/** The status's built-in hidden text, translated. */
+function statusWord(status: AvatarStatus): string {
+  switch (status) {
+    case 'online':
+      return t('Online');
+    case 'away':
+      return t('Away');
+    default:
+      return t('Offline');
+  }
+}
 
 const letters = computed(() =>
   props.initials?.trim() ? props.initials.trim() : avatarInitials(props.name),
@@ -41,7 +50,7 @@ const label = computed(() => {
   const base = props.alt?.trim() ? props.alt.trim() : (props.name ?? '').trim();
   if (base === '') return '';
   if (!props.status) return base;
-  return `${base} (${props.statusLabel || STATUS_WORDS[props.status]})`;
+  return `${base} (${props.statusLabel || statusWord(props.status)})`;
 });
 </script>
 

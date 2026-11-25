@@ -11,7 +11,8 @@ import Stack from '../../layout/Stack/Stack.vue';
 import Text from '../../layout/Text/Text.vue';
 import type { AiApiClient, AiUsageResponse } from '../types';
 import { errorMessage } from '../errorMessage';
-import { USAGE_DASHBOARD_LABELS, type UsageDashboardLabels } from '../labels';
+import { useTranslator } from '../../../i18n/translator';
+import { usageDashboardLabels, type UsageDashboardLabels } from '../labels';
 
 interface Props {
   /** API client wrapping the artisanpack-ui/ai JSON endpoints. */
@@ -26,7 +27,7 @@ interface Props {
   refreshInterval?: number;
   /** Optional heading rendered above the dashboard. */
   heading?: string;
-  /** Built-in text (stat labels, table titles and headers…), merged over the English defaults; translate it. */
+  /** Built-in text (stat labels, table titles and headers…), merged over the defaults (English, or the active locale's when translations are provided). */
   labels?: Partial<UsageDashboardLabels>;
 }
 
@@ -38,7 +39,12 @@ const props = withDefaults(defineProps<Props>(), {
   labels: undefined,
 });
 
-const text = computed<UsageDashboardLabels>(() => ({ ...USAGE_DASHBOARD_LABELS, ...props.labels }));
+const { t, locale } = useTranslator();
+
+const text = computed<UsageDashboardLabels>(() => ({
+  ...usageDashboardLabels(t),
+  ...props.labels,
+}));
 
 const usage = ref<AiUsageResponse | null>(null);
 const loading = ref(true);
@@ -48,9 +54,9 @@ const error = ref<string | null>(null);
 let run = 0;
 let timer: ReturnType<typeof setTimeout> | undefined;
 
-const formatNumber = (value: number): string => new Intl.NumberFormat().format(value);
+const formatNumber = (value: number): string => new Intl.NumberFormat(locale.value).format(value);
 const formatCost = (value: number): string =>
-  new Intl.NumberFormat(undefined, {
+  new Intl.NumberFormat(locale.value, {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,

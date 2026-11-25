@@ -21,15 +21,15 @@ export interface CodeProps {
   inline?: boolean;
   /** Shows the copy button. @defaultValue `true` */
   copyable?: boolean;
-  /** Names the scroll region. Defaults to the file name, then the language, then "Code". */
+  /** Names the scroll region. Defaults to the file name, then the language, then "Code" (translated). */
   label?: string;
-  /** The copy button's label; translate it. @defaultValue `'Copy'` */
+  /** The copy button's label. @defaultValue `'Copy'`, translated */
   copyLabel?: string;
-  /** The label after a copy; translate it. @defaultValue `'Copied'` */
+  /** The label after a copy. @defaultValue `'Copied'`, translated */
   copiedLabel?: string;
-  /** Announced after a copy; translate it. @defaultValue `'Copied to clipboard'` */
+  /** Announced after a copy. @defaultValue `'Copied to clipboard'`, translated */
   copiedMessage?: string;
-  /** Announced when the copy fails; translate it. */
+  /** Announced when the copy fails. @defaultValue `"Couldn't copy. Select the text and copy it yourself."`, translated */
   errorMessage?: string;
   /** Extra classes per part. */
   classes?: Partial<Record<CodePart, string>>;

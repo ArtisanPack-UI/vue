@@ -102,7 +102,7 @@ export interface TableProps {
   sortBy?: TableSort;
   /** Shows skeleton rows and sets `aria-busy`. @defaultValue `false` */
   loading?: boolean;
-  /** The empty state's title; translate it. @defaultValue `'No records found.'` */
+  /** The empty state's title. @defaultValue `'No records found.'`, translated */
   emptyText?: string;
   /** Toolbar content after the title. A `toolbar` slot overrides it. */
   toolbar?: string;
@@ -110,15 +110,15 @@ export interface TableProps {
   footer?: string;
   /** Pagination's props, rendered at the end of the footer; `onPageChange` listens. */
   pagination?: PaginationProps & { onPageChange?: (page: number) => void };
-  /** The select-all box's name; translate it. @defaultValue `'Select all'` */
+  /** The select-all box's name. @defaultValue `'Select all'`, translated */
   selectAllLabel?: string;
-  /** Each row box's name, with `{row}`; translate it. @defaultValue `'Select {row}'` */
+  /** Each row box's name, with `{row}`. @defaultValue `'Select {row}'`, translated */
   selectRowLabel?: string;
-  /** Each sort button's name, with `{column}`; translate it. @defaultValue `'Sort by {column}'` */
+  /** Each sort button's name, with `{column}`. @defaultValue `'Sort by {column}'`, translated */
   sortLabel?: string;
-  /** Each expand button's name, with `{row}`; translate it. @defaultValue `'Show details for {row}'` */
+  /** Each expand button's name, with `{row}`. @defaultValue `'Show details for {row}'`, translated */
   expandLabel?: string;
-  /** The actions column's hidden header; translate it. @defaultValue `'Actions'` */
+  /** The actions column's hidden header. @defaultValue `'Actions'`, translated */
   actionsLabel?: string;
   /** Extra classes per part, such as `{ cell: '…', headCell: '…' }`. */
   classes?: Partial<Record<TablePart, string>>;

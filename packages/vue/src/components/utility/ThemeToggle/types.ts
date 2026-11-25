@@ -30,21 +30,21 @@ export interface ThemeToggleProps {
   choices?: ThemeChoice[];
   /** Segmented shows only the icons; the names stay visually hidden. @defaultValue `false` */
   iconOnly?: boolean;
-  /** Names the radio group and the menu; the menu trigger's text. Translate it. @defaultValue `'Theme'` */
+  /** Names the radio group and the menu; the menu trigger's text. @defaultValue `'Theme'`, translated */
   label?: string;
-  /** @defaultValue `'Light'` */
+  /** @defaultValue `'Light'`, translated */
   lightLabel?: string;
-  /** @defaultValue `'Dark'` */
+  /** @defaultValue `'Dark'`, translated */
   darkLabel?: string;
-  /** @defaultValue `'High contrast'` */
+  /** @defaultValue `'High contrast'`, translated */
   highContrastLabel?: string;
-  /** The system choice's name in the segmented control. @defaultValue `'System'` */
+  /** The system choice's name in the segmented control. @defaultValue `'System'`, translated */
   systemLabel?: string;
-  /** The system choice's name in the menu. @defaultValue `'Match system'` */
+  /** The system choice's name in the menu. @defaultValue `'Match system'`, translated */
   matchSystemLabel?: string;
-  /** The icon button's name while it switches to light. @defaultValue `'Switch to light theme'` */
+  /** The icon button's name while it switches to light. @defaultValue `'Switch to light theme'`, translated */
   switchToLightLabel?: string;
-  /** The icon button's name while it switches to dark. @defaultValue `'Switch to dark theme'` */
+  /** The icon button's name while it switches to dark. @defaultValue `'Switch to dark theme'`, translated */
   switchToDarkLabel?: string;
   /** Stores the choice in localStorage. @defaultValue `true` */
   persist?: boolean;

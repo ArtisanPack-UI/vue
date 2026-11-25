@@ -20,6 +20,7 @@ import {
 import { computed, mergeProps, ref, useAttrs, useId, watch } from 'vue';
 import { DsIcon, flag, part } from '../../_shared/design-system';
 import type { CodeEditorEmits, CodeEditorProps } from './types';
+import { useTranslator } from '../../../i18n/translator';
 
 defineOptions({ inheritAttrs: false });
 
@@ -61,25 +62,28 @@ const emit = defineEmits<CodeEditorEmits>();
 
 const attrs = useAttrs();
 const autoId = useId();
+const { t } = useTranslator();
 
 const SEVERITY_ICONS = { error: 'circle-alert', warning: 'triangle-alert', info: 'info' } as const;
 
 const strings = computed(() =>
   codeEditorTranslations({
-    tabs: props.tabsLabel,
-    language: props.languageLabel,
-    position: props.positionLabel,
-    spaces: props.spacesLabel,
-    error: props.errorCountLabel,
-    errors: props.errorsCountLabel,
-    warning: props.warningCountLabel,
-    warnings: props.warningsCountLabel,
-    problems: props.problemsLabel,
-    line: props.lineLabel,
-    severityError: props.severityErrorLabel,
-    severityWarning: props.severityWarningLabel,
-    severityInfo: props.severityInfoLabel,
-    instructions: props.instructionsLabel,
+    tabs: props.tabsLabel ?? t('Open files'),
+    language: props.languageLabel ?? t('Language'),
+    position: props.positionLabel ?? t('Ln :line, Col :column'),
+    spaces: props.spacesLabel ?? t('Spaces: :count'),
+    error: props.errorCountLabel ?? t(':count error'),
+    errors: props.errorsCountLabel ?? t(':count errors'),
+    warning: props.warningCountLabel ?? t(':count warning'),
+    warnings: props.warningsCountLabel ?? t(':count warnings'),
+    problems: props.problemsLabel ?? t('Problems'),
+    line: props.lineLabel ?? t('Line :line'),
+    severityError: props.severityErrorLabel ?? t('Error'),
+    severityWarning: props.severityWarningLabel ?? t('Warning'),
+    severityInfo: props.severityInfoLabel ?? t('Info'),
+    instructions:
+      props.instructionsLabel ??
+      t('Tab inserts indentation. To leave the editor, press Escape, then Tab.'),
   }),
 );
 const tabList = computed(() => normalizeOptions(props.tabs));

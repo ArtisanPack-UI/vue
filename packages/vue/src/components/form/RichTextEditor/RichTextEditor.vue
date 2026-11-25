@@ -25,6 +25,7 @@ import {
 import { computed, mergeProps, onBeforeUnmount, onMounted, ref, useAttrs, useId, watch } from 'vue';
 import { DsIcon, flag, part } from '../../_shared/design-system';
 import type { RichTextEditorEmits, RichTextEditorProps } from './types';
+import { useTranslator } from '../../../i18n/translator';
 
 defineOptions({ inheritAttrs: false });
 
@@ -73,33 +74,34 @@ const emit = defineEmits<RichTextEditorEmits>();
 
 const attrs = useAttrs();
 const autoId = useId();
+const { t } = useTranslator();
 
 const strings = computed(() =>
   richTextTranslations({
-    toolbar: props.toolbarLabel,
-    bold: props.boldLabel,
-    italic: props.italicLabel,
-    underline: props.underlineLabel,
-    strike: props.strikeLabel,
-    heading2: props.heading2Label,
-    heading3: props.heading3Label,
-    bulletList: props.bulletListLabel,
-    orderedList: props.orderedListLabel,
-    quote: props.quoteLabel,
-    code: props.codeLabel,
-    link: props.linkLabel,
-    image: props.imageLabel,
-    undo: props.undoLabel,
-    redo: props.redoLabel,
-    linkPrompt: props.linkPromptLabel,
-    imagePrompt: props.imagePromptLabel,
-    imageAltPrompt: props.imageAltPromptLabel,
-    shortcuts: props.shortcutsLabel,
-    word: props.wordLabel,
-    words: props.wordsLabel,
-    character: props.characterLabel,
-    characters: props.charactersLabel,
-    limit: props.limitLabel,
+    toolbar: props.toolbarLabel ?? t('Formatting'),
+    bold: props.boldLabel ?? t('Bold'),
+    italic: props.italicLabel ?? t('Italic'),
+    underline: props.underlineLabel ?? t('Underline'),
+    strike: props.strikeLabel ?? t('Strikethrough'),
+    heading2: props.heading2Label ?? t('Heading 2'),
+    heading3: props.heading3Label ?? t('Heading 3'),
+    bulletList: props.bulletListLabel ?? t('Bulleted list'),
+    orderedList: props.orderedListLabel ?? t('Numbered list'),
+    quote: props.quoteLabel ?? t('Quote'),
+    code: props.codeLabel ?? t('Code'),
+    link: props.linkLabel ?? t('Link'),
+    image: props.imageLabel ?? t('Image'),
+    undo: props.undoLabel ?? t('Undo'),
+    redo: props.redoLabel ?? t('Redo'),
+    linkPrompt: props.linkPromptLabel ?? t('Link URL'),
+    imagePrompt: props.imagePromptLabel ?? t('Image URL'),
+    imageAltPrompt: props.imageAltPromptLabel ?? t('Describe the image'),
+    shortcuts: props.shortcutsLabel ?? t('Markdown shortcuts on'),
+    word: props.wordLabel ?? t(':count word'),
+    words: props.wordsLabel ?? t(':count words'),
+    character: props.characterLabel ?? t(':count character'),
+    characters: props.charactersLabel ?? t(':count characters'),
+    limit: props.limitLabel ?? t(':count / :max characters'),
   }),
 );
 const items = computed(() => resolveToolbar(props.toolbar, props.output));

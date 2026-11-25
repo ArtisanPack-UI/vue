@@ -12,6 +12,7 @@ import { DsIcon, flag, part } from '../../_shared/design-system';
 import { normalizeChoices, type ChoiceValue } from '../../_shared/choice';
 import Checkbox from '../Checkbox/Checkbox.vue';
 import type { CheckboxGroupProps } from './types';
+import { useTranslator } from '../../../i18n/translator';
 
 defineOptions({ inheritAttrs: false });
 
@@ -27,7 +28,7 @@ const props = withDefaults(defineProps<CheckboxGroupProps>(), {
   variant: 'default',
   columns: 1,
   selectAll: false,
-  selectAllLabel: 'Select all',
+  selectAllLabel: undefined,
   classes: undefined,
 });
 
@@ -36,6 +37,7 @@ const emit = defineEmits<{
 }>();
 
 const attrs = useAttrs();
+const { t } = useTranslator();
 const autoId = useId();
 
 /** Follows the prop, and the user's toggles when unbound. */
@@ -130,7 +132,7 @@ function toggleAll(on: boolean): void {
     <div v-if="selectAll" v-bind="part('checkbox-group', 'select-all', classes?.selectAll)">
       <Checkbox
         :id="`${groupId()}-all`"
-        :label="selectAllLabel"
+        :label="selectAllLabel ?? t('Select all')"
         :checked="enabled.length > 0 && enabledChecked === enabled.length"
         :indeterminate="enabledChecked > 0 && enabledChecked < enabled.length"
         :disabled="disabled"

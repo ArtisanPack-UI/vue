@@ -11,6 +11,7 @@ import { computed, nextTick, onMounted, ref, useSlots, watch } from 'vue';
 import { DsIcon, hasContent, part } from '../../_shared/design-system';
 import { focusField, normalizeErrors } from '../../_shared/form-text';
 import type { ValidationSummaryProps } from './types';
+import { useTranslator } from '../../../i18n/translator';
 
 const props = withDefaults(defineProps<ValidationSummaryProps>(), {
   errors: undefined,
@@ -20,6 +21,7 @@ const props = withDefaults(defineProps<ValidationSummaryProps>(), {
 });
 
 const slots = useSlots();
+const { tChoice } = useTranslator();
 const root = ref<HTMLElement | null>(null);
 
 const items = computed(() => normalizeErrors(props.errors));
@@ -28,9 +30,9 @@ const heading = computed(() => {
   if (props.title !== undefined && props.title !== '') return props.title;
   const count = items.value.length;
   if (props.color === 'warning') {
-    return count === 1 ? '1 recommendation' : `${count} recommendations`;
+    return tChoice('{count} recommendation|{count} recommendations', count);
   }
-  return count === 1 ? 'Fix 1 field' : `Fix ${count} fields`;
+  return tChoice('Fix {count} field|Fix {count} fields', count);
 });
 
 function focusRoot(): void {

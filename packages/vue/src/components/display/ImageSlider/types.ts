@@ -50,21 +50,21 @@ export interface ImageSliderProps {
   interval?: number;
   /** Shows a strip of thumbnails under the frame. @defaultValue `false` */
   thumbnails?: boolean;
-  /** Names the slider region. @defaultValue `'Photos'` */
+  /** Names the slider region. @defaultValue `'Photos'`, translated */
   label?: string;
-  /** The previous button's accessible name. @defaultValue `'Previous photo'` */
+  /** The previous button's accessible name. @defaultValue `'Previous photo'`, translated */
   previousLabel?: string;
-  /** The next button's accessible name. @defaultValue `'Next photo'` */
+  /** The next button's accessible name. @defaultValue `'Next photo'`, translated */
   nextLabel?: string;
-  /** A dot's accessible name; `{index}` is replaced. @defaultValue `'Photo {index}'` */
+  /** A dot's accessible name; `{index}` is replaced. @defaultValue `'Photo {index}'`, translated */
   indicatorLabel?: string;
-  /** A slide's accessible name. @defaultValue `'{index} of {count}'` */
+  /** A slide's accessible name. @defaultValue `'{index} of {count}'`, translated */
   slideLabel?: string;
-  /** The counter text. @defaultValue `'{index} / {count}'` */
+  /** The counter text. @defaultValue `'{index} / {count}'`, translated */
   counterLabel?: string;
-  /** The autoplay button's name while paused. @defaultValue `'Start slide rotation'` */
+  /** The autoplay button's name while paused. @defaultValue `'Start slide rotation'`, translated */
   playLabel?: string;
-  /** The autoplay button's name while playing. @defaultValue `'Stop slide rotation'` */
+  /** The autoplay button's name while playing. @defaultValue `'Stop slide rotation'`, translated */
   pauseLabel?: string;
   /** Extra classes per part. */
   classes?: Partial<Record<ImageSliderPart, string>>;

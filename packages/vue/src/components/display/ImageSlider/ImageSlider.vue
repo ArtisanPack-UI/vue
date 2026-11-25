@@ -12,6 +12,7 @@ import { computed, getCurrentInstance, mergeProps, ref, useAttrs } from 'vue';
 import { useCarousel } from '@artisanpack-ui/behavior/vue';
 import Button from '../../form/Button/Button.vue';
 import { DsIcon, part, safeMediaUrl } from '../../_shared/design-system';
+import { useTranslator } from '../../../i18n/translator';
 import type { ImageSliderPart, ImageSliderProps } from './types';
 
 defineOptions({ inheritAttrs: false });
@@ -23,14 +24,14 @@ const props = withDefaults(defineProps<ImageSliderProps>(), {
   autoplay: false,
   interval: 5000,
   thumbnails: false,
-  label: 'Photos',
-  previousLabel: 'Previous photo',
-  nextLabel: 'Next photo',
-  indicatorLabel: 'Photo {index}',
-  slideLabel: '{index} of {count}',
-  counterLabel: '{index} / {count}',
-  playLabel: 'Start slide rotation',
-  pauseLabel: 'Stop slide rotation',
+  label: undefined,
+  previousLabel: undefined,
+  nextLabel: undefined,
+  indicatorLabel: undefined,
+  slideLabel: undefined,
+  counterLabel: undefined,
+  playLabel: undefined,
+  pauseLabel: undefined,
   classes: undefined,
 });
 
@@ -39,6 +40,7 @@ const emit = defineEmits<{
 }>();
 
 const attrs = useAttrs();
+const { t } = useTranslator();
 const instance = getCurrentInstance();
 
 /** Whether the parent passes `index`, so the slider shows only what it says. */
@@ -57,13 +59,13 @@ const machine = useCarousel(() => ({
   autoplay: props.autoplay,
   interval: props.interval,
   labels: {
-    previous: props.previousLabel,
-    next: props.nextLabel,
-    indicator: props.indicatorLabel,
-    slide: props.slideLabel,
-    progress: props.counterLabel,
-    play: props.playLabel,
-    pause: props.pauseLabel,
+    previous: props.previousLabel ?? t('Previous photo'),
+    next: props.nextLabel ?? t('Next photo'),
+    indicator: props.indicatorLabel ?? t('Photo {index}'),
+    slide: props.slideLabel ?? t('{index} of {count}'),
+    progress: props.counterLabel ?? t('{index} / {count}'),
+    play: props.playLabel ?? t('Start slide rotation'),
+    pause: props.pauseLabel ?? t('Stop slide rotation'),
   },
   onIndexChange: ({ index }) => {
     if (!isBound()) localIndex.value = index;
@@ -89,7 +91,7 @@ function rootAttrs(): Record<string, unknown> {
   const own = carousel.value.getRootProps() as Record<string, unknown>;
   return mergeProps(attrs, own, {
     class: ['apui-image-slider', props.classes?.root],
-    'aria-label': props.label,
+    'aria-label': props.label ?? t('Photos'),
     style: { '--apui-_image-slider-ratio': props.aspectRatio },
   });
 }

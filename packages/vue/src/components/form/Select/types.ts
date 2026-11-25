@@ -59,7 +59,7 @@ export interface SelectProps {
   disabled?: boolean;
   /** Marks the field required, shows the required mark and makes the placeholder option unselectable. @defaultValue `false` */
   required?: boolean;
-  /** The empty first option. An empty string renders no placeholder option. @defaultValue `'Select…'` */
+  /** The empty first option. An empty string renders no placeholder option. @defaultValue `'Select…'`, translated */
   placeholder?: string;
   /** The selected value, bound with `v-model`. */
   modelValue?: string | number;

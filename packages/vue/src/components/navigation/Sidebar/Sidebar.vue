@@ -13,13 +13,14 @@
  */
 import AppShell from '../../layout/AppShell/AppShell.vue';
 import { warnOnce } from '../../_shared/design-system';
+import { useTranslator } from '../../../i18n/translator';
 import type { SidebarProps } from './types';
 
 withDefaults(defineProps<SidebarProps>(), {
   open: false,
   side: 'left',
   responsive: true,
-  ariaLabel: 'Sidebar navigation',
+  ariaLabel: undefined,
   className: undefined,
 });
 
@@ -29,10 +30,12 @@ defineEmits<{
 }>();
 
 warnOnce('Sidebar', 'Sidebar is deprecated; use AppShell.');
+
+const { t } = useTranslator();
 </script>
 
 <template>
-  <AppShell :label="ariaLabel" :class="className">
+  <AppShell :label="ariaLabel ?? t('Sidebar navigation')" :class="className">
     <template v-if="$slots.sidebar" #sidebar><slot name="sidebar" /></template>
     <slot />
   </AppShell>

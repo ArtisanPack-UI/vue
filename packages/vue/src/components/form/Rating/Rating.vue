@@ -11,6 +11,7 @@ import { computed, ref, useAttrs, useId, watch } from 'vue';
 import { DsIcon, flag, part } from '../../_shared/design-system';
 import { fillTemplate } from '../../_shared/choice';
 import type { RatingProps } from './types';
+import { useTranslator } from '../../../i18n/translator';
 
 defineOptions({ inheritAttrs: false });
 
@@ -22,7 +23,7 @@ const props = withDefaults(defineProps<RatingProps>(), {
   size: 'md',
   count: undefined,
   label: undefined,
-  valueLabel: ':value out of :max',
+  valueLabel: undefined,
   countLabel: undefined,
   classes: undefined,
 });
@@ -32,6 +33,7 @@ const emit = defineEmits<{
 }>();
 
 const attrs = useAttrs();
+const { t, tChoice } = useTranslator();
 const autoId = useId();
 
 const score = ref(props.modelValue);
@@ -47,12 +49,15 @@ const rounded = computed(() => Math.round((score.value ?? 0) * 2) / 2);
 
 const format = (value: number) => String(Math.round(value * 10) / 10);
 const valueText = (value: number) =>
-  fillTemplate(props.valueLabel, { value: format(value), max: props.max });
+  fillTemplate(props.valueLabel ?? t(':value out of :max'), {
+    value: format(value),
+    max: props.max,
+  });
 
 const countText = computed(() => {
   if (props.count === undefined) return undefined;
   if (props.countLabel !== undefined) return fillTemplate(props.countLabel, { count: props.count });
-  return props.count === 1 ? `(${props.count} review)` : `(${props.count} reviews)`;
+  return tChoice('({count} review)|({count} reviews)', props.count);
 });
 
 function rootId(): string {

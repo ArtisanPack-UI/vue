@@ -7,17 +7,12 @@
  * package's `diffText`, the same ones Blade and React render: no diff
  * library. The header mirrors in RTL; the table stays LTR (D-004).
  */
-import {
-  DIFF_COUNTS_LABEL,
-  DIFF_EMPTY_LABEL,
-  diffCountsLabel,
-  diffText,
-  splitRows,
-} from '@artisanpack-ui/behavior';
+import { diffCountsLabel, diffText, splitRows } from '@artisanpack-ui/behavior';
 import { computed, useSlots } from 'vue';
 import { DsIcon, part } from '../../_shared/design-system';
 import DiffCells from './DiffCells';
 import type { DiffProps } from './types';
+import { useTranslator } from '../../../i18n/translator';
 
 const props = withDefaults(defineProps<DiffProps>(), {
   oldContent: undefined,
@@ -26,13 +21,14 @@ const props = withDefaults(defineProps<DiffProps>(), {
   view: 'unified',
   wordLevel: true,
   context: 3,
-  countsLabel: DIFF_COUNTS_LABEL,
-  emptyLabel: DIFF_EMPTY_LABEL,
+  countsLabel: undefined,
+  emptyLabel: undefined,
   actions: undefined,
   classes: undefined,
 });
 
 const slots = useSlots();
+const { t } = useTranslator();
 
 const filled = (value: unknown): boolean => value !== undefined && value !== null && value !== '';
 const result = computed(() =>
@@ -44,8 +40,13 @@ const result = computed(() =>
 const shown = computed(() => (props.view === 'split' ? 'split' : 'unified'));
 const columns = computed(() => (shown.value === 'split' ? 6 : 4));
 const countsText = computed(() =>
-  diffCountsLabel(props.countsLabel, result.value.additions, result.value.deletions),
+  diffCountsLabel(
+    props.countsLabel ?? t('{additions} additions, {deletions} deletions'),
+    result.value.additions,
+    result.value.deletions,
+  ),
 );
+const emptyText = computed(() => props.emptyLabel ?? t('No changes'));
 const hasActions = () => !!slots.actions || filled(props.actions);
 </script>
 
@@ -70,7 +71,7 @@ const hasActions = () => !!slots.actions || filled(props.actions);
     <table v-bind="part('diff', 'table', classes?.table)">
       <tbody>
         <tr v-if="result.hunks.length === 0" v-bind="part('diff', 'hunk', classes?.hunk)">
-          <td :colspan="columns">{{ emptyLabel }}</td>
+          <td :colspan="columns">{{ emptyText }}</td>
         </tr>
         <template v-for="(hunk, hunkIndex) in result.hunks" :key="hunkIndex">
           <tr v-bind="part('diff', 'hunk', classes?.hunk)">

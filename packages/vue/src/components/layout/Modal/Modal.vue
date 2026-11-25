@@ -13,6 +13,7 @@
  */
 import Dialog from '../Dialog/Dialog.vue';
 import { warnOnce } from '../../_shared/design-system';
+import { useTranslator } from '../../../i18n/translator';
 import type { ModalProps } from './types';
 
 const props = withDefaults(defineProps<ModalProps>(), {
@@ -30,6 +31,8 @@ const emit = defineEmits<{
 
 warnOnce('Modal', 'Modal is deprecated; use Dialog.');
 
+const { t } = useTranslator();
+
 /** Forwards the Dialog's open changes, except a close while `persistent`. */
 function onOpenChange(open: boolean): void {
   if (props.persistent && !open) return;
@@ -45,7 +48,7 @@ function onOpenChange(open: boolean): void {
     :surface="glass ? 'glass' : undefined"
     :role="persistent ? 'alertdialog' : undefined"
     :hide-close="persistent || undefined"
-    :aria-label="title ? undefined : ariaLabel || 'Dialog'"
+    :aria-label="title ? undefined : ariaLabel || t('Dialog')"
     @update:open="onOpenChange"
   >
     <template v-if="$slots.default" #default><slot /></template>

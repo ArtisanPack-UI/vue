@@ -10,13 +10,14 @@
 import ErrorState from '../ErrorState/ErrorState.vue';
 import Button from '../../form/Button/Button.vue';
 import { warnOnce } from '../../_shared/design-system';
+import { useTranslator } from '../../../i18n/translator';
 import type { ErrorDisplayProps } from './types';
 
 withDefaults(defineProps<ErrorDisplayProps>(), {
-  title: 'Something went wrong',
+  title: undefined,
   message: undefined,
   retryable: false,
-  retryLabel: 'Try again',
+  retryLabel: undefined,
   className: undefined,
 });
 
@@ -25,14 +26,18 @@ const emit = defineEmits<{
 }>();
 
 warnOnce('ErrorDisplay', 'ErrorDisplay is deprecated; use ErrorState.');
+
+const { t } = useTranslator();
 </script>
 
 <template>
-  <ErrorState :title="title" :description="message" :class="className">
+  <ErrorState :title="title ?? t('Something went wrong')" :description="message" :class="className">
     <template v-if="$slots.icon" #icon><slot name="icon" /></template>
     <template v-if="$slots.default" #default>{{ message }}<slot /></template>
     <template v-if="retryable" #actions>
-      <Button leading-icon="refresh-cw" @click="emit('retry')">{{ retryLabel }}</Button>
+      <Button leading-icon="refresh-cw" @click="emit('retry')">{{
+        retryLabel ?? t('Try again')
+      }}</Button>
     </template>
   </ErrorState>
 </template>

@@ -31,7 +31,7 @@ export interface NavbarProps {
   search?: string;
   /** The controls at the end. The `actions` slot overrides it. */
   actions?: string;
-  /** Names the links' nav landmark. @defaultValue `'Main'` */
+  /** Names the links' nav landmark. @defaultValue `'Main'`, translated */
   label?: string;
   /** Extra classes per part; `classes.root` merges with `class`. */
   classes?: Partial<Record<NavbarPart, string>>;

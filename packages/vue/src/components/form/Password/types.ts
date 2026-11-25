@@ -73,9 +73,9 @@ export interface PasswordProps {
   strengthMeter?: boolean;
   /** Rules shown under the box and checked as people type. */
   requirements?: PasswordRequirement[];
-  /** The reveal button's accessible name; aria-pressed carries the state. @defaultValue `'Show password'` */
+  /** The reveal button's accessible name; aria-pressed carries the state. @defaultValue `'Show password'`, translated */
   revealLabel?: string;
-  /** Built-in text; keys you leave out keep their English defaults. */
+  /** Built-in text; keys you leave out keep their translated defaults. */
   labels?: Partial<PasswordLabels>;
   /** Extra classes per part, such as `{ box: '…', reveal: '…' }`. */
   classes?: Partial<Record<PasswordPart, string>>;

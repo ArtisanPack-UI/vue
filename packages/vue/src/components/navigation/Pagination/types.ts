@@ -20,17 +20,17 @@ export interface PaginationProps {
   siblings?: number;
   /** Shows the summary before the pages. @defaultValue `false` */
   summary?: boolean;
-  /** The nav landmark's accessible name; translate it. @defaultValue `'Pagination'` */
+  /** The nav landmark's accessible name. @defaultValue `'Pagination'`, translated */
   label?: string;
-  /** The previous button's accessible name; translate it. @defaultValue `'Previous page'` */
+  /** The previous button's accessible name. @defaultValue `'Previous page'`, translated */
   previousLabel?: string;
-  /** The next button's accessible name; translate it. @defaultValue `'Next page'` */
+  /** The next button's accessible name. @defaultValue `'Next page'`, translated */
   nextLabel?: string;
-  /** Each page's accessible name, with `{page}`; translate it. @defaultValue `'Page {page}'` */
+  /** Each page's accessible name, with `{page}`. @defaultValue `'Page {page}'`, translated */
   pageLabel?: string;
   /**
    * The summary, with `{from}`, `{to}`, `{total}`, `{page}` and `{pageCount}`.
-   * @defaultValue `'Showing {from}–{to} of {total}'`, or `'Page {page} of {pageCount}'` without a total
+   * @defaultValue `'Showing {from}–{to} of {total}'`, or `'Page {page} of {pageCount}'` without a total, translated
    */
   summaryLabel?: string;
   /** Extra classes per part, such as `{ page: '…', summary: '…' }`. */

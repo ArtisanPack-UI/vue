@@ -27,17 +27,17 @@ export interface MarkdownProps {
    * markup never renders. @defaultValue `true`
    */
   sanitize?: boolean;
-  /** Names the mode tabs; translate it. @defaultValue `'Markdown mode'` */
+  /** Names the mode tabs. @defaultValue `'Markdown mode'`, translated */
   tabsLabel?: string;
-  /** The Write tab; translate it. @defaultValue `'Write'` */
+  /** The Write tab. @defaultValue `'Write'`, translated */
   writeLabel?: string;
-  /** The Preview tab; translate it. @defaultValue `'Preview'` */
+  /** The Preview tab. @defaultValue `'Preview'`, translated */
   previewLabel?: string;
-  /** The Split tab; translate it. @defaultValue `'Split'` */
+  /** The Split tab. @defaultValue `'Split'`, translated */
   splitLabel?: string;
-  /** Names the source Textarea; translate it. @defaultValue `'Markdown source'` */
+  /** Names the source Textarea. @defaultValue `'Markdown source'`, translated */
   editorLabel?: string;
-  /** Names the preview region in write and split modes; translate it. @defaultValue `'Rendered preview'` */
+  /** Names the preview region in write and split modes. @defaultValue `'Rendered preview'`, translated */
   outputLabel?: string;
   /** Extra classes per part. */
   classes?: Partial<Record<MarkdownPart, string>>;

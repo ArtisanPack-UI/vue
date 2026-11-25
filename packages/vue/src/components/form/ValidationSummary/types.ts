@@ -28,7 +28,7 @@ export interface ValidationSummaryProps {
   errors?: ValidationSummaryErrors;
   /** Error blocks the submit (an alert); warning lists recommendations (a status). @defaultValue `'error'` */
   color?: ValidationSummaryColor;
-  /** The heading. Defaults to "Fix N fields" (error) or "N recommendations" (warning). */
+  /** The heading. Defaults to "Fix N fields" (error) or "N recommendations" (warning), translated. */
   title?: string;
   /** Extra classes per part, such as `{ title: '…', list: '…' }`. */
   classes?: Partial<Record<ValidationSummaryPart, string>>;

@@ -18,7 +18,7 @@ export interface LoadingProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   /** Tints the indicator. @defaultValue `'primary'` */
   color?: 'primary' | 'secondary' | 'accent' | 'neutral' | 'success' | 'warning' | 'error' | 'info';
-  /** What's loading, for screen readers, when there's no visible text; translate it. @defaultValue `'Loading'` */
+  /** What's loading, for screen readers, when there's no visible text. @defaultValue `'Loading'`, translated */
   label?: string;
   /** Covers the nearest positioned ancestor. Set `aria-busy` on that region. @defaultValue `false` */
   overlay?: boolean;

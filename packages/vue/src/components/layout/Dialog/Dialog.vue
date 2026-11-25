@@ -11,6 +11,7 @@ import { computed, getCurrentInstance, mergeProps, ref, useAttrs, useSlots } fro
 import { useDialog } from '@artisanpack-ui/behavior/vue';
 import Button from '../../form/Button/Button.vue';
 import { definedProps, DsIcon, hasContent, part } from '../../_shared/design-system';
+import { useTranslator } from '../../../i18n/translator';
 import type { DialogProps } from './types';
 
 defineOptions({ inheritAttrs: false });
@@ -29,7 +30,7 @@ const props = withDefaults(defineProps<DialogProps>(), {
   modal: true,
   portal: true,
   hideClose: false,
-  closeLabel: 'Close',
+  closeLabel: undefined,
   classes: undefined,
 });
 
@@ -39,6 +40,8 @@ const emit = defineEmits<{
 
 const attrs = useAttrs();
 const instance = getCurrentInstance();
+
+const { t } = useTranslator();
 
 /**
  * Whether the parent passes `open`. Then the dialog is controlled: it reports
@@ -168,7 +171,7 @@ function withClass(zagProps: unknown, className: string | undefined): Record<str
             size="sm"
             icon-only
             leading-icon="x"
-            :aria-label="closeLabel"
+            :aria-label="closeLabel ?? t('Close')"
             v-bind="withClass(dialog.getCloseTriggerProps(), classOf('closeTrigger'))"
           />
         </div>

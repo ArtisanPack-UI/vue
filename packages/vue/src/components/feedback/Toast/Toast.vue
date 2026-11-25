@@ -11,6 +11,7 @@ import { mergeProps, useAttrs, useId, useSlots } from 'vue';
 import { staticToastParts } from '@artisanpack-ui/behavior/vue';
 import Button from '../../form/Button/Button.vue';
 import { DsIcon } from '../../_shared/design-system';
+import { useTranslator } from '../../../i18n/translator';
 import type { ToastPart, ToastProps } from './types';
 
 defineOptions({ inheritAttrs: false });
@@ -24,9 +25,11 @@ const props = withDefaults(defineProps<ToastProps>(), {
   icon: undefined,
   actions: undefined,
   hideClose: false,
-  closeLabel: 'Dismiss notification',
+  closeLabel: undefined,
   classes: undefined,
 });
+
+const { t } = useTranslator();
 
 const emit = defineEmits<{
   'open-change': [open: boolean];
@@ -64,7 +67,7 @@ function parts() {
       description: hasDescription() ? (props.description ?? ' ') : undefined,
     },
     { root: `${id}-toast`, title: `${id}-title`, description: `${id}-description` },
-    { closeTriggerLabel: props.closeLabel },
+    { closeTriggerLabel: props.closeLabel ?? t('Dismiss notification') },
   );
 }
 

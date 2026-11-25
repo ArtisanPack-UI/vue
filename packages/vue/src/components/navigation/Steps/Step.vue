@@ -6,6 +6,7 @@
  */
 import { computed, inject, useSlots } from 'vue';
 import { DsIcon, hasContent, part } from '../../_shared/design-system';
+import { useTranslator } from '../../../i18n/translator';
 import { STEPS_KEY } from './keys';
 import type { StepProps, StepState } from './types';
 
@@ -18,6 +19,7 @@ const props = withDefaults(defineProps<StepProps>(), {
 });
 
 const steps = inject(STEPS_KEY, null);
+const { t } = useTranslator();
 const slots = useSlots();
 
 const STATES: readonly StepState[] = ['complete', 'current', 'upcoming', 'error'];
@@ -36,8 +38,8 @@ const markerIcon = computed(
 );
 
 const stateLabel = computed(() => {
-  if (resolved.value === 'complete') return steps?.completeLabel.value ?? 'Completed';
-  if (resolved.value === 'error') return steps?.errorLabel.value ?? 'Error';
+  if (resolved.value === 'complete') return steps?.completeLabel.value ?? t('Completed');
+  if (resolved.value === 'error') return steps?.errorLabel.value ?? t('Error');
   return null;
 });
 

@@ -7,6 +7,7 @@
  * same children from `steps`.
  */
 import { computed, provide } from 'vue';
+import { useTranslator } from '../../../i18n/translator';
 import { STEPS_KEY } from './keys';
 import StepsChildren from './StepsChildren';
 import type { StepsPart, StepsProps } from './types';
@@ -17,8 +18,8 @@ const props = withDefaults(defineProps<StepsProps>(), {
   orientation: 'horizontal',
   clickable: false,
   label: undefined,
-  completeLabel: 'Completed',
-  errorLabel: 'Error',
+  completeLabel: undefined,
+  errorLabel: undefined,
   classes: undefined,
 });
 
@@ -26,11 +27,13 @@ const emit = defineEmits<{
   'update:modelValue': [value: number];
 }>();
 
+const { t } = useTranslator();
+
 provide(STEPS_KEY, {
   value: computed(() => props.modelValue),
   clickable: computed(() => props.clickable),
-  completeLabel: computed(() => props.completeLabel),
-  errorLabel: computed(() => props.errorLabel),
+  completeLabel: computed(() => props.completeLabel ?? t('Completed')),
+  errorLabel: computed(() => props.errorLabel ?? t('Error')),
   classOf: (name: StepsPart) => props.classes?.[name],
   select: (step: number) => emit('update:modelValue', step),
 });

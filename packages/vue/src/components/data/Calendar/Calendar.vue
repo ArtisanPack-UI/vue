@@ -11,7 +11,6 @@
  * body). `v-model:view` and `v-model:date` bind the view and date.
  */
 import {
-  CALENDAR_LABELS,
   CALENDAR_MAX_EVENTS,
   calendarGridKeydown,
   calendarModel,
@@ -19,6 +18,7 @@ import {
   rovingKeydown,
   type CalendarEvent,
   type CalendarItem,
+  type CalendarLabels,
   type CalendarView,
 } from '@artisanpack-ui/behavior';
 import { computed, nextTick, ref, useAttrs, useId, watch } from 'vue';
@@ -30,6 +30,7 @@ import Stack from '../../layout/Stack/Stack.vue';
 import Text from '../../layout/Text/Text.vue';
 import Badge from '../../display/Badge/Badge.vue';
 import type { CalendarProps } from './types';
+import { useTranslator } from '../../../i18n/translator';
 
 const props = withDefaults(defineProps<CalendarProps>(), {
   view: undefined,
@@ -37,7 +38,7 @@ const props = withDefaults(defineProps<CalendarProps>(), {
   today: undefined,
   events: () => [],
   weekStartsOn: undefined,
-  locale: 'en-US',
+  locale: undefined,
   timeZone: undefined,
   maxEvents: CALENDAR_MAX_EVENTS,
   creatable: false,
@@ -118,6 +119,28 @@ const selected = ref<CalendarItem | null>(null);
 /** The cell the arrow keys last focused, for the view and date it was in. */
 const roving = ref<{ period: string; date: string } | null>(null);
 
+const { t, locale: translatorLocale } = useTranslator();
+
+/** The calendar's built-in text in the current locale. */
+function calendarLabels(): CalendarLabels {
+  return {
+    today: t('Today'),
+    previous: t('Previous'),
+    next: t('Next'),
+    views: t('Calendar view'),
+    month: t('Month'),
+    week: t('Week'),
+    day: t('Day'),
+    agenda: t('Agenda'),
+    allDay: t('All day'),
+    more: t('+{count} more'),
+    showMore: t('Show {count} more events on {date}'),
+    newEvent: t('New event'),
+    empty: t('No events'),
+    legend: t('Categories'),
+  };
+}
+
 const classes = computed(() => props.classes ?? {});
 const model = computed(() =>
   calendarModel({
@@ -126,10 +149,10 @@ const model = computed(() =>
     today: props.today,
     events: props.events,
     weekStartsOn: props.weekStartsOn ?? props.weekStart,
-    locale: props.locale,
+    locale: props.locale ?? translatorLocale.value ?? 'en-US',
     timeZone: props.timeZone,
     maxEvents: props.maxEvents,
-    labels: { ...CALENDAR_LABELS, ...(props.labels ?? {}) },
+    labels: { ...calendarLabels(), ...(props.labels ?? {}) },
   }),
 );
 const text = computed(() => model.value.labels);

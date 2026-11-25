@@ -60,11 +60,11 @@ export interface StatProps {
   emphasis?: boolean;
   /** No container, for a stat inside a Card. @defaultValue `false` */
   bare?: boolean;
-  /** Hidden text before an up delta; translate it. @defaultValue `'Increase'` */
+  /** Hidden text before an up delta. @defaultValue `'Increase'`, translated */
   upLabel?: string;
-  /** Hidden text before a down delta; translate it. @defaultValue `'Decrease'` */
+  /** Hidden text before a down delta. @defaultValue `'Decrease'`, translated */
   downLabel?: string;
-  /** Hidden text before a flat delta; translate it. @defaultValue `'No change'` */
+  /** Hidden text before a flat delta. @defaultValue `'No change'`, translated */
   flatLabel?: string;
   /** Extra classes per part. */
   classes?: Partial<Record<StatPart, string>>;

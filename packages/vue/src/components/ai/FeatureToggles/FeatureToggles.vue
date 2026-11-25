@@ -11,20 +11,26 @@ import Stack from '../../layout/Stack/Stack.vue';
 import Text from '../../layout/Text/Text.vue';
 import type { AiApiClient, AiFeature } from '../types';
 import { errorMessage } from '../errorMessage';
-import { FEATURE_TOGGLES_LABELS, type FeatureTogglesLabels } from '../labels';
+import { useTranslator } from '../../../i18n/translator';
+import { featureTogglesLabels, type FeatureTogglesLabels } from '../labels';
 
 interface Props {
   /** API client wrapping the artisanpack-ui/ai JSON endpoints. */
   client: AiApiClient;
   /** Optional heading rendered above the list. */
   heading?: string;
-  /** Built-in text, merged over the English defaults; translate it. */
+  /** Built-in text, merged over the defaults (English, or the active locale's when translations are provided). */
   labels?: Partial<FeatureTogglesLabels>;
 }
 
 const props = withDefaults(defineProps<Props>(), { heading: undefined, labels: undefined });
 
-const text = computed<FeatureTogglesLabels>(() => ({ ...FEATURE_TOGGLES_LABELS, ...props.labels }));
+const { t } = useTranslator();
+
+const text = computed<FeatureTogglesLabels>(() => ({
+  ...featureTogglesLabels(t),
+  ...props.labels,
+}));
 const emit = defineEmits<{
   toggle: [feature: Pick<AiFeature, 'key' | 'package' | 'enabled'>];
 }>();

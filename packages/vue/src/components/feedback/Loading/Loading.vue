@@ -8,6 +8,7 @@
  */
 import { mergeProps, useAttrs, useSlots } from 'vue';
 import { flag, hasContent, part } from '../../_shared/design-system';
+import { useTranslator } from '../../../i18n/translator';
 import type { LoadingProps } from './types';
 
 defineOptions({ inheritAttrs: false });
@@ -16,11 +17,13 @@ const props = withDefaults(defineProps<LoadingProps>(), {
   variant: 'spinner',
   size: 'md',
   color: 'primary',
-  label: 'Loading',
+  label: undefined,
   overlay: false,
   delay: 300,
   classes: undefined,
 });
+
+const { t } = useTranslator();
 
 const attrs = useAttrs();
 const slots = useSlots();
@@ -59,7 +62,7 @@ function labelAttrs(): Record<string, unknown> {
       ><template v-if="variant === 'dots'"><span /><span /><span /></template
     ></span>
     <span v-bind="labelAttrs()"
-      ><slot>{{ label }}</slot></span
+      ><slot>{{ label ?? t('Loading') }}</slot></span
     >
   </span>
 </template>

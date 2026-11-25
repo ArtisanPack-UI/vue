@@ -64,33 +64,33 @@ export interface CodeEditorProps {
   placeholder?: string;
   /** The code. Bound with `v-model`. */
   modelValue?: string;
-  /** The file tablist's accessible name. @defaultValue `'Open files'` */
+  /** The file tablist's accessible name. @defaultValue `'Open files'`, translated */
   tabsLabel?: string;
-  /** The language select's accessible name. @defaultValue `'Language'` */
+  /** The language select's accessible name. @defaultValue `'Language'`, translated */
   languageLabel?: string;
-  /** The caret position in the status bar; :line and :column are numbers. @defaultValue `'Ln :line, Col :column'` */
+  /** The caret position in the status bar; :line and :column are numbers. @defaultValue `'Ln :line, Col :column'`, translated */
   positionLabel?: string;
-  /** The indentation in the status bar; :count is tabSize. @defaultValue `'Spaces: :count'` */
+  /** The indentation in the status bar; :count is tabSize. @defaultValue `'Spaces: :count'`, translated */
   spacesLabel?: string;
-  /** The status bar's count for one error. @defaultValue `':count error'` */
+  /** The status bar's count for one error. @defaultValue `':count error'`, translated */
   errorCountLabel?: string;
-  /** The status bar's error count; :count is the number. @defaultValue `':count errors'` */
+  /** The status bar's error count; :count is the number. @defaultValue `':count errors'`, translated */
   errorsCountLabel?: string;
-  /** The status bar's count for one warning. @defaultValue `':count warning'` */
+  /** The status bar's count for one warning. @defaultValue `':count warning'`, translated */
   warningCountLabel?: string;
-  /** The status bar's warning count; :count is the number. @defaultValue `':count warnings'` */
+  /** The status bar's warning count; :count is the number. @defaultValue `':count warnings'`, translated */
   warningsCountLabel?: string;
-  /** The diagnostics list's accessible name. @defaultValue `'Problems'` */
+  /** The diagnostics list's accessible name. @defaultValue `'Problems'`, translated */
   problemsLabel?: string;
-  /** A diagnostic's line; :line is the number. @defaultValue `'Line :line'` */
+  /** A diagnostic's line; :line is the number. @defaultValue `'Line :line'`, translated */
   lineLabel?: string;
-  /** The visually hidden severity name of an error. @defaultValue `'Error'` */
+  /** The visually hidden severity name of an error. @defaultValue `'Error'`, translated */
   severityErrorLabel?: string;
-  /** The visually hidden severity name of a warning. @defaultValue `'Warning'` */
+  /** The visually hidden severity name of a warning. @defaultValue `'Warning'`, translated */
   severityWarningLabel?: string;
-  /** The visually hidden severity name of an info diagnostic. @defaultValue `'Info'` */
+  /** The visually hidden severity name of an info diagnostic. @defaultValue `'Info'`, translated */
   severityInfoLabel?: string;
-  /** The visually hidden keyboard instructions linked to the control. @defaultValue `'Tab inserts indentation. To leave the editor, press Escape, then Tab.'` */
+  /** The visually hidden keyboard instructions linked to the control. @defaultValue `'Tab inserts indentation. To leave the editor, press Escape, then Tab.'`, translated */
   instructionsLabel?: string;
   /** Extra classes per part. */
   classes?: Partial<Record<CodeEditorPart, string>>;

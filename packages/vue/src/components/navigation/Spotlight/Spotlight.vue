@@ -12,6 +12,7 @@ import { computed, getCurrentInstance, mergeProps, ref, useAttrs, useSlots } fro
 import { highlightLabel, type SpotlightEntry, useSpotlight } from '@artisanpack-ui/behavior/vue';
 import Button from '../../form/Button/Button.vue';
 import { DsIcon, part, safeHref } from '../../_shared/design-system';
+import { useTranslator } from '../../../i18n/translator';
 import type { SpotlightProps, SpotlightResult } from './types';
 
 defineOptions({ inheritAttrs: false });
@@ -24,14 +25,14 @@ const props = withDefaults(defineProps<SpotlightProps>(), {
   loading: false,
   shortcut: 'mod+k',
   recent: false,
-  label: 'Search',
-  placeholder: 'Search…',
-  emptyLabel: 'No results.',
-  loadingLabel: 'Searching…',
-  recentLabel: 'Recent',
-  closeLabel: 'Close',
-  navigateLabel: 'Navigate',
-  selectLabel: 'Open',
+  label: undefined,
+  placeholder: undefined,
+  emptyLabel: undefined,
+  loadingLabel: undefined,
+  recentLabel: undefined,
+  closeLabel: undefined,
+  navigateLabel: undefined,
+  selectLabel: undefined,
   trigger: undefined,
   footer: undefined,
   modal: true,
@@ -46,6 +47,19 @@ const emit = defineEmits<{
 }>();
 
 const attrs = useAttrs();
+const { t } = useTranslator();
+
+/** The built-in text: each prop, or its translated default. */
+const text = computed(() => ({
+  label: props.label ?? t('Search'),
+  placeholder: props.placeholder ?? t('Search…'),
+  emptyLabel: props.emptyLabel ?? t('No results.'),
+  loadingLabel: props.loadingLabel ?? t('Searching…'),
+  recentLabel: props.recentLabel ?? t('Recent'),
+  closeLabel: props.closeLabel ?? t('Close'),
+  navigateLabel: props.navigateLabel ?? t('Navigate'),
+  selectLabel: props.selectLabel ?? t('Open'),
+}));
 const slots = useSlots();
 const instance = getCurrentInstance();
 
@@ -66,11 +80,11 @@ const machine = useSpotlight(() => ({
   remote: props.remote,
   loading: props.loading,
   modal: props.modal,
-  label: props.label,
+  label: text.value.label,
   shortcut: props.shortcut,
   recent: props.recent,
-  recentLabel: props.recentLabel,
-  translations: { noResults: props.emptyLabel, loading: props.loadingLabel },
+  recentLabel: text.value.recentLabel,
+  translations: { noResults: text.value.emptyLabel, loading: text.value.loadingLabel },
   onOpenChange: (open: boolean) => {
     if (!isBound('open')) localOpen.value = open;
     emit('update:open', open);
@@ -171,8 +185,8 @@ const keysAttrs = () =>
           <input
             v-bind="
               withClass(api.getQueryProps(), classOf('query'), {
-                'aria-label': label,
-                placeholder,
+                'aria-label': text.label,
+                placeholder: text.placeholder,
                 'aria-keyshortcuts': api.ariaKeyShortcuts,
               })
             "
@@ -181,7 +195,7 @@ const keysAttrs = () =>
             type="button"
             v-bind="
               withClass(api.getCloseTriggerProps(), classOf('closeTrigger'), {
-                'aria-label': `Esc, ${closeLabel}`,
+                'aria-label': `Esc, ${text.closeLabel}`,
                 'aria-keyshortcuts': 'Escape',
               })
             "
@@ -189,7 +203,11 @@ const keysAttrs = () =>
             Esc
           </button>
         </div>
-        <div v-bind="withClass(api.getResultsProps(), classOf('results'), { 'aria-label': label })">
+        <div
+          v-bind="
+            withClass(api.getResultsProps(), classOf('results'), { 'aria-label': text.label })
+          "
+        >
           <div
             v-for="group in api.groups"
             :key="group.id"
@@ -247,10 +265,10 @@ const keysAttrs = () =>
             </component>
           </div>
           <div v-bind="withClass(api.getEmptyProps(), classOf('empty'))">
-            <slot name="empty">{{ emptyLabel }}</slot>
+            <slot name="empty">{{ text.emptyLabel }}</slot>
           </div>
           <div v-bind="withClass(api.getLoadingProps(), classOf('loading'))">
-            {{ loadingLabel }}
+            {{ text.loadingLabel }}
           </div>
         </div>
         <div v-bind="part('spotlight', 'footer', classOf('footer'))">
@@ -259,11 +277,11 @@ const keysAttrs = () =>
             <template v-else>
               <span
                 ><span v-bind="keysAttrs()"><kbd>↑</kbd><kbd>↓</kbd></span
-                >{{ navigateLabel }}</span
+                >{{ text.navigateLabel }}</span
               >
               <span
                 ><span v-bind="keysAttrs()"><kbd>↵</kbd></span
-                >{{ selectLabel }}</span
+                >{{ text.selectLabel }}</span
               >
             </template>
           </slot>

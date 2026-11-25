@@ -88,7 +88,7 @@ export interface ComboboxProps {
   disabled?: boolean;
   /** Marks the field required and shows the required mark. @defaultValue `false` */
   required?: boolean;
-  /** Shown in the empty input. @defaultValue `'Search…'` */
+  /** Shown in the empty input. @defaultValue `'Search…'`, translated */
   placeholder?: string;
   /**
    * Submits the value with a native form: a hidden input carrying the value,
@@ -118,19 +118,19 @@ export interface ComboboxProps {
   portal?: boolean;
   /** Icon name before the input. The `icon` slot overrides it. */
   leadingIcon?: string;
-  /** Shown when nothing matches; `{search}` is the typed text. @defaultValue `'No matches for “{search}”.'` */
+  /** Shown when nothing matches; `{search}` is the typed text. @defaultValue `'No matches for “{search}”.'`, translated */
   emptyLabel?: string;
-  /** Shown in the listbox while loading. @defaultValue `'Loading…'` */
+  /** Shown in the listbox while loading. @defaultValue `'Loading…'`, translated */
   loadingLabel?: string;
-  /** The create option's text; `{value}` is the typed text. @defaultValue `'Create “{value}”'` */
+  /** The create option's text; `{value}` is the typed text. @defaultValue `'Create “{value}”'`, translated */
   createLabel?: string;
-  /** A chip's remove button's name; `{label}` is the chip. @defaultValue `'Remove {label}'` */
+  /** A chip's remove button's name; `{label}` is the chip. @defaultValue `'Remove {label}'`, translated */
   removeLabel?: string;
-  /** Announced when a chip is removed. @defaultValue `'Removed {label}.'` */
+  /** Announced when a chip is removed. @defaultValue `'Removed {label}.'`, translated */
   removedLabel?: string;
-  /** The clear button's name. @defaultValue `'Clear'` */
+  /** The clear button's name. @defaultValue `'Clear'`, translated */
   clearLabel?: string;
-  /** The chevron button's name. @defaultValue `'Show options'` */
+  /** The chevron button's name. @defaultValue `'Show options'`, translated */
   triggerLabel?: string;
   /** Extra classes per part, such as `{ label: '…', content: '…', chip: '…' }`. */
   classes?: Partial<Record<ComboboxPart, string>>;

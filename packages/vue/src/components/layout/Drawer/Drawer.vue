@@ -12,6 +12,7 @@ import { computed, getCurrentInstance, mergeProps, ref, useAttrs, useSlots } fro
 import { useDrawer } from '@artisanpack-ui/behavior/vue';
 import Button from '../../form/Button/Button.vue';
 import { definedProps, hasContent, part } from '../../_shared/design-system';
+import { useTranslator } from '../../../i18n/translator';
 import type { DrawerProps } from './types';
 
 defineOptions({ inheritAttrs: false });
@@ -28,7 +29,7 @@ const props = withDefaults(defineProps<DrawerProps>(), {
   modal: true,
   portal: true,
   hideClose: false,
-  closeLabel: 'Close',
+  closeLabel: undefined,
   classes: undefined,
 });
 
@@ -38,6 +39,8 @@ const emit = defineEmits<{
 
 const attrs = useAttrs();
 const instance = getCurrentInstance();
+
+const { t } = useTranslator();
 const slots = useSlots();
 
 /** Whether the parent passes `open`: then the drawer shows only what the prop says (see Dialog). */
@@ -145,7 +148,7 @@ function withClass(zagProps: unknown, className: string | undefined): Record<str
             size="sm"
             icon-only
             leading-icon="x"
-            :aria-label="closeLabel"
+            :aria-label="closeLabel ?? t('Close')"
             v-bind="withClass(drawer.getCloseTriggerProps(), classOf('closeTrigger'))"
           />
         </div>
