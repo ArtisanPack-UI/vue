@@ -8,8 +8,9 @@
  * @packageDocumentation
  */
 
-import type { App, Component, Plugin } from 'vue';
+import type { App, Component, MaybeRefOrGetter, Plugin } from 'vue';
 import { DefaultColorSchemeKey, type ColorScheme } from '../types/theme';
+import { createTranslatorRef, TranslatorKey, type TranslationMessages } from '../i18n/translator';
 
 export { DefaultColorSchemeKey };
 export type { ColorScheme } from '../types/theme';
@@ -36,6 +37,20 @@ export interface ArtisanPackUIOptions {
    * When omitted, no components are globally registered (tree-shakeable imports are preferred).
    */
   components?: Record<string, Component>;
+
+  /**
+   * The locale for the components' built-in text, as a BCP 47 tag or a
+   * Laravel locale (`pt_BR`). A ref or getter switches language at runtime.
+   * Without it the components render English.
+   */
+  locale?: MaybeRefOrGetter<string>;
+
+  /**
+   * The catalogue for `locale`, keyed by the English text. Spread a shipped
+   * one and add overrides: `{ ...es, Close: 'Salir' }`. Strings missing from
+   * it render in English.
+   */
+  messages?: MaybeRefOrGetter<TranslationMessages | undefined>;
 }
 
 /**
@@ -69,16 +84,31 @@ export interface ArtisanPackUIOptions {
  * }));
  * // Components available as <ApButton />, <ApCard />, <ApInput />
  *
+ * // Install with translations for the components' built-in text
+ * import es from '@artisanpack-ui/vue/lang/es.json';
+ *
+ * app.use(createArtisanPackUI({ locale: 'es', messages: es }));
+ *
  * app.mount('#app');
  * ```
  */
 export function createArtisanPackUI(options: ArtisanPackUIOptions = {}): Plugin {
-  const { prefix = 'Ap', defaultColorScheme = 'system', components = {} } = options;
+  const {
+    prefix = 'Ap',
+    defaultColorScheme = 'system',
+    components = {},
+    locale,
+    messages,
+  } = options;
 
   return {
     install(app: App) {
       // Store config for composables to access
       app.provide(DefaultColorSchemeKey, defaultColorScheme);
+
+      if (locale !== undefined) {
+        app.provide(TranslatorKey, createTranslatorRef({ locale, messages }));
+      }
 
       // Register components globally with prefix
       for (const [name, component] of Object.entries(components)) {

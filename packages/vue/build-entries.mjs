@@ -18,4 +18,5 @@ export const entries = {
   utility: 'src/components/utility/index.ts',
   composables: 'src/composables/index.ts',
   ai: 'src/components/ai/index.ts',
+  i18n: 'src/i18n/index.ts',
 };
