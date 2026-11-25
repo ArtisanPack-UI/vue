@@ -326,6 +326,7 @@ describe('SettingsPage', () => {
           provider: 'Fournisseur',
           apiKey: 'Clé API',
           apiKeyKeepHint: 'Laisser vide pour garder la clé.',
+          apiKeyReveal: 'Afficher la clé',
           testConnection: 'Tester la connexion',
           overrides: 'Par fonctionnalité',
           model: 'Modèle',
@@ -338,12 +339,23 @@ describe('SettingsPage', () => {
     expect(await screen.findByText('Identifiants')).toBeTruthy();
     expect(screen.getByLabelText('Fournisseur')).toBeTruthy();
     expect(screen.getByText('Laisser vide pour garder la clé.')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Afficher la clé' }).getAttribute('aria-label')).toBe(
+      'Afficher la clé',
+    );
     expect(screen.getByRole('button', { name: /Tester la connexion/ })).toBeTruthy();
     expect(screen.getByText('Par fonctionnalité')).toBeTruthy();
     expect(screen.getByLabelText('Modèle')).toBeTruthy();
     expect(screen.getByLabelText('Consignes')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Enregistrer' })).toBeTruthy();
     expect(screen.getByText('Base URL')).toBeTruthy();
+  });
+
+  it("names the API key's reveal button with the default label when labels leave it out", async () => {
+    const client = createMockClient({ getSettings: vi.fn().mockResolvedValue(baseResponse) });
+
+    render(SettingsPage, { props: { client, labels: { apiKey: 'Clé API' } } });
+
+    expect(await screen.findByRole('button', { name: 'Show password' })).toBeTruthy();
   });
 
   it('translates the loading and load-error text', async () => {
