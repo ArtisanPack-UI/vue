@@ -1,11 +1,11 @@
 ---
 title: Laravel and Inertia
-menu_order: 6
+menu_order: 55
 ---
 
 # Laravel and Inertia
 
-`@artisanpack-ui/vue-laravel` connects the components to a Laravel app running Inertia.js: form fields that show Laravel's validation errors, pagination from a Laravel paginator, a menu that navigates with Inertia links, flash messages and the signed-in user.
+`@artisanpack-ui/vue-laravel` connects the components to a Laravel app running Inertia.js: form fields that show Laravel's validation errors, pagination from a Laravel paginator, a menu that navigates with Inertia links, flash messages and the signed-in user. This page covers setup, the composables and the types. Each component has its own page under [Inertia Components](components/inertia.md).
 
 ## Install
 
@@ -13,7 +13,7 @@ menu_order: 6
 npm install @artisanpack-ui/vue-laravel @artisanpack-ui/css
 ```
 
-It depends on `@artisanpack-ui/vue`, and needs `vue` 3.5+ and `@inertiajs/vue3` 2.0+ as peer dependencies. Load the CSS as in [Getting Started](Getting-Started).
+It depends on `@artisanpack-ui/vue`, and needs `vue` 3.5+ and `@inertiajs/vue3` 2.0+ as peer dependencies. Load the CSS as in [Getting Started](getting-started.md). Everything is exported from the package root; there are no subpaths.
 
 ## Set up Inertia
 
@@ -38,9 +38,31 @@ createInertiaApp({
 });
 ```
 
-To register the adapter components globally, add `app.use(createArtisanPackUILaravel())`. It registers them with a prefix (`Ap` by default, so `<ApInertiaInput>`), set with the `prefix` option. It registers every component on this page. Pass `flashColorMap` to set the flash toast colors app-wide; see [As toasts](#as-toasts).
+The `<head>` of an Inertia app is in the Blade root template, so apply the stored theme choice there: inline the output of `themeScript()` from `@artisanpack-ui/behavior` first in `<head>` of `app.blade.php`. If the app also has Livewire UI Components, its `@apuiThemeScript` directive renders the same script. See [Theming](theming.md).
 
-The `<head>` of an Inertia app is in the Blade root template, so apply the stored theme choice there: inline the output of `themeScript()` from `@artisanpack-ui/behavior` first in `<head>` of `app.blade.php`. If the app also has Livewire UI Components, its `@apuiThemeScript` directive renders the same script. See [Theming](Theming).
+### The plugin
+
+```ts
+function createArtisanPackUILaravel(options?: ArtisanPackUILaravelOptions): Plugin;
+```
+
+The plugin is optional. It registers every component in [Inertia Components](components/inertia.md) globally with a prefix, and provides an app-wide flash color map:
+
+```ts
+import { createArtisanPackUILaravel } from '@artisanpack-ui/vue-laravel';
+
+createApp({ render: () => h(App, props) })
+  .use(plugin)
+  .use(createArtisanPackUILaravel({ prefix: 'Ap', flashColorMap: { status: 'success' } }))
+  .mount(el);
+```
+
+| Option          | Type                              | Default | Description                                                                                                                                                                                                       |
+| --------------- | --------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `prefix`        | `string`                          | `'Ap'`  | The prefix for the global component names, so `<ApInertiaInput>` and `<ApFlashToasts>`.                                                                                                                           |
+| `flashColorMap` | `Record<string, FlashToastColor>` | —       | Flash key to toast color for [`useFlashMessages()`](#useflashmessages) and [FlashToasts](components/inertia/flash-toasts.md) across the app, merged over the defaults. A component's own `colorMap` wins over it. |
+
+It registers `InertiaMenu`, `InertiaBreadcrumbs`, `InertiaPagination`, `InertiaForm`, `InertiaInput`, `InertiaSelect`, `InertiaTextarea`, `InertiaCheckbox`, `InertiaToggle`, `InertiaPassword`, `InertiaRadio`, `InertiaRadioGroup`, `AppLayout`, `AuthLayout`, `GuestLayout`, `FlashAlerts` and `FlashToasts`, each with the prefix.
 
 ## Share the props
 
@@ -66,52 +88,60 @@ public function share(Request $request): array
 
 Inertia shares `errors` itself.
 
-## Forms
+## Components
 
-### InertiaForm and the field wrappers
+| Component                                                       | What it does                                                                         |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| [InertiaForm](components/inertia/inertia-form.md)               | A `<form>` that owns an Inertia form, submits it and gives its errors to the fields. |
+| [InertiaInput](components/inertia/inertia-input.md)             | Input with the field's Laravel error.                                                |
+| [InertiaPassword](components/inertia/inertia-password.md)       | Password with the field's Laravel error.                                             |
+| [InertiaTextarea](components/inertia/inertia-textarea.md)       | Textarea with the field's Laravel error.                                             |
+| [InertiaSelect](components/inertia/inertia-select.md)           | Select with the field's Laravel error.                                               |
+| [InertiaCheckbox](components/inertia/inertia-checkbox.md)       | Checkbox with the field's Laravel error, bound with a plain `v-model`.               |
+| [InertiaToggle](components/inertia/inertia-toggle.md)           | Toggle with the field's Laravel error, bound with a plain `v-model`.                 |
+| [InertiaRadioGroup](components/inertia/inertia-radio-group.md)  | RadioGroup with the field's Laravel error.                                           |
+| [InertiaRadio](components/inertia/inertia-radio.md)             | Deprecated. Use InertiaRadioGroup.                                                   |
+| [InertiaMenu](components/inertia/inertia-menu.md)               | Menu whose links are Inertia `<Link>`s.                                              |
+| [InertiaBreadcrumbs](components/inertia/inertia-breadcrumbs.md) | Breadcrumbs whose links are Inertia `<Link>`s.                                       |
+| [InertiaPagination](components/inertia/inertia-pagination.md)   | Pagination from a Laravel paginator, visiting pages with Inertia.                    |
+| [AppLayout](components/inertia/app-layout.md)                   | Header, main and footer shell.                                                       |
+| [AuthLayout](components/inertia/auth-layout.md)                 | Shell with a sidebar beside the main content.                                        |
+| [GuestLayout](components/inertia/guest-layout.md)               | Centered column for sign-in pages.                                                   |
+| [FlashAlerts](components/inertia/flash-alerts.md)               | Flash messages as inline Alerts.                                                     |
+| [FlashToasts](components/inertia/flash-toasts.md)               | Flash messages as toasts, with the Toaster.                                          |
 
-`InertiaForm` creates an Inertia form from `data` and submits it to `action` with `method` (`post` by default). The field wrappers inside it show the error for their `name`:
+Each field wrapper takes a required `name` and shows, in order, the `error` you pass, the enclosing `InertiaForm`'s error for `name`, or `errors[name]` from the page props. See [How the field wrappers work](components/inertia.md#how-the-field-wrappers-work).
 
-```vue
-<script setup lang="ts">
-import { Button } from '@artisanpack-ui/vue';
-import { InertiaForm, InertiaInput, InertiaPassword } from '@artisanpack-ui/vue-laravel';
-</script>
-
-<template>
-  <InertiaForm v-slot="{ form }" :data="{ email: '', password: '' }" action="/login">
-    <InertiaInput v-model="form.email" name="email" label="Email" type="email" />
-    <InertiaPassword v-model="form.password" name="password" label="Password" />
-    <Button type="submit" color="primary" :loading="form.processing">Sign in</Button>
-  </InertiaForm>
-</template>
-```
-
-| Prop      | Type                                              | Default  | Description                                               |
-| --------- | ------------------------------------------------- | -------- | --------------------------------------------------------- |
-| `data`    | `Record<string, unknown>`                         |          | The form's initial data                                   |
-| `action`  | `string`                                          |          | The URL to submit to. Without it, submitting does nothing |
-| `method`  | `'get' \| 'post' \| 'put' \| 'patch' \| 'delete'` | `'post'` | The HTTP method                                           |
-| `options` | `{ resetOnSuccess?: boolean }`                    |          | `resetOnSuccess` defaults to `true`                       |
-
-It emits `success` and `error` after a submission. Its default slot receives `form` (the Inertia form), `getError`, `clearErrors`, `processing`, `recentlySuccessful`, `isDirty` and `submit`, and the same are exposed on a template ref. `processing`, `recentlySuccessful` and `isDirty` arrive as plain booleans, so `:loading="processing"` follows the submission.
-
-| Wrapper             | Wraps              | Binding                            |
-| ------------------- | ------------------ | ---------------------------------- |
-| `InertiaInput`      | Input              | `v-model`                          |
-| `InertiaPassword`   | Password           | `v-model`                          |
-| `InertiaTextarea`   | Textarea           | `v-model`                          |
-| `InertiaSelect`     | Select             | `v-model`                          |
-| `InertiaCheckbox`   | Checkbox           | `v-model` (the checked state)      |
-| `InertiaToggle`     | Toggle             | `v-model` (the checked state)      |
-| `InertiaRadioGroup` | RadioGroup         | `v-model`                          |
-| `InertiaRadio`      | Radio (deprecated) | `v-model`. Use `InertiaRadioGroup` |
-
-Each wrapper takes a required `name` and passes every other prop and attribute to the component it wraps. Its error is, in order: the `error` prop you pass, the enclosing `InertiaForm`'s error for `name`, or `errors[name]` from the page props. So the wrappers also work without `InertiaForm`, with a form you submit yourself.
+## Composables
 
 ### useInertiaForm
 
-`useInertiaForm(data, options)` wraps Inertia's `useForm()` for use without `InertiaForm`:
+```ts
+function useInertiaForm<T extends Record<string, unknown>>(
+  initialData: T,
+  options?: InertiaFormOptions,
+): {
+  form: InertiaFormInstance<T>; // Inertia's useForm() form; the type isn't exported
+  errors: ComputedRef<Partial<Record<keyof T, string>>>;
+  processing: ComputedRef<boolean>;
+  recentlySuccessful: ComputedRef<boolean>;
+  isDirty: ComputedRef<boolean>;
+  getError: (field: keyof T | string) => string | undefined;
+  clearErrors: (...fields: (keyof T | string)[]) => void;
+  reset: (...fields: (keyof T | string)[]) => void;
+  submit: (
+    method: 'get' | 'post' | 'put' | 'patch' | 'delete',
+    url: string,
+    options?: Record<string, unknown>,
+  ) => void;
+  post: (url: string, options?: Record<string, unknown>) => void;
+  put: (url: string, options?: Record<string, unknown>) => void;
+  patch: (url: string, options?: Record<string, unknown>) => void;
+  destroy: (url: string, options?: Record<string, unknown>) => void;
+};
+```
+
+Wraps Inertia's `useForm()` for use without [InertiaForm](components/inertia/inertia-form.md), which calls it for you:
 
 ```vue
 <script setup lang="ts">
@@ -131,126 +161,30 @@ const { form, getError, post, processing } = useInertiaForm({ name: '', email: '
       type="email"
       :error="getError('email')"
     />
-    <Button type="submit" color="primary" :loading="processing">Save</Button>
+    <Button type="submit" :loading="processing">Save</Button>
   </form>
 </template>
 ```
 
-| Returns                                                 | Description                                                    |
-| ------------------------------------------------------- | -------------------------------------------------------------- |
-| `form`                                                  | The Inertia form                                               |
-| `errors`, `processing`, `recentlySuccessful`, `isDirty` | Computed refs of the form's state                              |
-| `getError(field)`                                       | The field's error, for a component's `error` prop              |
-| `submit(method, url, options?)`                         | Submits the form                                               |
-| `post`, `put`, `patch`, `destroy`                       | `(url, options?)` shorthands for `submit`                      |
-| `reset(...fields)`, `clearErrors(...fields)`            | Reset values or clear errors: the given fields, or all of them |
+| Returns                                                 | Description                                                                                     |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `form`                                                  | The Inertia form from `useForm(initialData)`. Bind fields to it.                                |
+| `errors`, `processing`, `recentlySuccessful`, `isDirty` | Computed refs of the form's state.                                                              |
+| `getError(field)`                                       | The field's error, for a component's `error` prop.                                              |
+| `clearErrors(...fields)`                                | Clears the given fields' errors, or all of them.                                                |
+| `reset(...fields)`                                      | Resets the given fields to their initial values, or all of them.                                |
+| `submit(method, url, options?)`                         | Submits the form. `options` are Inertia visit options, such as `onSuccess` or `preserveScroll`. |
+| `post`, `put`, `patch`, `destroy`                       | `(url, options?)` shorthands for `submit`.                                                      |
 
-With `resetOnSuccess` (the default), the form resets after a successful submission, after any `onSuccess` you pass.
+`options.resetOnSuccess` defaults to `true`: the form resets after a successful submission, after any `onSuccess` you pass. Set it to `false` on edit forms.
 
-## Navigation
+### useFlashMessages
 
-### InertiaPagination
-
-Renders [Pagination](https://docs.artisanpackui.dev/documentation/design-system/components/pagination) from a Laravel `LengthAwarePaginator` and visits the chosen page with Inertia:
-
-```vue
-<script setup lang="ts">
-import type { LaravelPaginator } from '@artisanpack-ui/vue-laravel';
-import { InertiaPagination } from '@artisanpack-ui/vue-laravel';
-
-defineProps<{ users: LaravelPaginator<{ id: number; name: string }> }>();
-</script>
-
-<template>
-  <InertiaPagination :paginator="users" :query-params="{ search: 'ada' }" preserve-scroll />
-</template>
+```ts
+function useFlashMessages(options?: UseFlashMessagesOptions): { toast: ToasterInstance };
 ```
 
-| Prop             | Type                               | Default | Description                                 |
-| ---------------- | ---------------------------------- | ------- | ------------------------------------------- |
-| `paginator`      | `LaravelPaginator`                 |         | The paginator from the controller           |
-| `siblingCount`   | `number`                           |         | Pages shown on each side of the current one |
-| `queryParams`    | `Record<string, string \| number>` |         | Query parameters to keep on every page link |
-| `preserveScroll` | `boolean`                          | `false` | Inertia's `preserveScroll`                  |
-| `preserveState`  | `boolean`                          | `false` | Inertia's `preserveState`                   |
-| `className`      | `string`                           |         | A class for the Pagination root             |
-
-### InertiaMenu
-
-Renders [Menu](https://docs.artisanpackui.dev/documentation/design-system/components/menu) with its links as Inertia `<Link>`s:
-
-```vue
-<InertiaMenu
-  label="Main"
-  :items="[
-    { name: 'dashboard', label: 'Dashboard', href: '/dashboard', active: true },
-    { name: 'users', label: 'Users', href: '/users', badge: 3 },
-    {
-      name: 'settings',
-      label: 'Settings',
-      children: [{ name: 'profile', label: 'Profile', href: '/settings/profile' }],
-    },
-  ]"
-  @select="onSelect"
-/>
-```
-
-Each item has a `name`, a `label` and optionally `href`, `active`, `disabled`, `badge` and `children` (a sub-menu, open while it holds the active item). The menu takes `label` and `collapsible` (default `true`), and emits `select` with the item's `name`.
-
-### InertiaBreadcrumbs
-
-Renders the design-system [Breadcrumbs](https://docs.artisanpackui.dev/documentation/design-system/components/breadcrumbs) with its links as Inertia `<Link>`s:
-
-```vue
-<InertiaBreadcrumbs
-  :items="[
-    { label: 'Users', href: '/users' },
-    { label: 'Ada Lovelace', href: '/users/1' },
-    { label: 'Edit' },
-  ]"
-/>
-```
-
-Each item is `{ label, href? }`. The last item is the current page and is never a link. The scoped `item` slot (`{ item, index, isLast }`) replaces an item's text. `className` and every other attribute, including Breadcrumbs' own props (`label`, `maxItems`, `overflowLabel`, `classes`), go to the Breadcrumbs. Like Breadcrumbs, it collapses the middle of a trail longer than `maxItems` (default `4`) behind an overflow button; set `:max-items="0"` to never collapse.
-
-## Flash messages
-
-### FlashAlerts
-
-Renders each flash message in the page props as an [Alert](https://docs.artisanpackui.dev/documentation/design-system/components/alert): `success`, `error`, `warning` and `info` keep their color, and any other key shows as `info`.
-
-```vue
-<FlashAlerts />
-```
-
-It takes `dismissible` (default `true`) and `className` for the wrapper.
-
-### As toasts
-
-`FlashToasts` shows each flash message as a design-system [Toast](https://docs.artisanpackui.dev/documentation/design-system/components/toast) and renders the `Toaster` that displays them, after its default slot:
-
-```vue
-<script setup lang="ts">
-import { FlashToasts } from '@artisanpack-ui/vue-laravel';
-</script>
-
-<template>
-  <FlashToasts placement="top-end">
-    <slot />
-  </FlashToasts>
-</template>
-```
-
-| Prop       | Type                              | Default | Description                                                                         |
-| ---------- | --------------------------------- | ------- | ----------------------------------------------------------------------------------- |
-| `colorMap` | `Record<string, FlashToastColor>` |         | Flash key to toast color, merged over the plugin's `flashColorMap` and the defaults |
-| `duration` | `number`                          | `5000`  | Milliseconds before each toast dismisses itself. `0` keeps it                       |
-| `toaster`  | `ToasterInstance`                 |         | A toaster from `createToaster()`. Defaults to the page's `toast`                    |
-| `region`   | `boolean`                         | `true`  | Renders the `Toaster`. Set `:region="false"` when the page already has one          |
-
-Every other attribute, including the Toaster's own props (`placement`, `label`, `closeLabel`), goes to the Toaster.
-
-`useFlashMessages()` is the composable underneath. It takes the same `colorMap`, `duration` and `toaster` options and returns `{ toast }`. Use it when you render the `Toaster` yourself:
+Watches the `flash` page prop and shows each non-empty value as a toast with `toast.create()`, when the page loads and after each visit. Render a `Toaster` to display them, or use [FlashToasts](components/inertia/flash-toasts.md), which calls this composable and renders the Toaster for you:
 
 ```vue
 <script setup lang="ts">
@@ -266,11 +200,25 @@ useFlashMessages({ colorMap: { status: 'success' } });
 </template>
 ```
 
-Each non-empty flash value becomes one toast when the page loads and after each visit. The colors come from `colorMap`, then the plugin's `flashColorMap` (`app.use(createArtisanPackUILaravel({ flashColorMap: { status: 'success' } }))`), then the defaults: `success`, `error`, `warning` and `info` keep their color, `message` shows as `info`, and any other key shows as `info`. A color is a `FlashToastColor`, any toast color: `primary`, `secondary`, `accent`, `neutral`, `success`, `warning`, `error` or `info`.
+| Option     | Type                              | Default | Description                                                                             |
+| ---------- | --------------------------------- | ------- | --------------------------------------------------------------------------------------- |
+| `colorMap` | `Record<string, FlashToastColor>` | —       | Flash key to toast color, merged over the plugin's `flashColorMap` and the defaults.    |
+| `duration` | `number`                          | `5000`  | Milliseconds before each toast dismisses itself. `0` keeps it.                          |
+| `toaster`  | `ToasterInstance`                 | —       | A toaster from `createToaster()` to show the toasts in. Defaults to the page's `toast`. |
 
-## The signed-in user
+The colors come from `colorMap`, then the plugin's `flashColorMap`, then the defaults: `success`, `error`, `warning` and `info` keep their color, `message` shows as `info`, and any other key shows as `info`. It returns `{ toast }`, the toaster the messages go to. Call it in a component's `setup`, since it reads the page with `usePage()`.
 
-`useAuth()` reads `auth.user` from the page props:
+### useAuth
+
+```ts
+function useAuth<T extends AuthUser = AuthUser>(): {
+  user: ComputedRef<T | null>;
+  isAuthenticated: ComputedRef<boolean>;
+  isGuest: ComputedRef<boolean>;
+};
+```
+
+Reads `auth.user` from the page props:
 
 ```vue
 <script setup lang="ts">
@@ -289,23 +237,55 @@ const { user, isAuthenticated } = useAuth<{
 </template>
 ```
 
-It returns `user`, `isAuthenticated` and `isGuest` as computed refs.
-
-## Layouts
-
-`AppLayout`, `AuthLayout` and `GuestLayout` are page shells that set the document title with Inertia's `<Head>` from a `title` prop, and take `className`.
-
-| Layout        | Slots                                                |
-| ------------- | ---------------------------------------------------- |
-| `AppLayout`   | `header`, default (in `<main>`), `footer`            |
-| `AuthLayout`  | `header`, `sidebar`, default (in `<main>`), `footer` |
-| `GuestLayout` | `logo`, default, in a centered column                |
-
-Each is a design-system [Stack](https://docs.artisanpackui.dev/documentation/design-system/components/stack) that fills the viewport, with `<main>` taking the free space, so they need only `@artisanpack-ui/css`, not Tailwind. For an application frame with a sidebar, use [AppShell](https://docs.artisanpackui.dev/documentation/design-system/components/app-shell).
+| Returns           | Description                                       |
+| ----------------- | ------------------------------------------------- |
+| `user`            | The signed-in user, or `null` when there is none. |
+| `isAuthenticated` | `true` when there is a signed-in user.            |
+| `isGuest`         | `true` when there is no signed-in user.           |
 
 ## Types
 
-`@artisanpack-ui/vue-laravel` exports types for Laravel's responses and the shared props: `LaravelPaginator`, `LaravelSimplePaginator`, `PaginationLink`, `FlashMessages`, `FlashToastColor`, `AuthUser`, `AuthProps`, `SharedPageProps`, `InertiaFormOptions`, `InertiaFormContext`, `UseFlashMessagesOptions`, `ArtisanPackUILaravelOptions`, `AppLayoutProps`, `AuthLayoutProps` and `GuestLayoutProps`.
+```ts
+import type {
+  AppLayoutProps,
+  ArtisanPackUILaravelOptions,
+  AuthLayoutProps,
+  AuthProps,
+  AuthUser,
+  FlashMessages,
+  FlashToastColor,
+  GuestLayoutProps,
+  InertiaFormContext,
+  InertiaFormOptions,
+  LaravelCursorPaginator,
+  LaravelPaginator,
+  LaravelResourcePaginator,
+  LaravelSimplePaginator,
+  PaginationLink,
+  SharedPageProps,
+  UseFlashMessagesOptions,
+} from '@artisanpack-ui/vue-laravel';
+```
+
+| Type                                                    | Description                                                                                                                                        |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SharedPageProps`                                       | The shared page props: `auth?: AuthProps`, `flash?: FlashMessages`, `errors?: Record<string, string>`, plus any other key. Extend it for your own. |
+| `AuthProps`                                             | `{ user: AuthUser \| null }`, the `auth` prop.                                                                                                     |
+| `AuthUser`                                              | `{ id: number; name: string; email: string }`, plus any other key.                                                                                 |
+| `FlashMessages`                                         | The `flash` prop: optional `success`, `error`, `warning`, `info` and `message` strings, plus any other string key.                                 |
+| `FlashToastColor`                                       | A toast color: `'primary' \| 'secondary' \| 'accent' \| 'neutral' \| 'success' \| 'warning' \| 'error' \| 'info'`.                                 |
+| `UseFlashMessagesOptions`                               | `{ colorMap?, duration?, toaster? }`, the options of [`useFlashMessages`](#useflashmessages) and FlashToasts.                                      |
+| `InertiaFormOptions`                                    | `{ resetOnSuccess?: boolean }`, for `useInertiaForm` and InertiaForm's `options`. `resetOnSuccess` defaults to `true`.                             |
+| `InertiaFormContext`                                    | What InertiaForm provides under `INERTIA_FORM_KEY`. See [InertiaForm](components/inertia/inertia-form.md#form-context).                            |
+| `ArtisanPackUILaravelOptions`                           | `{ prefix?, flashColorMap? }`, the [plugin's](#the-plugin) options.                                                                                |
+| `LaravelPaginator<T>`                                   | A `->paginate()` result. See [InertiaPagination](components/inertia/inertia-pagination.md#types) for this and the other paginator types.           |
+| `LaravelSimplePaginator<T>`                             | A `->simplePaginate()` result.                                                                                                                     |
+| `LaravelCursorPaginator<T>`                             | A `->cursorPaginate()` result.                                                                                                                     |
+| `LaravelResourcePaginator<T>`                           | A paginated API resource collection, with the page details under `meta`.                                                                           |
+| `PaginationLink`                                        | One entry of a paginator's `links`.                                                                                                                |
+| `AppLayoutProps`, `AuthLayoutProps`, `GuestLayoutProps` | The layouts' props: `title?` and `className?`.                                                                                                     |
+
+Extend `SharedPageProps` for your app's own shared props:
 
 ```ts
 import type { SharedPageProps } from '@artisanpack-ui/vue-laravel';
@@ -314,3 +294,5 @@ interface PageProps extends SharedPageProps {
   appName: string;
 }
 ```
+
+The package also exports the value `INERTIA_FORM_KEY`, the injection key for InertiaForm's context. See [InertiaForm](components/inertia/inertia-form.md#inertia_form_key).

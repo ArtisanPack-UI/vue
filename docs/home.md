@@ -1,43 +1,59 @@
 ---
-title: ArtisanPack UI Vue Documentation Home
-menu_order: 1
+title: Overview
+menu_order: 0
 ---
 
-# ArtisanPack UI for Vue
+# Overview
 
-`@artisanpack-ui/vue` 2.0 renders the [ArtisanPack UI design system](https://docs.artisanpackui.dev/documentation/design-system/home) for Vue. Styling comes from `@artisanpack-ui/css` (design tokens in cascade layers, Tailwind optional), interaction from `@artisanpack-ui/behavior` (Zag state machines through `@zag-js/vue`), and every component shares its props, parts, events and keyboard behavior with the React and Livewire packages.
+`@artisanpack-ui/vue` 2.0 is the Vue library of the [ArtisanPack UI design system](https://docs.artisanpackui.dev/documentation/design-system/home). It renders the same components as the Livewire and React libraries, with the same props, parts, keyboard behavior and markup.
 
 | Package                       | What it is                                                                                                                        |
 | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `@artisanpack-ui/vue`         | The components, the composables, the Vue plugin and the AI admin components (`/ai`)                                               |
-| `@artisanpack-ui/vue-laravel` | Inertia.js wrappers for Laravel: form fields bound to validation errors, pagination, menus, flash messages and the signed-in user |
+| `@artisanpack-ui/vue`         | The components, the composables, the Vue plugin and the AI admin components on the `/ai` subpath.                                 |
+| `@artisanpack-ui/vue-laravel` | Inertia.js wrappers for Laravel: form fields bound to validation errors, pagination, menus, layouts, flash messages and the user. |
 
-Each component has its own page in the design-system documentation, with a Vue tab, live examples and tables of its props, parts, slots and events. These pages cover what is specific to Vue.
+## Features
+
+- **Styling** comes from `@artisanpack-ui/css`: plain CSS in cascade layers, driven by design tokens. Tailwind is optional, and nothing depends on DaisyUI.
+- **Interaction** (focus, keyboard and ARIA for dialogs, menus, comboboxes, tabs and the rest) comes from `@artisanpack-ui/behavior`, built on Zag state machines through `@zag-js/vue`.
+- **Theming** is attributes and tokens: light, dark and high contrast themes, density and presets, with no props on the components.
+- **Vue conventions**: `v-model` on every value and open state, named slots for rich content, attribute fall-through, and `class` plus `classes` for styling individual parts.
+- **Server rendering** with Vue's SSR renderer and Nuxt. Generated IDs come from `useId()`, so they match on hydration.
+- **TypeScript** declarations for every entry point, and category subpaths for smaller bundles.
+- **Laravel and Inertia** wrappers for forms, navigation, layouts, auth and flash messages, and AI admin screens for the `artisanpack-ui/ai` package.
 
 ## Requirements
 
-- Vue 3.5 or later
-- `@artisanpack-ui/css` for the styles
-- `@inertiajs/vue3` 2.0 or later, for `@artisanpack-ui/vue-laravel` only
+Vue 3.5 or later, and a bundler that reads the `exports` field of `package.json` (Vite, Nuxt, webpack 5, Rollup or esbuild). `@artisanpack-ui/vue-laravel` also needs `@inertiajs/vue3` 2 or 3. See [Installation](installation.md#requirements).
 
-Coming from 1.x? DaisyUI is no longer used. See [Upgrading from 1.x](Upgrading).
+## Quick install
 
-## Table of Contents
+```bash
+npm install @artisanpack-ui/vue @artisanpack-ui/css
+```
 
-- [Getting Started](Getting-Started)
-- [Components](Components)
-- [Theming](Theming)
-- [Composables](Composables)
-- [Laravel and Inertia](Laravel-Inertia)
-- [Nuxt and Server Rendering](Nuxt-And-Server-Rendering)
-- [TypeScript](Typescript)
-- [Bundle Size](Bundle-Size)
-- [AI Components](Ai-Components)
-- [Upgrading from 1.x](Upgrading)
+Then load `@artisanpack-ui/css` once in your app's entry and apply the stored theme before the first paint. See [Getting Started](getting-started.md).
+
+## Next steps
+
+- [Getting Started](getting-started.md): a working component in five minutes.
+- [Installation](installation.md): requirements, the CSS with or without Tailwind, and the theme script.
+- [Components](components.md): a page for every component, with all of its props, slots, events and parts.
+- [Theming](theming.md), [Composables](composables.md) and [TypeScript](typescript.md).
+- [Laravel and Inertia](laravel-inertia.md), [AI Components](components/ai.md) and [Nuxt and Server Rendering](nuxt-and-server-rendering.md).
+- [Reference](reference.md): every function, composable and constant the packages export.
+- [Upgrading](upgrading.md), the [FAQ](faq.md) and [Troubleshooting](troubleshooting.md).
+
+## Design system documentation
+
+These pages cover the Vue packages. The design-system documentation covers everything shared by the three stacks:
+
+- [Getting started with Vue](https://docs.artisanpackui.dev/documentation/design-system/getting-started/vue)
+- [Foundations](https://docs.artisanpackui.dev/documentation/design-system/foundations): tokens, color, type, spacing, motion and icons
+- [Theming](https://docs.artisanpackui.dev/documentation/design-system/theming): themes, presets, brand presets and custom tokens
+- [Components](https://docs.artisanpackui.dev/documentation/design-system/components): anatomy, tokens and live examples for each component
+- [Accessibility](https://docs.artisanpackui.dev/documentation/design-system/accessibility)
 
 ## Getting help
 
-- **Issues:** [GitHub](https://github.com/ArtisanPack-UI/vue/issues)
-- **Source:** [ArtisanPack-UI/vue](https://github.com/ArtisanPack-UI/vue)
-
-The packages are MIT licensed.
+Report bugs and ask questions in [GitHub issues](https://github.com/ArtisanPack-UI/vue/issues). Both packages are MIT licensed.
