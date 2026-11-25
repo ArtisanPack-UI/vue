@@ -1,6 +1,6 @@
 ---
 title: Bundle Size
-menu_order: 9
+menu_order: 70
 ---
 
 # Bundle Size
@@ -14,7 +14,7 @@ menu_order: 9
 - **No chart library.** Chart and Sparkline draw inline SVG from tokens, so there's no charting dependency to load.
 - **No CSS in JavaScript.** The styles live in `@artisanpack-ui/css`, loaded once as a stylesheet.
 - **Free of side effects.** Both `@artisanpack-ui/vue` and `@artisanpack-ui/vue-laravel` declare `"sideEffects": false`, so a bundler can drop every module you don't import, even from a root import.
-- **No DaisyUI or Tailwind.** Neither is a dependency. Tailwind is optional in your app; see [Getting Started](Getting-Started).
+- **No DaisyUI or Tailwind.** Neither is a dependency. Tailwind is optional in your app; see [Getting Started](getting-started.md).
 
 ## Importing
 
@@ -27,7 +27,7 @@ import { Button, Input } from '@artisanpack-ui/vue/form';
 
 A subpath gives the bundler less to read, which can help in development servers that don't tree-shake. The AI components are only in `@artisanpack-ui/vue/ai`, so nothing from them reaches your bundle unless you import that subpath.
 
-The [Vue plugin](Getting-Started) registers only the components you pass to it. Registering a component globally keeps it in the bundle whether or not a page uses it.
+The [Vue plugin](getting-started.md) registers only the components you pass to it. Registering a component globally keeps it in the bundle whether or not a page uses it.
 
 ## Measuring
 

@@ -1,6 +1,6 @@
 ---
 title: Getting Started
-menu_order: 2
+menu_order: 10
 ---
 
 # Getting Started
@@ -41,7 +41,7 @@ In a single-page app with a static `index.html`, inline the output of `themeScri
 
 `@artisanpack-ui/behavior` is a dependency of `@artisanpack-ui/vue`. If you import from it yourself, add it to your own `package.json` too, so strict package managers such as pnpm resolve it.
 
-With server rendering, render the `ThemeScript` component in `<head>` instead. With Nuxt, pass `themeScript()` to `useHead`. See [Nuxt and Server Rendering](Nuxt-And-Server-Rendering) and [Theming](Theming).
+With server rendering, render the `ThemeScript` component in `<head>` instead. With Nuxt, pass `themeScript()` to `useHead`. See [Nuxt and Server Rendering](nuxt-and-server-rendering.md) and [Theming](theming.md).
 
 ## Your first component
 
@@ -61,14 +61,14 @@ const email = ref('');
 </template>
 ```
 
-Import components where you use them. Every component is a named export of `@artisanpack-ui/vue` and of one category subpath; see [Components](Components).
+Import components where you use them. Every component is a named export of `@artisanpack-ui/vue` and of one category subpath; see [Components](components.md).
 
 ## The Vue plugin (optional)
 
 `createArtisanPackUI()` returns a Vue plugin. It does two things, both optional:
 
 - registers the components you pass globally, with a prefix (`Ap` by default), and
-- sets the default color scheme for [`provideTheme()`](Composables).
+- sets the default color scheme for [`provideTheme()`](composables.md).
 
 ```ts
 // main.ts
@@ -98,6 +98,7 @@ Only the components you pass are registered, so the rest still tree-shake. Witho
 
 ## Next steps
 
-- [Components](Components): every component, with links to its full reference.
-- [Theming](Theming): the theme toggle, presets and your own brand.
-- [Laravel and Inertia](Laravel-Inertia): the Inertia wrappers.
+- [Installation](installation.md): requirements, Tailwind, headless CSS and where the theme script goes.
+- [Components](components.md): a page for every component, with all of its props, slots and events.
+- [Theming](theming.md): the theme toggle, presets and your own brand.
+- [Laravel and Inertia](laravel-inertia.md): the Inertia wrappers.

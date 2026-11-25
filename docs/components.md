@@ -1,11 +1,11 @@
 ---
 title: Components
-menu_order: 3
+menu_order: 40
 ---
 
 # Components
 
-Every component's full reference lives in the design-system documentation: one page per component with a Vue tab, live examples, and tables of its props, parts, slots and events. This page lists them with the subpath each one is exported from, and covers what is specific to Vue.
+Every component has its own page, grouped by the subpath it's exported from. Each page lists every prop, slot, event, `v-model` binding and part, with examples and keyboard behavior, and links to the component in the design-system documentation for its anatomy, tokens and live examples. This page covers the conventions all of them share.
 
 ## Importing
 
@@ -18,7 +18,7 @@ import { Button } from '@artisanpack-ui/vue/form';
 import { Dialog } from '@artisanpack-ui/vue/layout';
 ```
 
-The subpaths are `/form`, `/layout`, `/navigation`, `/display`, `/data`, `/feedback`, `/utility`, `/composables` and `/ai`. The AI components are only exported from [`/ai`](Ai-Components). Each subpath ships its own type declarations.
+The subpaths are `/form`, `/layout`, `/navigation`, `/display`, `/data`, `/feedback`, `/utility`, `/composables` and `/ai`. The AI components are only exported from [`/ai`](components/ai.md). Each subpath ships its own type declarations.
 
 ## v-model
 
@@ -52,7 +52,7 @@ const editing = ref(false);
 | `v-model:page`    | Pagination                                                                                                                                                                                                                                 |
 | Others            | Markdown `v-model:source`; Calendar `v-model:date` and `v-model:view`; Table `v-model:sortBy` and `v-model:expanded`                                                                                                                       |
 
-A component bound with `v-model:open` follows the value you pass. It reports a change through `update:open` and waits for the value to change, so a parent that ignores the event keeps it where it is. Without the binding, it keeps its own state. The component pages list each component's events under the Vue tab.
+A component bound with `v-model:open` follows the value you pass. It reports a change through `update:open` and waits for the value to change, so a parent that ignores the event keeps it where it is. Without the binding, it keeps its own state. Each component page lists its bindings and events.
 
 ## class and classes
 
@@ -101,180 +101,25 @@ registerIcons({
 
 ## Toasts
 
-Put one `Toaster` on the page, then call `toast.create()` from anywhere:
-
-```vue
-<script setup lang="ts">
-import { Button, Toaster, toast } from '@artisanpack-ui/vue';
-</script>
-
-<template>
-  <Button @click="toast.create({ title: 'Listing saved', color: 'success' })">Save</Button>
-  <Toaster />
-</template>
-```
+Put one `Toaster` on the page, then call `toast.create()` from anywhere. See [Toast](components/feedback/toast.md).
 
 ## Global registration
 
-Components can be registered globally with the [Vue plugin](Getting-Started), under a prefix (`<ApButton>`). Only the components you pass are registered.
+Components can be registered globally with the [Vue plugin](getting-started.md), under a prefix (`<ApButton>`). Only the components you pass are registered.
 
-## All components
+## Categories
 
-### Actions
-
-| Component                                                                                    | Subpath       | Also exported |
-| -------------------------------------------------------------------------------------------- | ------------- | ------------- |
-| [Button](https://docs.artisanpackui.dev/documentation/design-system/components/button)       | `/form`       |               |
-| [Link](https://docs.artisanpackui.dev/documentation/design-system/components/link)           | `/navigation` |               |
-| [Clipboard](https://docs.artisanpackui.dev/documentation/design-system/components/clipboard) | `/utility`    |               |
-| [Swap](https://docs.artisanpackui.dev/documentation/design-system/components/swap)           | `/utility`    |               |
-
-### Forms
-
-| Component                                                                                                     | Subpath | Also exported |
-| ------------------------------------------------------------------------------------------------------------- | ------- | ------------- |
-| [Form](https://docs.artisanpackui.dev/documentation/design-system/components/form)                            | `/form` |               |
-| [Fieldset](https://docs.artisanpackui.dev/documentation/design-system/components/fieldset)                    | `/form` |               |
-| [Input](https://docs.artisanpackui.dev/documentation/design-system/components/input)                          | `/form` |               |
-| [Password](https://docs.artisanpackui.dev/documentation/design-system/components/password)                    | `/form` |               |
-| [Pin](https://docs.artisanpackui.dev/documentation/design-system/components/pin)                              | `/form` |               |
-| [Textarea](https://docs.artisanpackui.dev/documentation/design-system/components/textarea)                    | `/form` |               |
-| [Select](https://docs.artisanpackui.dev/documentation/design-system/components/select)                        | `/form` |               |
-| [Combobox](https://docs.artisanpackui.dev/documentation/design-system/components/combobox)                    | `/form` |               |
-| [Checkbox](https://docs.artisanpackui.dev/documentation/design-system/components/checkbox)                    | `/form` |               |
-| [CheckboxGroup](https://docs.artisanpackui.dev/documentation/design-system/components/checkbox-group)         | `/form` |               |
-| [RadioGroup](https://docs.artisanpackui.dev/documentation/design-system/components/radio-group)               | `/form` |               |
-| [Toggle](https://docs.artisanpackui.dev/documentation/design-system/components/toggle)                        | `/form` |               |
-| [Range](https://docs.artisanpackui.dev/documentation/design-system/components/range)                          | `/form` |               |
-| [Rating](https://docs.artisanpackui.dev/documentation/design-system/components/rating)                        | `/form` |               |
-| [ColorPicker](https://docs.artisanpackui.dev/documentation/design-system/components/color-picker)             | `/form` |               |
-| [DatePicker](https://docs.artisanpackui.dev/documentation/design-system/components/date-picker)               | `/form` |               |
-| [File](https://docs.artisanpackui.dev/documentation/design-system/components/file)                            | `/form` |               |
-| [Signature](https://docs.artisanpackui.dev/documentation/design-system/components/signature)                  | `/form` |               |
-| [ValidationSummary](https://docs.artisanpackui.dev/documentation/design-system/components/validation-summary) | `/form` |               |
-
-### Editors and content
-
-| Component                                                                                                | Subpath    | Also exported |
-| -------------------------------------------------------------------------------------------------------- | ---------- | ------------- |
-| [RichTextEditor](https://docs.artisanpackui.dev/documentation/design-system/components/rich-text-editor) | `/form`    |               |
-| [CodeEditor](https://docs.artisanpackui.dev/documentation/design-system/components/code-editor)          | `/form`    |               |
-| [Markdown](https://docs.artisanpackui.dev/documentation/design-system/components/markdown)               | `/utility` |               |
-| [Code](https://docs.artisanpackui.dev/documentation/design-system/components/code)                       | `/display` |               |
-| [Kbd](https://docs.artisanpackui.dev/documentation/design-system/components/kbd)                         | `/utility` |               |
-| [Diff](https://docs.artisanpackui.dev/documentation/design-system/components/diff)                       | `/display` |               |
-| [Heading](https://docs.artisanpackui.dev/documentation/design-system/components/heading)                 | `/layout`  |               |
-| [Text](https://docs.artisanpackui.dev/documentation/design-system/components/text)                       | `/layout`  |               |
-| [Divider](https://docs.artisanpackui.dev/documentation/design-system/components/divider)                 | `/layout`  |               |
-| [Icon](https://docs.artisanpackui.dev/documentation/design-system/components/icon)                       | `/utility` |               |
-
-### Data display
-
-| Component                                                                                    | Subpath    | Also exported  |
-| -------------------------------------------------------------------------------------------- | ---------- | -------------- |
-| [Badge](https://docs.artisanpackui.dev/documentation/design-system/components/badge)         | `/display` |                |
-| [Avatar](https://docs.artisanpackui.dev/documentation/design-system/components/avatar)       | `/display` | `AvatarGroup`  |
-| [Stat](https://docs.artisanpackui.dev/documentation/design-system/components/stat)           | `/display` |                |
-| [KpiCard](https://docs.artisanpackui.dev/documentation/design-system/components/kpi-card)    | `/display` |                |
-| [Sparkline](https://docs.artisanpackui.dev/documentation/design-system/components/sparkline) | `/display` |                |
-| [Table](https://docs.artisanpackui.dev/documentation/design-system/components/table)         | `/data`    |                |
-| [Chart](https://docs.artisanpackui.dev/documentation/design-system/components/chart)         | `/data`    |                |
-| [Timeline](https://docs.artisanpackui.dev/documentation/design-system/components/timeline)   | `/display` | `TimelineItem` |
-| [ListItem](https://docs.artisanpackui.dev/documentation/design-system/components/list-item)  | `/layout`  | `List`         |
-| [Calendar](https://docs.artisanpackui.dev/documentation/design-system/components/calendar)   | `/data`    |                |
-
-### Feedback
-
-| Component                                                                                               | Subpath     | Also exported                       |
-| ------------------------------------------------------------------------------------------------------- | ----------- | ----------------------------------- |
-| [Alert](https://docs.artisanpackui.dev/documentation/design-system/components/alert)                    | `/feedback` |                                     |
-| [Toast](https://docs.artisanpackui.dev/documentation/design-system/components/toast)                    | `/feedback` | `Toaster`, `toast`, `createToaster` |
-| [Loading](https://docs.artisanpackui.dev/documentation/design-system/components/loading)                | `/feedback` |                                     |
-| [Progress](https://docs.artisanpackui.dev/documentation/design-system/components/progress)              | `/display`  |                                     |
-| [ProgressRadial](https://docs.artisanpackui.dev/documentation/design-system/components/progress-radial) | `/display`  |                                     |
-| [Skeleton](https://docs.artisanpackui.dev/documentation/design-system/components/skeleton)              | `/feedback` |                                     |
-| [EmptyState](https://docs.artisanpackui.dev/documentation/design-system/components/empty-state)         | `/feedback` |                                     |
-| [ErrorState](https://docs.artisanpackui.dev/documentation/design-system/components/error-state)         | `/feedback` |                                     |
-
-### Overlays
-
-| Component                                                                                           | Subpath       | Also exported                                                    |
-| --------------------------------------------------------------------------------------------------- | ------------- | ---------------------------------------------------------------- |
-| [Dialog](https://docs.artisanpackui.dev/documentation/design-system/components/dialog)              | `/layout`     |                                                                  |
-| [Drawer](https://docs.artisanpackui.dev/documentation/design-system/components/drawer)              | `/layout`     |                                                                  |
-| [Popover](https://docs.artisanpackui.dev/documentation/design-system/components/popover)            | `/layout`     |                                                                  |
-| [Tooltip](https://docs.artisanpackui.dev/documentation/design-system/components/tooltip)            | `/utility`    |                                                                  |
-| [DropdownMenu](https://docs.artisanpackui.dev/documentation/design-system/components/dropdown-menu) | `/layout`     | `DropdownMenuItem`, `DropdownMenuGroup`, `DropdownMenuSeparator` |
-| [Spotlight](https://docs.artisanpackui.dev/documentation/design-system/components/spotlight)        | `/navigation` |                                                                  |
-
-### Navigation
-
-| Component                                                                                        | Subpath       | Also exported                                       |
-| ------------------------------------------------------------------------------------------------ | ------------- | --------------------------------------------------- |
-| [Navbar](https://docs.artisanpackui.dev/documentation/design-system/components/navbar)           | `/navigation` | `NavbarItem`                                        |
-| [Menu](https://docs.artisanpackui.dev/documentation/design-system/components/menu)               | `/navigation` | `MenuItem`, `MenuSub`, `MenuTitle`, `MenuSeparator` |
-| [UserMenu](https://docs.artisanpackui.dev/documentation/design-system/components/user-menu)      | `/layout`     |                                                     |
-| [Tabs](https://docs.artisanpackui.dev/documentation/design-system/components/tabs)               | `/layout`     | `Tab`                                               |
-| [Steps](https://docs.artisanpackui.dev/documentation/design-system/components/steps)             | `/navigation` | `Step`                                              |
-| [Pagination](https://docs.artisanpackui.dev/documentation/design-system/components/pagination)   | `/navigation` |                                                     |
-| [Breadcrumbs](https://docs.artisanpackui.dev/documentation/design-system/components/breadcrumbs) | `/navigation` | `BreadcrumbsItem`                                   |
-
-### Disclosure
-
-| Component                                                                                    | Subpath   | Also exported   |
-| -------------------------------------------------------------------------------------------- | --------- | --------------- |
-| [Accordion](https://docs.artisanpackui.dev/documentation/design-system/components/accordion) | `/layout` | `AccordionItem` |
-| [Collapse](https://docs.artisanpackui.dev/documentation/design-system/components/collapse)   | `/layout` |                 |
-
-### Layout
-
-| Component                                                                                       | Subpath   | Also exported |
-| ----------------------------------------------------------------------------------------------- | --------- | ------------- |
-| [AppShell](https://docs.artisanpackui.dev/documentation/design-system/components/app-shell)     | `/layout` |               |
-| [PageHeader](https://docs.artisanpackui.dev/documentation/design-system/components/page-header) | `/layout` |               |
-| [Card](https://docs.artisanpackui.dev/documentation/design-system/components/card)              | `/layout` |               |
-| [Grid](https://docs.artisanpackui.dev/documentation/design-system/components/grid)              | `/layout` |               |
-| [Stack](https://docs.artisanpackui.dev/documentation/design-system/components/stack)            | `/layout` |               |
-
-### Media
-
-| Component                                                                                           | Subpath    | Also exported |
-| --------------------------------------------------------------------------------------------------- | ---------- | ------------- |
-| [ImageGallery](https://docs.artisanpackui.dev/documentation/design-system/components/image-gallery) | `/display` |               |
-| [Carousel](https://docs.artisanpackui.dev/documentation/design-system/components/carousel)          | `/display` |               |
-| [ImageSlider](https://docs.artisanpackui.dev/documentation/design-system/components/image-slider)   | `/display` |               |
-
-### Theme
-
-| Component                                                                                         | Subpath    | Also exported |
-| ------------------------------------------------------------------------------------------------- | ---------- | ------------- |
-| [ThemeToggle](https://docs.artisanpackui.dev/documentation/design-system/components/theme-toggle) | `/utility` | `ThemeScript` |
+- [Form](components/form.md) (`/form`): buttons, text fields, choices, pickers, editors, file uploads and form validation.
+- [Layout](components/layout.md) (`/layout`): the app shell, page headers, cards, grids and stacks, overlays such as Dialog, Drawer, Popover and DropdownMenu, tabs, accordions and typography.
+- [Navigation](components/navigation.md) (`/navigation`): links, menus, the navbar, breadcrumbs, pagination, steps and the Spotlight command palette.
+- [Display](components/display.md) (`/display`): avatars, badges, stats and KPI cards, progress, sparklines, timelines, code, diffs and image galleries.
+- [Data](components/data.md) (`/data`): Table, Chart and Calendar.
+- [Feedback](components/feedback.md) (`/feedback`): alerts, toasts, loading indicators, skeletons and empty or error states.
+- [Utility](components/utility.md) (`/utility`): icons, tooltips, the clipboard button, keyboard keys, Markdown, Swap and the theme toggle.
+- [AI Components](components/ai.md) (`/ai`): admin screens for the `artisanpack-ui/ai` Laravel package.
+- [Inertia Components](components/inertia.md) (`@artisanpack-ui/vue-laravel`): form fields, navigation, layouts and flash messages wired to Inertia and Laravel.
+- [Deprecated components](components/deprecated.md): the 1.x names kept as aliases in 2.0.
 
 ## Livewire-only components
 
 [StreamableContent](https://docs.artisanpackui.dev/documentation/design-system/components/streamable-content), [ImageLibrary](https://docs.artisanpackui.dev/documentation/design-system/components/image-library) and [ThemePreview](https://docs.artisanpackui.dev/documentation/design-system/components/theme-preview) are Livewire-only: the design system ships them in Livewire UI Components, not in React or Vue.
-
-## Deprecated exports
-
-These 1.x names still work in 2.0 so an app keeps building while you migrate. Each is a thin alias: it renders its replacement, maps the 1.x props it can, and warns once in development. They're marked `@deprecated` and will be removed in the next major. Every attribute an alias doesn't map, including the replacement's own props, passes through to the replacement.
-
-| Deprecated                  | Renders                            | Mapped                                                                                                                                                                                                               | Ignored                      |
-| --------------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
-| `Modal`                     | `Dialog`                           | `subtitle` → `description`, `glass` → `surface="glass"`, `ariaLabel` → `aria-label`, the `actions` slot → `footer`. `persistent` gives an `alertdialog` with no close button that ignores Escape and backdrop closes | `bottom` (use a Drawer)      |
-| `Dropdown`, `DropdownItem`  | `DropdownMenu`, `DropdownMenuItem` | `label` and the `trigger` slot → the trigger's `label`, `end` → `align="end"`. `DropdownItem` keeps its `click` event (also fired from the keyboard) and takes an optional `value`                                   | `top`, `hover`               |
-| `Sidebar`                   | `AppShell`                         | The `sidebar` slot, the default slot as the content, `ariaLabel` → `label`                                                                                                                                           | `open`, `side`, `responsive` |
-| `SpotlightSearch`           | `Spotlight`                        | `items` grouped by `group` (each `id` becomes the value), `ariaLabel` → `label`. `select` still sends the 1.x item. The `item` slot is gone                                                                          |                              |
-| `Radio`                     | `RadioGroup`                       | The `optionValue`, `optionLabel` and `optionHint` keys, `inline` → horizontal, `card` → `variant="cards"`, `cardClass` → `classes.item`                                                                              | `color`                      |
-| `Editor`                    | `CodeEditor`                       | All its props carry over                                                                                                                                                                                             |                              |
-| `FileUpload`                | `File`                             | See below                                                                                                                                                                                                            |                              |
-| `ErrorDisplay`              | `ErrorState`                       |                                                                                                                                                                                                                      |                              |
-| `ToastProvider`, `useToast` | `Toaster` and `toast`              | `defaultDuration` → `duration`, `max`, and the 1.x `position` classes → a `placement`. Its default slot also gets `toast`                                                                                            | `toast-middle`               |
-| `ToastMessage`              | `Toast`                            | `message` → `title`, `color`; the close button emits `dismiss` with the item's id                                                                                                                                    |                              |
-
-A few behaviours change:
-
-- `Sidebar` has no mobile drawer or end-side sidebar: it sits at the start edge and stacks above the content on narrow screens.
-- `ToastProvider` has its own toaster, so `useToast()` below it never reaches the page's `toast`. Toasts past `max` now queue instead of evicting the oldest.
-- `FileUpload` takes `File`'s API, not its 1.x one: the `filesSelected` event and the `withDragDrop`, `dragDropText`, `dragDropClass`, `progress` and `hideProgress` props are gone. Keeping the import isn't enough. Bind `v-model` to receive the selected files, and pass progress per file in the entries.
-
-The [codemod](Upgrading) rewrites most of them for you.

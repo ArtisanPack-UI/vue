@@ -1,6 +1,6 @@
 ---
 title: Nuxt and Server Rendering
-menu_order: 7
+menu_order: 60
 ---
 
 # Nuxt and Server Rendering
@@ -18,7 +18,7 @@ export default defineNuxtConfig({
 });
 ```
 
-With Tailwind v4, import `@artisanpack-ui/css` from your Tailwind entry stylesheet instead; see [Getting Started](Getting-Started).
+With Tailwind v4, import `@artisanpack-ui/css` from your Tailwind entry stylesheet instead; see [Getting Started](getting-started.md).
 
 Apply the stored theme choice before the first paint by adding `themeScript()` to the head, in `app.vue`:
 
@@ -34,7 +34,7 @@ useHead({
 
 `@artisanpack-ui/behavior` comes with `@artisanpack-ui/vue`; add it to your own dependencies as well, since you import it directly.
 
-Import components where you use them. To register some globally, install the [Vue plugin](Getting-Started) from a Nuxt plugin:
+Import components where you use them. To register some globally, install the [Vue plugin](getting-started.md) from a Nuxt plugin:
 
 ```ts
 // plugins/artisanpack-ui.ts
@@ -47,7 +47,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
 ## Other server-rendered apps
 
-Without Nuxt, render `ThemeScript` from `@artisanpack-ui/vue` first in the document `<head>`, before any stylesheet; see [Theming](Theming). With Inertia, the head is in the Blade template; see [Laravel and Inertia](Laravel-Inertia).
+Without Nuxt, render `ThemeScript` from `@artisanpack-ui/vue` first in the document `<head>`, before any stylesheet; see [Theming](theming.md). With Inertia, the head is in the Blade template; see [Laravel and Inertia](laravel-inertia.md).
 
 ## What runs only in the browser
 

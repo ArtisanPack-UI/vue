@@ -1,6 +1,6 @@
 ---
 title: Composables
-menu_order: 5
+menu_order: 50
 ---
 
 # Composables
@@ -67,4 +67,4 @@ const { colorScheme, resolvedColorScheme, setColorScheme } = useTheme();
 
 `useTheme()` throws when no ancestor called `provideTheme()`. `ThemeKey` is the injection key, for reading the context with `inject` without throwing.
 
-These composables hold state only: they don't set `data-theme` on the page. The theme itself is applied by [ThemeToggle](Theming) (or `applyTheme()` from `@artisanpack-ui/behavior`). When an unbound `ThemeToggle` renders under `provideTheme()`, it starts from the stored choice if there is one (and passes it to the provider), else from the provider's preference. It calls `setColorScheme` on every pick and follows the provider when something else sets it, so the two stay in step. A toggle bound with `v-model` shows only its bound value: it emits a pick, and updates the provider when the parent changes the value. The provider only knows light, dark and system, so a high-contrast choice reaches it as `'light'`.
+These composables hold state only: they don't set `data-theme` on the page. The theme itself is applied by [ThemeToggle](theming.md) (or `applyTheme()` from `@artisanpack-ui/behavior`). When an unbound `ThemeToggle` renders under `provideTheme()`, it starts from the stored choice if there is one (and passes it to the provider), else from the provider's preference. It calls `setColorScheme` on every pick and follows the provider when something else sets it, so the two stay in step. A toggle bound with `v-model` shows only its bound value: it emits a pick, and updates the provider when the parent changes the value. The provider only knows light, dark and system, so a high-contrast choice reaches it as `'light'`.

@@ -1,9 +1,13 @@
 ---
-title: Upgrading from 1.x
-menu_order: 11
+title: Upgrading
+menu_order: 90
 ---
 
-# Upgrading from 1.x
+# Upgrading
+
+One section per major version, newest first.
+
+## From 1.x to 2.0
 
 2.0 rebuilds the components on the ArtisanPack UI design system. DaisyUI is gone: components are styled by `@artisanpack-ui/css`, and some components, props and events were renamed to share one API with the React and Livewire packages. Most 1.x names still work in 2.0, marked `@deprecated`, so an app keeps building while you migrate.
 
@@ -11,7 +15,7 @@ The full guide, with every renamed component and every changed prop, slot and ev
 
 Upgrade a whole app at once, on a branch: 1.x and 2.0 can't be mixed in one app, because the new CSS replaces DaisyUI.
 
-## 1. Update the packages
+### 1. Update the packages
 
 ```bash
 npm install @artisanpack-ui/vue@^2 @artisanpack-ui/css
@@ -20,7 +24,7 @@ npm uninstall daisyui
 
 Update `@artisanpack-ui/vue-laravel` too if you use it.
 
-## 2. Run the codemod
+### 2. Run the codemod
 
 Preview the changes as a diff, without writing anything:
 
@@ -42,23 +46,23 @@ npx @artisanpack-ui/codemods vue src --global --dry-run
 
 It reports what it can't change by itself, each with its file and line: props and events with no automatic replacement, values it couldn't read (such as `v-bind="props"`), and every raw DaisyUI class. See [the codemods package](https://docs.artisanpackui.dev/documentation/design-system/packages/codemods) for all options.
 
-## 3. Replace DaisyUI with the new CSS
+### 3. Replace DaisyUI with the new CSS
 
-Remove `@plugin "daisyui";` and any `@plugin "daisyui/theme"` block from your CSS, then load `@artisanpack-ui/css` as shown in [Getting Started](Getting-Started), with or without Tailwind.
+Remove `@plugin "daisyui";` and any `@plugin "daisyui/theme"` block from your CSS, then load `@artisanpack-ui/css` as shown in [Getting Started](getting-started.md), with or without Tailwind.
 
 The codemod never rewrites raw DaisyUI classes in your own markup (`btn`, `card`, `bg-base-200`), because the right replacement depends on the element. The full guide maps each one to a component, a token or a utility.
 
-## 4. Move your theme
+### 4. Move your theme
 
-DaisyUI themes become token-based presets. Generate one from your brand colors with the preset generator; see [Brand Presets](https://docs.artisanpackui.dev/documentation/design-system/theming/brand-presets). To apply the visitor's light or dark choice, use [ThemeToggle and ThemeScript](Theming).
+DaisyUI themes become token-based presets. Generate one from your brand colors with the preset generator; see [Brand Presets](https://docs.artisanpackui.dev/documentation/design-system/theming/brand-presets). To apply the visitor's light or dark choice, use [ThemeToggle and ThemeScript](theming.md).
 
-## 5. Check the renamed components
+### 5. Check the renamed components
 
-The codemod renames components for you. The 1.x names that remain as deprecated aliases are listed in [Components](Components), and they'll be removed in the next major. Each alias renders its 2.0 replacement and warns once in development. Props with no equivalent, such as Modal's `bottom` or Sidebar's `open`, are ignored, so check those screens.
+The codemod renames components for you. The 1.x names that remain as deprecated aliases are listed in [Deprecated components](components/deprecated.md), and they'll be removed in the next major. Each alias renders its 2.0 replacement and warns once in development. Props with no equivalent, such as Modal's `bottom` or Sidebar's `open`, are ignored, so check those screens.
 
-The 1.x shared types `DaisyColor`, `Size`, `GlassProps`, `ColorProps` and `FormFieldProps` are gone. Use each component's own types; see [TypeScript](Typescript).
+The 1.x shared types `DaisyColor`, `Size`, `GlassProps`, `ColorProps` and `FormFieldProps` are gone. Use each component's own types; see [TypeScript](typescript.md).
 
-## 6. Laravel and Inertia
+### 6. Laravel and Inertia
 
 If you use `@artisanpack-ui/vue-laravel`:
 
@@ -66,4 +70,4 @@ If you use `@artisanpack-ui/vue-laravel`:
 - Flash colors are toast colors (`FlashToastColor`). The plugin's `flashColorMap` now applies to every flash toast, and a component's own `colorMap` wins over it.
 - `InertiaBreadcrumbs` and the layouts render design-system markup and no longer need Tailwind. `InertiaBreadcrumbs` collapses trails longer than four items; set `:max-items="0"` to keep the full trail.
 
-See [Laravel and Inertia](Laravel-Inertia).
+See [Laravel and Inertia](laravel-inertia.md).

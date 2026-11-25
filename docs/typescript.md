@@ -1,6 +1,6 @@
 ---
 title: TypeScript
-menu_order: 8
+menu_order: 65
 ---
 
 # TypeScript
@@ -32,11 +32,11 @@ const saveButton: ButtonProps = { color: 'primary', leadingIcon: 'check' };
 
 The 1.x shared types `DaisyColor`, `Size`, `GlassProps`, `ColorProps` and `FormFieldProps` are gone in 2.0; use each component's own types instead.
 
-The composables export `Breakpoint`, `BreakpointContext`, `ColorScheme` and `ThemeContextValue`. The plugin exports `ArtisanPackUIOptions`. The AI subpath exports its API types; see [AI Components](Ai-Components). `@artisanpack-ui/vue-laravel` exports the Laravel types; see [Laravel and Inertia](Laravel-Inertia).
+The composables export `Breakpoint`, `BreakpointContext`, `ColorScheme` and `ThemeContextValue`. The plugin exports `ArtisanPackUIOptions`. The AI subpath exports its API types; see [AI Components](components/ai.md). `@artisanpack-ui/vue-laravel` exports the Laravel types; see [Laravel and Inertia](laravel-inertia.md).
 
 ## Globally registered components
 
-The [Vue plugin](Getting-Started) registers components at runtime, under names you choose, so it can't declare their types. To type them in templates, declare them yourself:
+The [Vue plugin](getting-started.md) registers components at runtime, under names you choose, so it can't declare their types. To type them in templates, declare them yourself:
 
 ```ts
 // src/components.d.ts
