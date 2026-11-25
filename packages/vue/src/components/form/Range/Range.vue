@@ -10,6 +10,7 @@ import { computed, mergeProps, ref, useAttrs, useId, watch } from 'vue';
 import { DsIcon, flag, part } from '../../_shared/design-system';
 import { dualThumbAttrs, formatRangeValue, percentOf } from '../../_shared/form-text';
 import type { RangeEmits, RangeProps, RangeValue } from './types';
+import { useTranslator } from '../../../i18n/translator';
 
 defineOptions({ inheritAttrs: false });
 
@@ -36,6 +37,7 @@ const props = withDefaults(defineProps<RangeProps>(), {
 const emit = defineEmits<RangeEmits>();
 
 const attrs = useAttrs();
+const { t } = useTranslator();
 const autoId = useId();
 
 /** [from, to]: from is the min for a single thumb. */
@@ -55,7 +57,11 @@ watch(
   },
 );
 
-const names = computed(() => ({ start: 'Minimum', end: 'Maximum', ...props.thumbLabels }));
+const names = computed(() => ({
+  start: t('Minimum'),
+  end: t('Maximum'),
+  ...props.thumbLabels,
+}));
 
 function fieldId(): string {
   const explicit = attrs.id;

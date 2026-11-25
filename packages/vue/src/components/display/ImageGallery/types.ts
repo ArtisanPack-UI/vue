@@ -60,17 +60,17 @@ export interface ImageGalleryProps {
   modal?: boolean;
   /** Renders the lightbox at the end of the body (Teleport). @defaultValue `true` */
   portal?: boolean;
-  /** The close button's accessible name. @defaultValue `'Close'` */
+  /** The close button's accessible name. @defaultValue `'Close'`, translated */
   closeLabel?: string;
-  /** The previous button's accessible name. @defaultValue `'Previous photo'` */
+  /** The previous button's accessible name. @defaultValue `'Previous photo'`, translated */
   previousLabel?: string;
-  /** The next button's accessible name. @defaultValue `'Next photo'` */
+  /** The next button's accessible name. @defaultValue `'Next photo'`, translated */
   nextLabel?: string;
-  /** The download link's accessible name. @defaultValue `'Download'` */
+  /** The download link's accessible name. @defaultValue `'Download'`, translated */
   downloadLabel?: string;
-  /** The counter; `{index}` and `{count}` are replaced. @defaultValue `'{index} / {count}'` */
+  /** The counter; `{index}` and `{count}` are replaced. @defaultValue `'{index} / {count}'`, translated */
   counterLabel?: string;
-  /** Names the thumbnail strip. @defaultValue `'Photos'` */
+  /** Names the thumbnail strip. @defaultValue `'Photos'`, translated */
   thumbsLabel?: string;
   /** Extra classes per part. */
   classes?: Partial<Record<ImageGalleryPart, string>>;

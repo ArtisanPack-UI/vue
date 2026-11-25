@@ -37,7 +37,7 @@ export interface CheckboxGroupProps {
   columns?: number;
   /** Adds a select-all checkbox with the mixed state. @defaultValue `false` */
   selectAll?: boolean;
-  /** The select-all label. @defaultValue `'Select all'` */
+  /** The select-all label. @defaultValue `'Select all'`, translated */
   selectAllLabel?: string;
   /** Extra classes per part, such as `{ items: '…' }`. */
   classes?: Partial<Record<CheckboxGroupPart, string>>;

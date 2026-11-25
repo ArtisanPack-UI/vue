@@ -55,21 +55,21 @@ export interface SpotlightProps {
   shortcut?: string;
   /** Lists recent choices first, in a Recent group, while the query is empty. Off by default: they're kept in the browser's localStorage. */
   recent?: boolean;
-  /** The palette's accessible name. Translate it. */
+  /** The palette's accessible name. @defaultValue `'Search'`, translated */
   label?: string;
-  /** The query's placeholder. Translate it. */
+  /** The query's placeholder. @defaultValue `'Search…'`, translated */
   placeholder?: string;
-  /** Shown when nothing matches. Translate it. The `empty` slot overrides it. */
+  /** Shown when nothing matches. The `empty` slot overrides it. @defaultValue `'No results.'`, translated */
   emptyLabel?: string;
-  /** Shown while loading. Translate it. */
+  /** Shown while loading. @defaultValue `'Searching…'`, translated */
   loadingLabel?: string;
-  /** The Recent group's label. Translate it. */
+  /** The Recent group's label. @defaultValue `'Recent'`, translated */
   recentLabel?: string;
-  /** The Esc button's accessible name. Translate it. */
+  /** The Esc button's accessible name. @defaultValue `'Close'`, translated */
   closeLabel?: string;
-  /** The footer's hint beside the arrow keys. Translate it. */
+  /** The footer's hint beside the arrow keys. @defaultValue `'Navigate'`, translated */
   navigateLabel?: string;
-  /** The footer's hint beside the Enter key. Translate it. */
+  /** The footer's hint beside the Enter key. @defaultValue `'Open'`, translated */
   selectLabel?: string;
   /** Content for a trigger button that opens the palette, shown with the shortcut's keys. The `trigger` slot overrides it. */
   trigger?: string;

@@ -22,7 +22,7 @@ export interface KbdProps {
   size?: KbdSize;
   /** Whose keys to show. @defaultValue `'auto'` */
   platform?: KbdPlatform;
-  /** The hidden names of symbol keys, by name (`command`, `enter`, `up`…). Translate them. */
+  /** The hidden names of symbol keys, by name (`command`, `enter`, `up`…). Defaults to the translated English names. */
   labels?: KbdLabels;
   /** Extra classes per part. */
   classes?: Partial<Record<KbdPart, string>>;

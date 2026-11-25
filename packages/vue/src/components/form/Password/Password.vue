@@ -10,6 +10,7 @@ import { computed, mergeProps, ref, useAttrs, useId, watch } from 'vue';
 import { DsIcon, flag, part } from '../../_shared/design-system';
 import { passwordStrength, requirementMet } from '../../_shared/form-text';
 import type { PasswordEmits, PasswordLabels, PasswordProps } from './types';
+import { useTranslator } from '../../../i18n/translator';
 
 defineOptions({ inheritAttrs: false });
 
@@ -28,24 +29,26 @@ const props = withDefaults(defineProps<PasswordProps>(), {
   leadingIcon: undefined,
   strengthMeter: false,
   requirements: undefined,
-  revealLabel: 'Show password',
+  revealLabel: undefined,
   labels: undefined,
   classes: undefined,
 });
 
 const emit = defineEmits<PasswordEmits>();
 
-const DEFAULT_LABELS: PasswordLabels = {
-  strength: 'Strength',
-  weak: 'Weak',
-  fair: 'Fair',
-  good: 'Good',
-  strong: 'Strong',
-  met: 'Met',
-  unmet: 'Not met',
-};
-
 const attrs = useAttrs();
+const { t } = useTranslator();
+
+/** The built-in text's translated defaults. */
+const defaultLabels = (): PasswordLabels => ({
+  strength: t('Strength'),
+  weak: t('Weak'),
+  fair: t('Fair'),
+  good: t('Good'),
+  strong: t('Strong'),
+  met: t('Met'),
+  unmet: t('Not met'),
+});
 const autoId = useId();
 const revealed = ref(false);
 
@@ -57,7 +60,7 @@ watch(
   },
 );
 
-const text = computed<PasswordLabels>(() => ({ ...DEFAULT_LABELS, ...props.labels }));
+const text = computed<PasswordLabels>(() => ({ ...defaultLabels(), ...props.labels }));
 const level = computed(() => passwordStrength(current.value));
 const levelName = computed(() => {
   const names = ['', text.value.weak, text.value.fair, text.value.good, text.value.strong];
@@ -127,7 +130,7 @@ function controlAttrs(): Record<string, unknown> {
 function revealAttrs(): Record<string, unknown> {
   return part('password', 'reveal', props.classes?.reveal, {
     type: 'button',
-    'aria-label': props.revealLabel,
+    'aria-label': props.revealLabel ?? t('Show password'),
     'aria-pressed': revealed.value ? 'true' : 'false',
     'aria-controls': fieldId(),
     disabled: props.disabled || undefined,

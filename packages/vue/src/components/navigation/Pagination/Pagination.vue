@@ -8,6 +8,7 @@
  */
 import { computed } from 'vue';
 import { DsIcon, part } from '../../_shared/design-system';
+import { useTranslator } from '../../../i18n/translator';
 import { paginationRange } from './range';
 import type { PaginationProps } from './types';
 
@@ -18,10 +19,10 @@ const props = withDefaults(defineProps<PaginationProps>(), {
   perPage: 10,
   siblings: 1,
   summary: false,
-  label: 'Pagination',
-  previousLabel: 'Previous page',
-  nextLabel: 'Next page',
-  pageLabel: 'Page {page}',
+  label: undefined,
+  previousLabel: undefined,
+  nextLabel: undefined,
+  pageLabel: undefined,
   summaryLabel: undefined,
   classes: undefined,
 });
@@ -30,6 +31,8 @@ const emit = defineEmits<{
   'page-change': [page: number];
   'update:page': [page: number];
 }>();
+
+const { t } = useTranslator();
 
 const per = computed(() => Math.max(1, props.perPage));
 const count = computed(() =>
@@ -51,7 +54,7 @@ const summaryText = computed(() => {
     total === undefined ? current.value * per.value : Math.min(total, current.value * per.value);
   const template =
     props.summaryLabel ??
-    (total === undefined ? 'Page {page} of {pageCount}' : 'Showing {from}–{to} of {total}');
+    (total === undefined ? t('Page {page} of {pageCount}') : t('Showing {from}–{to} of {total}'));
   return template
     .replaceAll('{from}', String(total === undefined ? from : Math.min(total, from)))
     .replaceAll('{to}', String(to))
@@ -70,14 +73,14 @@ const atEnd = computed(() => current.value >= count.value);
 </script>
 
 <template>
-  <nav :class="['apui-pagination', classes?.root]" :aria-label="label">
+  <nav :class="['apui-pagination', classes?.root]" :aria-label="label ?? t('Pagination')">
     <span v-if="summaryText !== null" v-bind="part('pagination', 'summary', classes?.summary)">{{
       summaryText
     }}</span>
     <button
       type="button"
       v-bind="part('pagination', 'previous', classes?.previous)"
-      :aria-label="previousLabel"
+      :aria-label="previousLabel ?? t('Previous page')"
       :aria-disabled="atStart ? 'true' : undefined"
       data-mirror=""
       @click="atStart || go(current - 1)"
@@ -94,7 +97,7 @@ const atEnd = computed(() => current.value >= count.value);
         v-else
         type="button"
         v-bind="part('pagination', 'page', classes?.page)"
-        :aria-label="pageLabel.replaceAll('{page}', String(item))"
+        :aria-label="(pageLabel ?? t('Page {page}')).replaceAll('{page}', String(item))"
         :aria-current="item === current ? 'page' : undefined"
         @click="item === current || go(item)"
       >
@@ -104,7 +107,7 @@ const atEnd = computed(() => current.value >= count.value);
     <button
       type="button"
       v-bind="part('pagination', 'next', classes?.next)"
-      :aria-label="nextLabel"
+      :aria-label="nextLabel ?? t('Next page')"
       :aria-disabled="atEnd ? 'true' : undefined"
       data-mirror=""
       @click="atEnd || go(current + 1)"

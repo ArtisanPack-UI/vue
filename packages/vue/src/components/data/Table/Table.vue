@@ -16,6 +16,7 @@ import { DsIcon, hasContent, part } from '../../_shared/design-system';
 import Checkbox from '../../form/Checkbox/Checkbox.vue';
 import Pagination from '../../navigation/Pagination/Pagination.vue';
 import type { TableColumn, TableKey, TableProps, TableSort } from './types';
+import { useTranslator } from '../../../i18n/translator';
 
 type Row = Record<string, unknown>;
 
@@ -34,15 +35,15 @@ const props = withDefaults(defineProps<TableProps>(), {
   expanded: undefined,
   sortBy: undefined,
   loading: false,
-  emptyText: 'No records found.',
+  emptyText: undefined,
   toolbar: undefined,
   footer: undefined,
   pagination: undefined,
-  selectAllLabel: 'Select all',
-  selectRowLabel: 'Select {row}',
-  sortLabel: 'Sort by {column}',
-  expandLabel: 'Show details for {row}',
-  actionsLabel: 'Actions',
+  selectAllLabel: undefined,
+  selectRowLabel: undefined,
+  sortLabel: undefined,
+  expandLabel: undefined,
+  actionsLabel: undefined,
   classes: undefined,
   headers: undefined,
   columns: undefined,
@@ -88,6 +89,16 @@ defineSlots<{
 }>();
 
 const slots = useSlots();
+const { t } = useTranslator();
+
+/** The built-in names, translated unless a prop gives its own. */
+const names = computed(() => ({
+  selectAll: props.selectAllLabel ?? t('Select all'),
+  selectRow: props.selectRowLabel ?? t('Select {row}'),
+  sort: props.sortLabel ?? t('Sort by {column}'),
+  expand: props.expandLabel ?? t('Show details for {row}'),
+  actions: props.actionsLabel ?? t('Actions'),
+}));
 const instance = getCurrentInstance();
 const baseId = useId();
 
@@ -139,7 +150,9 @@ const visibleColumns = computed(() =>
     })),
 );
 const resolvedDensity = computed(() => props.density ?? (props.compact ? 'compact' : undefined));
-const resolvedEmptyText = computed(() => props.emptyMessage ?? props.emptyText);
+const resolvedEmptyText = computed(
+  () => props.emptyMessage ?? props.emptyText ?? t('No records found.'),
+);
 const currentSort = computed<TableSort | undefined>(
   () =>
     props.sortBy ??
@@ -267,7 +280,7 @@ function paginationBindings() {
           <tr>
             <th v-if="selectable" v-bind="part('table', 'select', classes?.select)" scope="col">
               <Checkbox
-                :aria-label="selectAllLabel"
+                :aria-label="names.selectAll"
                 :checked="allState === 'checked'"
                 :indeterminate="allState === 'indeterminate'"
                 :disabled="pageKeys.length === 0"
@@ -295,7 +308,7 @@ function paginationBindings() {
                 v-if="column.sortable"
                 type="button"
                 v-bind="part('table', 'sort', classes?.sort)"
-                :aria-label="fill(sortLabel, { column: column.label ?? column.key })"
+                :aria-label="fill(names.sort, { column: column.label ?? column.key })"
                 @click="sort(column)"
               >
                 <slot :name="`header-${column.key}`" :column="column">{{
@@ -312,7 +325,7 @@ function paginationBindings() {
               v-bind="part('table', 'head-cell', classes?.headCell, { 'data-shrink': '' })"
               scope="col"
             >
-              <span class="apui-sr-only">{{ actionsLabel }}</span>
+              <span class="apui-sr-only">{{ names.actions }}</span>
             </th>
           </tr>
         </thead>
@@ -367,7 +380,7 @@ function paginationBindings() {
               >
                 <td v-if="selectable" v-bind="part('table', 'select', classes?.select)">
                   <Checkbox
-                    :aria-label="fill(selectRowLabel, { row: rowName(row) })"
+                    :aria-label="fill(names.selectRow, { row: rowName(row) })"
                     :value="text(rowKey(row))"
                     :checked="hasKey(ownSelection, rowKey(row))"
                     @update:checked="(on: boolean) => toggleRow(rowKey(row), on)"
@@ -380,7 +393,7 @@ function paginationBindings() {
                   <button
                     type="button"
                     v-bind="part('table', 'expand-trigger', classes?.expandTrigger)"
-                    :aria-label="fill(expandLabel, { row: rowName(row) })"
+                    :aria-label="fill(names.expand, { row: rowName(row) })"
                     :aria-expanded="hasKey(ownExpanded, rowKey(row)) ? 'true' : 'false'"
                     :aria-controls="
                       hasKey(ownExpanded, rowKey(row)) ? `${baseId}-expansion-${index}` : undefined

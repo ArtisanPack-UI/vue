@@ -16,6 +16,7 @@ import { carouselPageCount, useCarousel } from '@artisanpack-ui/behavior/vue';
 import Button from '../../form/Button/Button.vue';
 import Card from '../../layout/Card/Card.vue';
 import { DsIcon, part } from '../../_shared/design-system';
+import { useTranslator } from '../../../i18n/translator';
 import type { CarouselPart, CarouselProps, CarouselSlide } from './types';
 
 defineOptions({ inheritAttrs: false });
@@ -29,12 +30,12 @@ const props = withDefaults(defineProps<CarouselProps>(), {
   title: undefined,
   headingLevel: 3,
   label: undefined,
-  previousLabel: 'Previous slide',
-  nextLabel: 'Next slide',
-  indicatorLabel: 'Go to slide {index}',
-  slideLabel: '{index} of {count}',
-  playLabel: 'Start slide rotation',
-  pauseLabel: 'Stop slide rotation',
+  previousLabel: undefined,
+  nextLabel: undefined,
+  indicatorLabel: undefined,
+  slideLabel: undefined,
+  playLabel: undefined,
+  pauseLabel: undefined,
   classes: undefined,
 });
 
@@ -47,6 +48,7 @@ defineSlots<{
 }>();
 
 const attrs = useAttrs();
+const { t } = useTranslator();
 const instance = getCurrentInstance();
 
 /** Whether the parent passes `index`, so the carousel shows only what it says. */
@@ -72,12 +74,12 @@ const machine = useCarousel(() => ({
   autoplay: props.autoplay,
   interval: props.interval,
   labels: {
-    previous: props.previousLabel,
-    next: props.nextLabel,
-    indicator: props.indicatorLabel,
-    slide: props.slideLabel,
-    play: props.playLabel,
-    pause: props.pauseLabel,
+    previous: props.previousLabel ?? t('Previous slide'),
+    next: props.nextLabel ?? t('Next slide'),
+    indicator: props.indicatorLabel ?? t('Go to slide {index}'),
+    slide: props.slideLabel ?? t('{index} of {count}'),
+    play: props.playLabel ?? t('Start slide rotation'),
+    pause: props.pauseLabel ?? t('Stop slide rotation'),
   },
   onIndexChange: ({ index }) => {
     if (!isBound()) localIndex.value = index;
@@ -123,7 +125,7 @@ function rootAttrs(): Record<string, unknown> {
   return mergeProps(attrs, own, {
     class: ['apui-carousel', props.classes?.root],
     // A caller's own aria-label wins over the title and the generic name.
-    'aria-label': props.label || text(attrs['aria-label']) || props.title || 'Carousel',
+    'aria-label': props.label || text(attrs['aria-label']) || props.title || t('Carousel'),
   });
 }
 

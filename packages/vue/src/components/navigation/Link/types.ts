@@ -22,7 +22,7 @@ export interface LinkProps {
   standalone?: boolean;
   /** Opens in a new tab, adds the external-link icon and announces it. @defaultValue `false` */
   external?: boolean;
-  /** The visually hidden text an external link announces; translate it. @defaultValue `'(opens in a new tab)'` */
+  /** The visually hidden text an external link announces. @defaultValue `'(opens in a new tab)'`, translated */
   externalLabel?: string;
   /** Icon name before the text. The `icon` slot overrides it. */
   leadingIcon?: string;

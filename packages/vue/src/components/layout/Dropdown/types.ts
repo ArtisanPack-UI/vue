@@ -6,7 +6,7 @@
  * DropdownMenu's own props pass through.
  */
 export interface DropdownProps {
-  /** The trigger button's text. The `trigger` slot overrides it. @defaultValue `'Options'` */
+  /** The trigger button's text. The `trigger` slot overrides it. @defaultValue `'Options'`, translated */
   label?: string;
   /** Lines the menu's end edge up with the trigger's. DropdownMenu's `align="end"`. @defaultValue `false` */
   end?: boolean;

@@ -10,6 +10,7 @@ import { computed, mergeProps, ref, useAttrs, useId, watch } from 'vue';
 import { DsIcon, flag, part } from '../../_shared/design-system';
 import { remainingAnnouncement, useFormReset } from '../../_shared/form-text';
 import type { TextareaEmits, TextareaProps } from './types';
+import { useTranslator } from '../../../i18n/translator';
 
 defineOptions({ inheritAttrs: false });
 
@@ -26,13 +27,14 @@ const props = withDefaults(defineProps<TextareaProps>(), {
   required: false,
   placeholder: undefined,
   modelValue: undefined,
-  remainingLabel: 'Characters left: {count}',
+  remainingLabel: undefined,
   classes: undefined,
 });
 
 const emit = defineEmits<TextareaEmits>();
 
 const attrs = useAttrs();
+const { t } = useTranslator();
 const autoId = useId();
 
 /** The rendered value: follows `v-model`, and typing when uncontrolled. */
@@ -59,7 +61,11 @@ const hasCounter = computed(() => typeof props.maxLength === 'number' && props.m
 /** The live region's text: only near the limit, so it isn't announced on every keystroke. */
 const announcement = computed(() =>
   hasCounter.value
-    ? remainingAnnouncement(current.value.length, props.maxLength!, props.remainingLabel)
+    ? remainingAnnouncement(
+        current.value.length,
+        props.maxLength!,
+        props.remainingLabel ?? t('Characters left: {count}'),
+      )
     : '',
 );
 

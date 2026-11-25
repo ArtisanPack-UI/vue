@@ -12,6 +12,7 @@
 import { computed, getCurrentInstance, mergeProps, ref, useAttrs, useSlots } from 'vue';
 import { useCollapse } from '@artisanpack-ui/behavior/vue';
 import { DsIcon, hasContent, part } from '../../_shared/design-system';
+import { useTranslator } from '../../../i18n/translator';
 import type { CollapsePart, CollapseProps } from './types';
 
 defineOptions({ inheritAttrs: false });
@@ -30,6 +31,8 @@ const emit = defineEmits<{ 'update:open': [open: boolean] }>();
 const attrs = useAttrs();
 const slots = useSlots();
 const instance = getCurrentInstance();
+
+const { t } = useTranslator();
 
 /** Whether the parent passes `open`; then the region follows it. */
 function isBound(): boolean {
@@ -77,8 +80,8 @@ function triggerAttrs(): Record<string, unknown> {
 
 /** The trigger's text: `openLabel` while open, else `label`, with read-more's defaults. */
 const triggerText = computed(() => {
-  const label = props.label ?? (readMore.value ? 'Read more' : undefined);
-  const openLabel = props.openLabel ?? (readMore.value ? 'Show less' : undefined);
+  const label = props.label ?? (readMore.value ? t('Read more') : undefined);
+  const openLabel = props.openLabel ?? (readMore.value ? t('Show less') : undefined);
   return api.value.open && openLabel ? openLabel : label;
 });
 

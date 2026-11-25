@@ -8,9 +8,10 @@
  * Apple platforms and Ctrl elsewhere, and symbol keys carry their name as
  * hidden text.
  */
-import { kbdKeys } from '@artisanpack-ui/behavior';
+import { kbdKeys, type KbdLabels } from '@artisanpack-ui/behavior';
 import { useApplePlatform } from '@artisanpack-ui/behavior/vue';
 import { computed } from 'vue';
+import { useTranslator } from '../../../i18n/translator';
 import type { KbdProps } from './types';
 
 const props = withDefaults(defineProps<KbdProps>(), {
@@ -22,7 +23,23 @@ const props = withDefaults(defineProps<KbdProps>(), {
 });
 
 const apple = useApplePlatform(() => props.platform);
-const shown = computed(() => kbdKeys(props.keys, apple.value, props.labels));
+const { t } = useTranslator();
+const names = computed<KbdLabels>(() => ({
+  command: t('Command'),
+  control: t('Control'),
+  option: t('Option'),
+  shift: t('Shift'),
+  enter: t('Enter'),
+  tab: t('Tab'),
+  escape: t('Escape'),
+  backspace: t('Backspace'),
+  up: t('Up arrow'),
+  down: t('Down arrow'),
+  left: t('Left arrow'),
+  right: t('Right arrow'),
+  ...props.labels,
+}));
+const shown = computed(() => kbdKeys(props.keys, apple.value, names.value));
 </script>
 
 <template>

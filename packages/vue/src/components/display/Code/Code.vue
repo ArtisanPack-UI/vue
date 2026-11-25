@@ -11,7 +11,6 @@
  * Clipboard does, and copies the exact source. The code stays LTR (D-004).
  */
 import {
-  CLIPBOARD_LABELS,
   clipboardLabel,
   clipboardMessage,
   codeHighlights,
@@ -21,6 +20,7 @@ import {
 import { useClipboard } from '@artisanpack-ui/behavior/vue';
 import { computed, watch } from 'vue';
 import { DsIcon, flag, part } from '../../_shared/design-system';
+import { useTranslator } from '../../../i18n/translator';
 import type { CodeProps } from './types';
 
 const props = withDefaults(defineProps<CodeProps>(), {
@@ -32,13 +32,14 @@ const props = withDefaults(defineProps<CodeProps>(), {
   inline: false,
   copyable: true,
   label: undefined,
-  copyLabel: CLIPBOARD_LABELS.copy,
-  copiedLabel: CLIPBOARD_LABELS.copied,
-  copiedMessage: CLIPBOARD_LABELS.copiedMessage,
-  errorMessage: CLIPBOARD_LABELS.errorMessage,
+  copyLabel: undefined,
+  copiedLabel: undefined,
+  copiedMessage: undefined,
+  errorMessage: undefined,
   classes: undefined,
 });
 
+const { t } = useTranslator();
 const clipboard = useClipboard();
 const status = computed(() => clipboard.status.value);
 const filled = (value: unknown): boolean => value !== undefined && value !== null && value !== '';
@@ -48,12 +49,14 @@ const hasHeader = computed(
   () => filled(props.fileName) || filled(props.language) || props.copyable,
 );
 const labels = computed(() => ({
-  copy: props.copyLabel,
-  copied: props.copiedLabel,
-  copiedMessage: props.copiedMessage,
-  errorMessage: props.errorMessage,
+  copy: props.copyLabel ?? t('Copy'),
+  copied: props.copiedLabel ?? t('Copied'),
+  copiedMessage: props.copiedMessage ?? t('Copied to clipboard'),
+  errorMessage: props.errorMessage ?? t("Couldn't copy. Select the text and copy it yourself."),
 }));
-const regionLabel = computed(() => codeLabel(props.label, props.fileName, props.language));
+const regionLabel = computed(() =>
+  codeLabel(props.label, props.fileName, props.language, t('Code')),
+);
 
 // A new code clears a stale "Copied", even from a copy still in flight.
 watch(

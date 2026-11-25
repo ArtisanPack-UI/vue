@@ -10,15 +10,11 @@
  * After a failure the value shows (in every variant) and is selected, to copy
  * by hand; a new value clears a stale "Copied".
  */
-import {
-  CLIPBOARD_LABELS,
-  CLIPBOARD_TIMEOUT,
-  clipboardLabel,
-  clipboardMessage,
-} from '@artisanpack-ui/behavior';
+import { CLIPBOARD_TIMEOUT, clipboardLabel, clipboardMessage } from '@artisanpack-ui/behavior';
 import { useClipboard } from '@artisanpack-ui/behavior/vue';
 import { computed, nextTick, ref, watch } from 'vue';
 import { DsIcon, flag, part } from '../../_shared/design-system';
+import { useTranslator } from '../../../i18n/translator';
 import type { ClipboardProps } from './types';
 
 const props = withDefaults(defineProps<ClipboardProps>(), {
@@ -28,10 +24,10 @@ const props = withDefaults(defineProps<ClipboardProps>(), {
   timeout: CLIPBOARD_TIMEOUT,
   variant: 'button',
   size: 'sm',
-  label: CLIPBOARD_LABELS.copy,
-  copiedLabel: CLIPBOARD_LABELS.copied,
-  copiedMessage: CLIPBOARD_LABELS.copiedMessage,
-  errorMessage: CLIPBOARD_LABELS.errorMessage,
+  label: undefined,
+  copiedLabel: undefined,
+  copiedMessage: undefined,
+  errorMessage: undefined,
   classes: undefined,
 });
 
@@ -54,11 +50,12 @@ const status = computed(() => clipboard.status.value);
 const shown = computed(() =>
   props.variant === 'icon' || props.variant === 'field' ? props.variant : 'button',
 );
+const { t } = useTranslator();
 const labels = computed(() => ({
-  copy: props.label,
-  copied: props.copiedLabel,
-  copiedMessage: props.copiedMessage,
-  errorMessage: props.errorMessage,
+  copy: props.label ?? t('Copy'),
+  copied: props.copiedLabel ?? t('Copied'),
+  copiedMessage: props.copiedMessage ?? t('Copied to clipboard'),
+  errorMessage: props.errorMessage ?? t("Couldn't copy. Select the text and copy it yourself."),
 }));
 const buttonLabel = computed(() => clipboardLabel(status.value, labels.value));
 const message = computed(() => clipboardMessage(status.value, labels.value));

@@ -12,7 +12,7 @@ export interface SidebarProps {
   side?: 'left' | 'right';
   /** Ignored: AppShell always shows the sidebar, stacked above the content on narrow screens. @defaultValue `true` */
   responsive?: boolean;
-  /** Names the sidebar's landmark. AppShell's `label`. @defaultValue `'Sidebar navigation'` */
+  /** Names the sidebar's landmark. AppShell's `label`. @defaultValue `'Sidebar navigation'`, translated */
   ariaLabel?: string;
   /** Additional CSS classes for the frame. */
   className?: string;

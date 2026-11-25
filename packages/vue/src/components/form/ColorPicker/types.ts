@@ -64,19 +64,19 @@ export interface ColorPickerProps {
   open?: boolean;
   /** Renders the popover at the end of the body (Teleport). @defaultValue `true` */
   portal?: boolean;
-  /** The swatch button's and the popover's name. @defaultValue `'Choose a color'` */
+  /** The swatch button's and the popover's name. @defaultValue `'Choose a color'`, translated */
   triggerLabel?: string;
-  /** The area's name. @defaultValue `'Saturation and brightness'` */
+  /** The area's name. @defaultValue `'Saturation and brightness'`, translated */
   areaLabel?: string;
-  /** The hue slider's name. @defaultValue `'Hue'` */
+  /** The hue slider's name. @defaultValue `'Hue'`, translated */
   hueLabel?: string;
-  /** The opacity slider's name. @defaultValue `'Opacity'` */
+  /** The opacity slider's name. @defaultValue `'Opacity'`, translated */
   alphaLabel?: string;
-  /** The format select's name. @defaultValue `'Format'` */
+  /** The format select's name. @defaultValue `'Format'`, translated */
   formatLabel?: string;
-  /** The eyedropper's name. @defaultValue `'Pick a color from the screen'` */
+  /** The eyedropper's name. @defaultValue `'Pick a color from the screen'`, translated */
   eyeDropperLabel?: string;
-  /** The preset group's name. @defaultValue `'Swatches'` */
+  /** The preset group's name. @defaultValue `'Swatches'`, translated */
   swatchesLabel?: string;
   /** Extra classes per part, such as `{ trigger: '…' }`. */
   classes?: Partial<Record<ColorPickerPart, string>>;

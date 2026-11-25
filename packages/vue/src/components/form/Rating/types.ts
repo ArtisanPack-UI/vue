@@ -25,9 +25,9 @@ export interface RatingProps {
   count?: number;
   /** The input's accessible name, such as "Rate the viewing". */
   label?: string;
-  /** The text alternative and each radio's name, with `:value` and `:max`. @defaultValue `':value out of :max'` */
+  /** The text alternative and each radio's name, with `:value` and `:max`. @defaultValue `':value out of :max'`, translated */
   valueLabel?: string;
-  /** The count text, with `:count`. Defaults to "(:count reviews)", singular for one. */
+  /** The count text, with `:count`. Defaults to "(:count reviews)", singular for one, translated. */
   countLabel?: string;
   /** Extra classes per part, such as `{ star: '…' }`. */
   classes?: Partial<Record<RatingPart, string>>;

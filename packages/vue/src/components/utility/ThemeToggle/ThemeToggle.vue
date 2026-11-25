@@ -57,6 +57,7 @@ import type { ColorScheme } from '../../../types/theme';
 import { DsIcon, flag, part } from '../../_shared/design-system';
 import Button from '../../form/Button/Button.vue';
 import ThemeToggleMenu from './ThemeToggleMenu.vue';
+import { useTranslator } from '../../../i18n/translator';
 import type { ThemeToggleProps } from './types';
 
 defineOptions({ inheritAttrs: false });
@@ -113,16 +114,17 @@ const resolved = computed<Theme>(() =>
   current.value === 'system' ? (systemDark.value ? 'dark' : 'light') : (current.value as Theme),
 );
 const offered = computed(() => themeChoices(props.choices));
+const { t } = useTranslator();
 const labels = computed(() =>
   themeToggleLabels({
-    label: props.label,
-    lightLabel: props.lightLabel,
-    darkLabel: props.darkLabel,
-    highContrastLabel: props.highContrastLabel,
-    systemLabel: props.systemLabel,
-    matchSystemLabel: props.matchSystemLabel,
-    switchToLightLabel: props.switchToLightLabel,
-    switchToDarkLabel: props.switchToDarkLabel,
+    label: props.label ?? t('Theme'),
+    lightLabel: props.lightLabel ?? t('Light'),
+    darkLabel: props.darkLabel ?? t('Dark'),
+    highContrastLabel: props.highContrastLabel ?? t('High contrast'),
+    systemLabel: props.systemLabel ?? t('System'),
+    matchSystemLabel: props.matchSystemLabel ?? t('Match system'),
+    switchToLightLabel: props.switchToLightLabel ?? t('Switch to light theme'),
+    switchToDarkLabel: props.switchToDarkLabel ?? t('Switch to dark theme'),
   }),
 );
 const stop = computed(() =>

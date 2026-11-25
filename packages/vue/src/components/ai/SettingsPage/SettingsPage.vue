@@ -10,7 +10,8 @@ import type {
 } from '../types';
 import { AiApiError } from '../createAiApiClient';
 import { errorMessage } from '../errorMessage';
-import { SETTINGS_PAGE_LABELS, type SettingsPageLabels } from '../labels';
+import { useTranslator } from '../../../i18n/translator';
+import { settingsPageLabels, type SettingsPageLabels } from '../labels';
 import Alert from '../../feedback/Alert/Alert.vue';
 import Loading from '../../feedback/Loading/Loading.vue';
 import Button from '../../form/Button/Button.vue';
@@ -32,7 +33,7 @@ interface Props {
   providers?: string[];
   /** Optional heading rendered above the form. */
   heading?: string;
-  /** Built-in text, merged over the English defaults; translate it. */
+  /** Built-in text, merged over the defaults (English, or the active locale's when translations are provided). */
   labels?: Partial<SettingsPageLabels>;
 }
 
@@ -42,7 +43,9 @@ const props = withDefaults(defineProps<Props>(), {
   labels: undefined,
 });
 
-const text = computed<SettingsPageLabels>(() => ({ ...SETTINGS_PAGE_LABELS, ...props.labels }));
+const { t } = useTranslator();
+
+const text = computed<SettingsPageLabels>(() => ({ ...settingsPageLabels(t), ...props.labels }));
 
 interface FormState {
   provider: string;

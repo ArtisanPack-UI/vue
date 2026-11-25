@@ -61,53 +61,53 @@ export interface RichTextEditorProps {
   placeholder?: string;
   /** The content in the output format. Bound with `v-model`. */
   modelValue?: string;
-  /** The toolbar's accessible name. @defaultValue `'Formatting'` */
+  /** The toolbar's accessible name. @defaultValue `'Formatting'`, translated */
   toolbarLabel?: string;
-  /** The Bold button's accessible name. @defaultValue `'Bold'` */
+  /** The Bold button's accessible name. @defaultValue `'Bold'`, translated */
   boldLabel?: string;
-  /** The Italic button's accessible name. @defaultValue `'Italic'` */
+  /** The Italic button's accessible name. @defaultValue `'Italic'`, translated */
   italicLabel?: string;
-  /** The Underline button's accessible name. @defaultValue `'Underline'` */
+  /** The Underline button's accessible name. @defaultValue `'Underline'`, translated */
   underlineLabel?: string;
-  /** The Strikethrough button's accessible name. @defaultValue `'Strikethrough'` */
+  /** The Strikethrough button's accessible name. @defaultValue `'Strikethrough'`, translated */
   strikeLabel?: string;
-  /** The Heading 2 button's accessible name. @defaultValue `'Heading 2'` */
+  /** The Heading 2 button's accessible name. @defaultValue `'Heading 2'`, translated */
   heading2Label?: string;
-  /** The Heading 3 button's accessible name. @defaultValue `'Heading 3'` */
+  /** The Heading 3 button's accessible name. @defaultValue `'Heading 3'`, translated */
   heading3Label?: string;
-  /** The bulleted list button's accessible name. @defaultValue `'Bulleted list'` */
+  /** The bulleted list button's accessible name. @defaultValue `'Bulleted list'`, translated */
   bulletListLabel?: string;
-  /** The numbered list button's accessible name. @defaultValue `'Numbered list'` */
+  /** The numbered list button's accessible name. @defaultValue `'Numbered list'`, translated */
   orderedListLabel?: string;
-  /** The Quote button's accessible name. @defaultValue `'Quote'` */
+  /** The Quote button's accessible name. @defaultValue `'Quote'`, translated */
   quoteLabel?: string;
-  /** The Code button's accessible name. @defaultValue `'Code'` */
+  /** The Code button's accessible name. @defaultValue `'Code'`, translated */
   codeLabel?: string;
-  /** The Link button's accessible name. @defaultValue `'Link'` */
+  /** The Link button's accessible name. @defaultValue `'Link'`, translated */
   linkLabel?: string;
-  /** The Image button's accessible name. @defaultValue `'Image'` */
+  /** The Image button's accessible name. @defaultValue `'Image'`, translated */
   imageLabel?: string;
-  /** The Undo button's accessible name. @defaultValue `'Undo'` */
+  /** The Undo button's accessible name. @defaultValue `'Undo'`, translated */
   undoLabel?: string;
-  /** The Redo button's accessible name. @defaultValue `'Redo'` */
+  /** The Redo button's accessible name. @defaultValue `'Redo'`, translated */
   redoLabel?: string;
-  /** The prompt that asks for a link URL (built-in engine). @defaultValue `'Link URL'` */
+  /** The prompt that asks for a link URL (built-in engine). @defaultValue `'Link URL'`, translated */
   linkPromptLabel?: string;
-  /** The prompt that asks for an image URL (built-in engine). @defaultValue `'Image URL'` */
+  /** The prompt that asks for an image URL (built-in engine). @defaultValue `'Image URL'`, translated */
   imagePromptLabel?: string;
-  /** The prompt that asks for an image description (built-in engine). @defaultValue `'Describe the image'` */
+  /** The prompt that asks for an image description (built-in engine). @defaultValue `'Describe the image'`, translated */
   imageAltPromptLabel?: string;
-  /** The footer note about Markdown shortcuts. @defaultValue `'Markdown shortcuts on'` */
+  /** The footer note about Markdown shortcuts. @defaultValue `'Markdown shortcuts on'`, translated */
   shortcutsLabel?: string;
-  /** The footer's word count for one word; :count is the number. @defaultValue `':count word'` */
+  /** The footer's word count for one word; :count is the number. @defaultValue `':count word'`, translated */
   wordLabel?: string;
-  /** The footer's word count; :count is the number. @defaultValue `':count words'` */
+  /** The footer's word count; :count is the number. @defaultValue `':count words'`, translated */
   wordsLabel?: string;
-  /** The footer's character count for one character. @defaultValue `':count character'` */
+  /** The footer's character count for one character. @defaultValue `':count character'`, translated */
   characterLabel?: string;
-  /** The footer's character count; :count is the number. @defaultValue `':count characters'` */
+  /** The footer's character count; :count is the number. @defaultValue `':count characters'`, translated */
   charactersLabel?: string;
-  /** The footer's count with maxLength; :count and :max are numbers. @defaultValue `':count / :max characters'` */
+  /** The footer's count with maxLength; :count and :max are numbers. @defaultValue `':count / :max characters'`, translated */
   limitLabel?: string;
   /** Extra classes per part. */
   classes?: Partial<Record<RichTextEditorPart, string>>;

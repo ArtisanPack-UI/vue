@@ -9,7 +9,6 @@
  */
 import {
   SPARKLINE_HEIGHT,
-  SPARKLINE_LABEL,
   SPARKLINE_WIDTH,
   sparklineGeometry,
   sparklineLabel,
@@ -18,12 +17,13 @@ import {
 import { computed } from 'vue';
 import { part } from '../../_shared/design-system';
 import type { SparklineProps } from './types';
+import { useTranslator } from '../../../i18n/translator';
 
 const props = withDefaults(defineProps<SparklineProps>(), {
   variant: 'line',
   width: SPARKLINE_WIDTH,
   height: SPARKLINE_HEIGHT,
-  label: SPARKLINE_LABEL,
+  label: undefined,
   classes: undefined,
 });
 
@@ -35,7 +35,10 @@ const shown = computed<SparklineVariant>(() =>
 const geometry = computed(() =>
   sparklineGeometry(props.data, shown.value, props.width, props.height),
 );
-const ariaLabel = computed(() => sparklineLabel(props.label, props.data));
+const { t } = useTranslator();
+const ariaLabel = computed(() =>
+  sparklineLabel(props.label ?? t('Trend from {first} to {latest}'), props.data),
+);
 </script>
 
 <template>

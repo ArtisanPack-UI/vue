@@ -11,6 +11,7 @@ import { computed, mergeProps, onBeforeUnmount, onMounted, shallowRef } from 'vu
 import { createToaster, useToaster } from '@artisanpack-ui/behavior/vue';
 import ToasterToast from './ToasterToast.vue';
 import { activateToaster, defaultToaster, rendersStore, type ToasterRoute } from './toaster';
+import { useTranslator } from '../../../i18n/translator';
 import type { ToasterProps } from './types';
 
 const props = withDefaults(defineProps<ToasterProps>(), {
@@ -20,10 +21,12 @@ const props = withDefaults(defineProps<ToasterProps>(), {
   duration: undefined,
   offsets: undefined,
   toaster: undefined,
-  label: 'Notifications',
+  label: undefined,
   closeLabel: undefined,
   classes: undefined,
 });
+
+const { t } = useTranslator();
 
 /**
  * The toaster to render: the `toaster` prop, else one made from the region
@@ -74,7 +77,7 @@ const machine = useToaster({ toaster: instance });
 const region = computed(() => machine.value);
 
 function groupAttrs(): Record<string, unknown> {
-  const own = region.value.getGroupProps({ label: props.label });
+  const own = region.value.getGroupProps({ label: props.label ?? t('Notifications') });
   return props.classes?.group ? mergeProps(own, { class: props.classes.group }) : own;
 }
 </script>
@@ -89,7 +92,7 @@ function groupAttrs(): Record<string, unknown> {
         :service="region.service"
         :index="index"
         :classes="classes"
-        :close-label="closeLabel"
+        :close-label="closeLabel ?? t('Dismiss notification')"
       />
     </div>
   </Teleport>

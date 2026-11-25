@@ -20,11 +20,11 @@ export interface KpiCardStat {
   trend?: StatTrend;
   /** Context after the delta. */
   description?: string;
-  /** Hidden text before an up delta. @defaultValue `'Increase'` */
+  /** Hidden text before an up delta. @defaultValue `'Increase'`, translated */
   upLabel?: string;
-  /** Hidden text before a down delta. @defaultValue `'Decrease'` */
+  /** Hidden text before a down delta. @defaultValue `'Decrease'`, translated */
   downLabel?: string;
-  /** Hidden text before a flat delta. @defaultValue `'No change'` */
+  /** Hidden text before a flat delta. @defaultValue `'No change'`, translated */
   flatLabel?: string;
 }
 
@@ -67,7 +67,7 @@ export interface KpiCardProps {
   stat?: KpiCardStat;
   /** The recent values, drawn as an area Sparkline beside the value. */
   sparkline?: readonly number[];
-  /** The sparkline's accessible label; translate it. @defaultValue `'Trend from {first} to {latest}'` */
+  /** The sparkline's accessible label. @defaultValue `'Trend from {first} to {latest}'`, translated */
   sparklineLabel?: string;
   /** Progress toward a goal. Show it only when one exists. */
   target?: KpiCardTarget;

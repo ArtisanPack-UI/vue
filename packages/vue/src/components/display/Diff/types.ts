@@ -43,7 +43,7 @@ export interface DiffProps {
    * @defaultValue `'{additions} additions, {deletions} deletions'`
    */
   countsLabel?: string;
-  /** Shown when the versions are the same; translate it. @defaultValue `'No changes'` */
+  /** Shown when the versions are the same. @defaultValue `'No changes'`, translated */
   emptyLabel?: string;
   /** Header controls. Usually the `actions` slot. */
   actions?: string;

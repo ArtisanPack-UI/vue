@@ -8,6 +8,7 @@
 import { computed, mergeProps, onMounted, ref, useAttrs, useId, watch } from 'vue';
 import { DsIcon, flag, part } from '../../_shared/design-system';
 import type { SelectOption, SelectOptionGroup, SelectProps } from './types';
+import { useTranslator } from '../../../i18n/translator';
 
 defineOptions({ inheritAttrs: false });
 
@@ -20,7 +21,7 @@ const props = withDefaults(defineProps<SelectProps>(), {
   invalid: false,
   disabled: false,
   required: false,
-  placeholder: 'Select…',
+  placeholder: undefined,
   modelValue: undefined,
   leadingIcon: undefined,
   classes: undefined,
@@ -31,6 +32,12 @@ const emit = defineEmits<{
 }>();
 
 const attrs = useAttrs();
+const { t } = useTranslator();
+
+/** The empty first option's text: the prop, else the translated default. */
+function placeholderText(): string {
+  return props.placeholder ?? t('Select…');
+}
 const autoId = useId();
 const control = ref<HTMLSelectElement | null>(null);
 
@@ -172,12 +179,12 @@ watch(() => [props.modelValue, props.options], syncSelection, { flush: 'post', d
       </span>
       <select ref="control" v-bind="controlAttrs()">
         <option
-          v-if="placeholder !== ''"
+          v-if="placeholderText() !== ''"
           value=""
           :selected="isEmpty() || undefined"
           :disabled="required || undefined"
         >
-          {{ placeholder }}
+          {{ placeholderText() }}
         </option>
         <template v-for="entry in normalizedEntries" :key="entry.key ?? entry.options[0]?.value">
           <optgroup v-if="entry.group !== undefined" :label="entry.group">

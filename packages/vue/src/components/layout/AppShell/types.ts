@@ -27,11 +27,11 @@ export interface AppShellProps {
   header?: string;
   /** The foot of the sidebar. The `footer` slot overrides it. */
   footer?: string;
-  /** Names the sidebar's complementary landmark. @defaultValue `'Sidebar'` */
+  /** Names the sidebar's complementary landmark. @defaultValue `'Sidebar'`, translated */
   label?: string;
-  /** The skip link's text. @defaultValue `'Skip to main content'` */
+  /** The skip link's text. @defaultValue `'Skip to main content'`, translated */
   skipLabel?: string;
-  /** Names the collapse button. @defaultValue `'Collapse sidebar'` */
+  /** Names the collapse button. @defaultValue `'Collapse sidebar'`, translated */
   collapseLabel?: string;
   /** Extra classes per part; `classes.root` merges with `class`. */
   classes?: Partial<Record<AppShellPart, string>>;

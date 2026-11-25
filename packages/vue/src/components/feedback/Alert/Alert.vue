@@ -11,6 +11,7 @@
 import { mergeProps, ref, useAttrs, useSlots } from 'vue';
 import Button from '../../form/Button/Button.vue';
 import { DsIcon, hasContent, part } from '../../_shared/design-system';
+import { useTranslator } from '../../../i18n/translator';
 import type { AlertPart, AlertProps } from './types';
 
 defineOptions({ inheritAttrs: false });
@@ -24,9 +25,11 @@ const props = withDefaults(defineProps<AlertProps>(), {
   icon: undefined,
   actions: undefined,
   dismissible: false,
-  closeLabel: 'Dismiss',
+  closeLabel: undefined,
   classes: undefined,
 });
+
+const { t } = useTranslator();
 
 const emit = defineEmits<{
   'open-change': [open: boolean];
@@ -116,7 +119,7 @@ function close(): void {
       size="xs"
       icon-only
       leading-icon="x"
-      :aria-label="closeLabel"
+      :aria-label="closeLabel ?? t('Dismiss')"
       :class="cls('closeTrigger')"
       data-scope="alert"
       data-part="close-trigger"

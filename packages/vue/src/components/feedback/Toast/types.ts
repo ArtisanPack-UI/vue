@@ -32,7 +32,7 @@ export interface ToastProps {
   actions?: string;
   /** Hides the close button. @defaultValue `false` */
   hideClose?: boolean;
-  /** The close button's accessible name; translate it. @defaultValue `'Dismiss notification'` */
+  /** The close button's accessible name. @defaultValue `'Dismiss notification'`, translated */
   closeLabel?: string;
   /** Extra classes per part, such as `{ title: '…', actions: '…' }`. */
   classes?: Partial<Record<ToastPart, string>>;
@@ -61,9 +61,9 @@ export interface ToasterProps {
   offsets?: string;
   /** A toaster from `createToaster()` to render instead of the default `toast`. */
   toaster?: Toaster;
-  /** The region's accessible name. @defaultValue `'Notifications'` */
+  /** The region's accessible name. @defaultValue `'Notifications'`, translated */
   label?: string;
-  /** Each toast's close button name; translate it. @defaultValue `'Dismiss notification'` */
+  /** Each toast's close button name. @defaultValue `'Dismiss notification'`, translated */
   closeLabel?: string;
   /** Extra classes per part of each toast, plus `group` for the region. */
   classes?: Partial<Record<ToastPart | 'group' | 'actionTrigger', string>>;

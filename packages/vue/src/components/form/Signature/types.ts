@@ -60,29 +60,29 @@ export interface SignatureProps {
   disabled?: boolean;
   /** Marks the field required and shows the required mark. @defaultValue `false` */
   required?: boolean;
-  /** The text under the signing line. @defaultValue `'Sign above the line'` */
+  /** The text under the signing line. @defaultValue `'Sign above the line'`, translated */
   placeholder?: string;
   /** The signature as a PNG data URL, or `''`. Bound with `v-model`. */
   modelValue?: string;
-  /** The mode switch group's accessible name. @defaultValue `'Signature method'` */
+  /** The mode switch group's accessible name. @defaultValue `'Signature method'`, translated */
   modesLabel?: string;
-  /** The draw mode button. @defaultValue `'Draw'` */
+  /** The draw mode button. @defaultValue `'Draw'`, translated */
   drawLabel?: string;
-  /** The type mode button. @defaultValue `'Type'` */
+  /** The type mode button. @defaultValue `'Type'`, translated */
   typeLabel?: string;
-  /** The upload mode button. @defaultValue `'Upload'` */
+  /** The upload mode button. @defaultValue `'Upload'`, translated */
   uploadLabel?: string;
-  /** The canvas's accessible name. @defaultValue `'Signature pad. Draw with a mouse, finger or stylus, or choose Type.'` */
+  /** The canvas's accessible name. @defaultValue `'Signature pad. Draw with a mouse, finger or stylus, or choose Type.'`, translated */
   padLabel?: string;
-  /** The typed-name input's accessible name. @defaultValue `'Type your full name'` */
+  /** The typed-name input's accessible name. @defaultValue `'Type your full name'`, translated */
   typedLabel?: string;
-  /** The upload trigger's text. @defaultValue `'Choose an image'` */
+  /** The upload trigger's text. @defaultValue `'Choose an image'`, translated */
   uploadTriggerLabel?: string;
-  /** The icon-only undo button's accessible name. @defaultValue `'Undo stroke'` */
+  /** The icon-only undo button's accessible name. @defaultValue `'Undo stroke'`, translated */
   undoLabel?: string;
-  /** The clear button's text. @defaultValue `'Clear'` */
+  /** The clear button's text. @defaultValue `'Clear'`, translated */
   clearLabel?: string;
-  /** Announced in the live region after clearing. @defaultValue `'Signature cleared.'` */
+  /** Announced in the live region after clearing. @defaultValue `'Signature cleared.'`, translated */
   clearedLabel?: string;
   /** Extra classes per part. */
   classes?: Partial<Record<SignaturePart, string>>;

@@ -37,7 +37,7 @@ export interface AlertProps {
   actions?: string;
   /** Adds a close button; pressing it hides the alert and emits `open-change` (`false`). @defaultValue `false` */
   dismissible?: boolean;
-  /** The close button's accessible name; translate it. @defaultValue `'Dismiss'` */
+  /** The close button's accessible name. @defaultValue `'Dismiss'`, translated */
   closeLabel?: string;
   /** Extra classes per part, such as `{ title: '…', actions: '…' }`. */
   classes?: Partial<Record<AlertPart, string>>;

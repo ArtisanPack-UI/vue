@@ -29,6 +29,7 @@ import {
 } from 'vue';
 import { DsIcon, flag, part } from '../../_shared/design-system';
 import type { SignatureEmits, SignatureProps } from './types';
+import { useTranslator } from '../../../i18n/translator';
 
 defineOptions({ inheritAttrs: false });
 
@@ -61,20 +62,22 @@ const emit = defineEmits<SignatureEmits>();
 
 const attrs = useAttrs();
 const autoId = useId();
+const { t } = useTranslator();
 
 const offered = computed(() => signatureModes(props.modes));
 const strings = computed(() =>
   signatureTranslations({
-    modes: props.modesLabel,
-    draw: props.drawLabel,
-    type: props.typeLabel,
-    upload: props.uploadLabel,
-    pad: props.padLabel,
-    typed: props.typedLabel,
-    uploadTrigger: props.uploadTriggerLabel,
-    undo: props.undoLabel,
-    clear: props.clearLabel,
-    cleared: props.clearedLabel,
+    modes: props.modesLabel ?? t('Signature method'),
+    draw: props.drawLabel ?? t('Draw'),
+    type: props.typeLabel ?? t('Type'),
+    upload: props.uploadLabel ?? t('Upload'),
+    pad: props.padLabel ?? t('Signature pad. Draw with a mouse, finger or stylus, or choose Type.'),
+    typed: props.typedLabel ?? t('Type your full name'),
+    uploadTrigger: props.uploadTriggerLabel ?? t('Choose an image'),
+    undo: props.undoLabel ?? t('Undo stroke'),
+    clear: props.clearLabel ?? t('Clear'),
+    cleared: props.clearedLabel ?? t('Signature cleared.'),
+    placeholder: t('Sign above the line'),
   }),
 );
 const current = ref<SignatureMode>(initialSignatureMode(props.mode, offered.value));

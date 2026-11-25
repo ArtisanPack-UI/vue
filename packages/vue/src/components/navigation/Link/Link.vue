@@ -7,6 +7,7 @@
  */
 import { computed } from 'vue';
 import { DsIcon, flag, MIRRORED_ICONS, part, safeHref } from '../../_shared/design-system';
+import { useTranslator } from '../../../i18n/translator';
 import type { LinkProps } from './types';
 
 const props = withDefaults(defineProps<LinkProps>(), {
@@ -14,11 +15,13 @@ const props = withDefaults(defineProps<LinkProps>(), {
   tone: 'primary',
   standalone: false,
   external: false,
-  externalLabel: '(opens in a new tab)',
+  externalLabel: undefined,
   leadingIcon: undefined,
   trailingIcon: undefined,
   classes: undefined,
 });
+
+const { t } = useTranslator();
 
 const linkHref = computed(() => safeHref(props.href));
 const endIcon = computed(
@@ -56,6 +59,8 @@ const mirror = (name: string | undefined) => flag(name !== undefined && MIRRORED
         })
       "
       ><slot name="iconEnd"><DsIcon :name="endIcon" /></slot></span
-    ><span v-if="external" class="apui-sr-only"> {{ externalLabel }}</span>
+    ><span v-if="external" class="apui-sr-only">
+      {{ externalLabel ?? t('(opens in a new tab)') }}</span
+    >
   </component>
 </template>

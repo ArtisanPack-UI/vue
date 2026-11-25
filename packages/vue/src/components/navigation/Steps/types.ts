@@ -37,9 +37,9 @@ export interface StepsProps {
   clickable?: boolean;
   /** The list's accessible name. */
   label?: string;
-  /** Hidden text in a complete step's marker; translate it. @defaultValue `'Completed'` */
+  /** Hidden text in a complete step's marker. @defaultValue `'Completed'`, translated */
   completeLabel?: string;
-  /** Hidden text in an error step's marker; translate it. @defaultValue `'Error'` */
+  /** Hidden text in an error step's marker. @defaultValue `'Error'`, translated */
   errorLabel?: string;
   /** Extra classes per part, its steps' included. */
   classes?: Partial<Record<StepsPart, string>>;

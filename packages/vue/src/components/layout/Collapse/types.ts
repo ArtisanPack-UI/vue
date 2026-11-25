@@ -10,9 +10,9 @@ export interface CollapseProps {
   open?: boolean;
   /** @defaultValue `'section'` */
   variant?: CollapseVariant;
-  /** The trigger's text. Read-more defaults it to `'Read more'`. */
+  /** The trigger's text. Read-more defaults it to `'Read more'`, translated. */
   label?: string;
-  /** The trigger's text while open. Read-more defaults it to `'Show less'`. */
+  /** The trigger's text while open. Read-more defaults it to `'Show less'`, translated. */
   openLabel?: string;
   /** The trigger can't be focused or toggled. @defaultValue `false` */
   disabled?: boolean;

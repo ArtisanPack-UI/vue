@@ -13,12 +13,13 @@ import { DsIcon, flag, part } from '../../_shared/design-system';
 import { fillTemplate } from '../../_shared/choice';
 import Button from '../Button/Button.vue';
 import type { FileEntry, FileItem, FileProps } from './types';
+import { useTranslator } from '../../../i18n/translator';
 
 defineOptions({ name: 'ApuiFile', inheritAttrs: false });
 
 const props = withDefaults(defineProps<FileProps>(), {
   label: undefined,
-  title: 'Drop files here or browse',
+  title: undefined,
   hint: undefined,
   error: undefined,
   invalid: false,
@@ -29,7 +30,7 @@ const props = withDefaults(defineProps<FileProps>(), {
   maxSize: undefined,
   variant: 'dropzone',
   modelValue: undefined,
-  removeLabel: 'Remove :name',
+  removeLabel: undefined,
   classes: undefined,
 });
 
@@ -39,6 +40,7 @@ const emit = defineEmits<{
 }>();
 
 const attrs = useAttrs();
+const { t } = useTranslator();
 const autoId = useId();
 const control = ref<HTMLInputElement | null>(null);
 const dragging = ref(false);
@@ -171,7 +173,9 @@ function controlAttrs(): Record<string, unknown> {
       <span v-bind="part('file', 'icon', classes?.icon, { 'aria-hidden': 'true' })">
         <DsIcon :name="variant === 'compact' ? 'file-text' : 'cloud-upload'" />
       </span>
-      <p v-bind="part('file', 'title', classes?.title)" :id="`${fieldId()}-title`">{{ title }}</p>
+      <p v-bind="part('file', 'title', classes?.title)" :id="`${fieldId()}-title`">
+        {{ title ?? t('Drop files here or browse') }}
+      </p>
       <p v-if="hasHint()" v-bind="part('file', 'hint', classes?.hint)" :id="`${fieldId()}-hint`">
         {{ hint }}
       </p>
@@ -197,7 +201,7 @@ function controlAttrs(): Record<string, unknown> {
             size="sm"
             icon-only
             leading-icon="x"
-            :aria-label="fillTemplate(removeLabel, { name: file.name })"
+            :aria-label="fillTemplate(removeLabel ?? t('Remove :name'), { name: file.name })"
             :disabled="disabled"
             @click="remove(index)"
           />

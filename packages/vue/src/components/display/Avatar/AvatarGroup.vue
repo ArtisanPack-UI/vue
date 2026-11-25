@@ -8,6 +8,7 @@
  */
 import { computed } from 'vue';
 import Avatar from './Avatar.vue';
+import { useTranslator } from '../../../i18n/translator';
 import type { AvatarGroupProps } from './types';
 
 const props = withDefaults(defineProps<AvatarGroupProps>(), {
@@ -15,13 +16,20 @@ const props = withDefaults(defineProps<AvatarGroupProps>(), {
   max: undefined,
   size: 'md',
   label: undefined,
-  moreLabel: '{count} more',
+  moreLabel: undefined,
 });
+
+const { tChoice } = useTranslator();
 
 const shown = computed(() =>
   props.max !== undefined && props.max >= 0 ? props.avatars.slice(0, props.max) : props.avatars,
 );
 const hidden = computed(() => props.avatars.length - shown.value.length);
+const moreText = computed(() =>
+  props.moreLabel !== undefined
+    ? props.moreLabel.replace('{count}', String(hidden.value))
+    : tChoice('{count} more', hidden.value),
+);
 </script>
 
 <template>
@@ -29,7 +37,7 @@ const hidden = computed(() => props.avatars.length - shown.value.length);
     ><Avatar v-for="(avatar, index) in shown" :key="index" v-bind="avatar" :size="size" /><Avatar
       v-if="hidden > 0"
       :initials="`+${hidden}`"
-      :alt="moreLabel.replace('{count}', String(hidden))"
+      :alt="moreText"
       color="neutral"
       :size="size" /><slot
   /></span>

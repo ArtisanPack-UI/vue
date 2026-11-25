@@ -49,9 +49,9 @@ export interface BreadcrumbsProps {
    * overflow button and the last `maxItems - 2`. `0` never collapses. @defaultValue `4`
    */
   maxItems?: number;
-  /** The nav landmark's accessible name; translate it. @defaultValue `'Breadcrumb'` */
+  /** The nav landmark's accessible name. @defaultValue `'Breadcrumb'`, translated */
   label?: string;
-  /** The overflow button's accessible name, with `{count}`; translate it. @defaultValue `'Show {count} more levels'` */
+  /** The overflow button's accessible name, with `{count}`. @defaultValue `'Show {count} more level'` or `'Show {count} more levels'` by count, translated */
   overflowLabel?: string;
   /** Extra classes per part, such as `{ link: '…', current: '…' }`. */
   classes?: Partial<Record<BreadcrumbsPart, string>>;

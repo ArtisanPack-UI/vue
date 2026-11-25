@@ -29,13 +29,13 @@ export interface ClipboardProps {
   variant?: ClipboardVariant;
   /** @defaultValue `'sm'` */
   size?: ClipboardSize;
-  /** The button's label; the icon button's accessible name. Translate it. @defaultValue `'Copy'` */
+  /** The button's label; the icon button's accessible name. @defaultValue `'Copy'`, translated */
   label?: string;
-  /** The label after a copy; translate it. @defaultValue `'Copied'` */
+  /** The label after a copy. @defaultValue `'Copied'`, translated */
   copiedLabel?: string;
-  /** Announced after a copy; translate it. @defaultValue `'Copied to clipboard'` */
+  /** Announced after a copy. @defaultValue `'Copied to clipboard'`, translated */
   copiedMessage?: string;
-  /** Announced when the copy fails; translate it. */
+  /** Announced when the copy fails. @defaultValue `"Couldn't copy. Select the text and copy it yourself."`, translated */
   errorMessage?: string;
   /** Extra classes per part. */
   classes?: Partial<Record<ClipboardPart, string>>;

@@ -58,19 +58,19 @@ export interface CarouselProps {
   title?: string;
   /** The title's heading level, 2 to 6. @defaultValue `3` */
   headingLevel?: number;
-  /** Names the region. Defaults to a passed `aria-label`, then the title, else `'Carousel'`. */
+  /** Names the region. Defaults to a passed `aria-label`, then the title, else `'Carousel'` (translated). */
   label?: string;
-  /** The previous button's accessible name. @defaultValue `'Previous slide'` */
+  /** The previous button's accessible name. @defaultValue `'Previous slide'`, translated */
   previousLabel?: string;
-  /** The next button's accessible name. @defaultValue `'Next slide'` */
+  /** The next button's accessible name. @defaultValue `'Next slide'`, translated */
   nextLabel?: string;
-  /** A dot's accessible name; `{index}` is replaced. @defaultValue `'Go to slide {index}'` */
+  /** A dot's accessible name; `{index}` is replaced. @defaultValue `'Go to slide {index}'`, translated */
   indicatorLabel?: string;
-  /** A slide's accessible name. @defaultValue `'{index} of {count}'` */
+  /** A slide's accessible name. @defaultValue `'{index} of {count}'`, translated */
   slideLabel?: string;
-  /** The autoplay button's name while paused. @defaultValue `'Start slide rotation'` */
+  /** The autoplay button's name while paused. @defaultValue `'Start slide rotation'`, translated */
   playLabel?: string;
-  /** The autoplay button's name while playing. @defaultValue `'Stop slide rotation'` */
+  /** The autoplay button's name while playing. @defaultValue `'Stop slide rotation'`, translated */
   pauseLabel?: string;
   /** Extra classes per part. */
   classes?: Partial<Record<CarouselPart, string>>;

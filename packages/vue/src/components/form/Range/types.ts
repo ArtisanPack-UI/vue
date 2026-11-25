@@ -76,7 +76,7 @@ export interface RangeProps {
   invalid?: boolean;
   /** Disables the thumbs. @defaultValue `false` */
   disabled?: boolean;
-  /** With `dual`, the names added to the label for each thumb. @defaultValue `{ start: 'Minimum', end: 'Maximum' }` */
+  /** With `dual`, the names added to the label for each thumb. @defaultValue `{ start: 'Minimum', end: 'Maximum' }`, translated */
   thumbLabels?: Partial<{ start: string; end: string }>;
   /** Extra classes per part, such as `{ track: '…', thumb: '…' }`. */
   classes?: Partial<Record<RangePart, string>>;

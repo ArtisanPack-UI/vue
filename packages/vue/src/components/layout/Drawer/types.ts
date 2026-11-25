@@ -59,7 +59,7 @@ export interface DrawerProps {
   portal?: boolean;
   /** Hides the close button in the header. Escape still closes the drawer. @defaultValue `false` */
   hideClose?: boolean;
-  /** The close button's accessible name; translate it. @defaultValue `'Close'` */
+  /** The close button's accessible name. @defaultValue `'Close'`, translated */
   closeLabel?: string;
   /** Extra classes per part, such as `{ header: '…', body: '…' }`. */
   classes?: Partial<Record<DrawerPart, string>>;

@@ -19,6 +19,7 @@ import DropdownMenuItem from '../DropdownMenu/DropdownMenuItem.vue';
 import DropdownMenuSeparator from '../DropdownMenu/DropdownMenuSeparator.vue';
 import { DROPDOWN_MENU_KEY, type DropdownMenuItemRegistration } from '../DropdownMenu/keys';
 import type { DropdownMenuPart } from '../DropdownMenu/types';
+import { useTranslator } from '../../../i18n/translator';
 import type { UserMenuPart, UserMenuProps, UserMenuTheme } from './types';
 
 defineOptions({ inheritAttrs: false });
@@ -34,10 +35,10 @@ const props = withDefaults(defineProps<UserMenuProps>(), {
   align: 'start',
   surface: 'overlay',
   portal: true,
-  workspaceLabel: 'Workspace',
-  themeLabel: 'Theme',
+  workspaceLabel: undefined,
+  themeLabel: undefined,
   themeLabels: () => ({}),
-  logoutLabel: 'Log out',
+  logoutLabel: undefined,
   classes: undefined,
 });
 
@@ -57,6 +58,8 @@ const THEMES = Object.keys(THEME_ICONS) as UserMenuTheme[];
 
 const attrs = useAttrs();
 const instance = getCurrentInstance();
+
+const { t } = useTranslator();
 
 /** Whether the parent passes `open`; then the menu shows only what the prop says. */
 function isBound(): boolean {
@@ -119,7 +122,8 @@ const checkedTheme = computed<UserMenuTheme>(() =>
   props.theme in THEME_ICONS ? props.theme : 'system',
 );
 const themeName = (option: UserMenuTheme) =>
-  props.themeLabels?.[option] ?? { light: 'Light', dark: 'Dark', system: 'System' }[option];
+  props.themeLabels?.[option] ??
+  { light: t('Light'), dark: t('Dark'), system: t('System') }[option];
 
 /** The trigger: Zag's trigger props, scoped user-menu. */
 function triggerAttrs(): Record<string, unknown> {
@@ -177,7 +181,7 @@ function positionerAttrs(): Record<string, unknown> {
         </div>
         <DropdownMenuSeparator />
         <template v-if="workspaceOptions.length > 1">
-          <DropdownMenuGroup :label="workspaceLabel">
+          <DropdownMenuGroup :label="workspaceLabel ?? t('Workspace')">
             <DropdownMenuItem
               v-for="option in workspaceOptions"
               :key="option.id"
@@ -192,7 +196,7 @@ function positionerAttrs(): Record<string, unknown> {
         <DropdownMenuEntries v-if="items" :entries="items" />
         <slot />
         <div v-if="!hideTheme" v-bind="part('user-menu', 'theme', classOf('theme'))">
-          <DropdownMenuGroup :label="themeLabel">
+          <DropdownMenuGroup :label="themeLabel ?? t('Theme')">
             <div v-bind="part('user-menu', 'theme-options', classOf('themeOptions'))">
               <DropdownMenuItem
                 v-for="option in THEMES"
@@ -207,7 +211,9 @@ function positionerAttrs(): Record<string, unknown> {
           </DropdownMenuGroup>
         </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem value="logout" icon="log-out">{{ logoutLabel }}</DropdownMenuItem>
+        <DropdownMenuItem value="logout" icon="log-out">{{
+          logoutLabel ?? t('Log out')
+        }}</DropdownMenuItem>
       </div>
     </div>
   </Teleport>

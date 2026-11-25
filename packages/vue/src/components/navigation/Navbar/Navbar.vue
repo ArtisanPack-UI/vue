@@ -13,6 +13,7 @@
 import { mergeProps, provide, useAttrs, useSlots } from 'vue';
 import { flag, hasContent, part } from '../../_shared/design-system';
 import { NAVBAR_KEY } from './keys';
+import { useTranslator } from '../../../i18n/translator';
 import NavbarItem from './NavbarItem.vue';
 import type { NavbarPart, NavbarProps } from './types';
 
@@ -26,7 +27,7 @@ const props = withDefaults(defineProps<NavbarProps>(), {
   links: undefined,
   search: undefined,
   actions: undefined,
-  label: 'Main',
+  label: undefined,
   classes: undefined,
 });
 
@@ -38,6 +39,8 @@ function classOf(name: NavbarPart): string | undefined {
 }
 
 provide(NAVBAR_KEY, { classOf });
+
+const { t } = useTranslator();
 
 /** Whether a region renders: its slot has content, or its prop is set. */
 function has(name: 'brand' | 'search' | 'actions'): boolean {
@@ -65,7 +68,11 @@ function rootAttrs(): Record<string, unknown> {
     <div v-if="has('brand')" v-bind="part('navbar', 'brand', classOf('brand'))">
       <slot name="brand">{{ brand }}</slot>
     </div>
-    <nav v-if="hasLinks()" v-bind="part('navbar', 'links', classOf('links'))" :aria-label="label">
+    <nav
+      v-if="hasLinks()"
+      v-bind="part('navbar', 'links', classOf('links'))"
+      :aria-label="label ?? t('Main')"
+    >
       <NavbarItem
         v-for="(link, index) in links ?? []"
         :key="`link-${index}`"

@@ -46,7 +46,7 @@ export interface CalendarProps {
   events?: CalendarEvent[];
   /** The first day of the week, 0 (Sunday) to 6. Follows the locale unless set. */
   weekStartsOn?: number;
-  /** BCP 47 locale for names and the first day of the week. @defaultValue `'en-US'` */
+  /** BCP 47 locale for names and the first day of the week. Defaults to the translations' locale, else `'en-US'`. */
   locale?: string;
   /** IANA zone for today and for times with Z or an offset. @defaultValue `'UTC'` */
   timeZone?: string;
@@ -56,7 +56,7 @@ export interface CalendarProps {
   creatable?: boolean;
   /** Clicking an event opens a Dialog with its details. @defaultValue `true` */
   details?: boolean;
-  /** Built-in text; keys you leave out keep their defaults. Translate them. */
+  /** Built-in text; keys you leave out keep their defaults, translated. */
   labels?: Partial<CalendarLabels>;
   /** Extra classes per part. */
   classes?: Partial<Record<CalendarPart, string>>;

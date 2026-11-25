@@ -69,13 +69,13 @@ export interface UserMenuProps {
   surface?: DropdownMenuSurface;
   /** Renders the menu at the end of the body (Teleport). @defaultValue `true` */
   portal?: boolean;
-  /** The workspace group's label; translate it. @defaultValue `'Workspace'` */
+  /** The workspace group's label. @defaultValue `'Workspace'`, translated */
   workspaceLabel?: string;
-  /** The theme group's label; translate it. @defaultValue `'Theme'` */
+  /** The theme group's label. @defaultValue `'Theme'`, translated */
   themeLabel?: string;
-  /** The theme options' names; translate them. @defaultValue `{ light: 'Light', dark: 'Dark', system: 'System' }` */
+  /** The theme options' names. @defaultValue `{ light: 'Light', dark: 'Dark', system: 'System' }`, translated */
   themeLabels?: Partial<Record<UserMenuTheme, string>>;
-  /** The last item's label; translate it. @defaultValue `'Log out'` */
+  /** The last item's label. @defaultValue `'Log out'`, translated */
   logoutLabel?: string;
   /** Extra classes per part, the menu's included. */
   classes?: Partial<Record<UserMenuPart, string>>;

@@ -32,6 +32,9 @@ export type { ColorScheme, ThemeContextValue } from './composables/use-theme';
 export { useBreakpoint } from './composables/use-breakpoint';
 export type { Breakpoint, BreakpointContext } from './composables/use-breakpoint';
 
+// Translations
+export * from './i18n';
+
 // Plugin
 export { createArtisanPackUI, DefaultColorSchemeKey } from './plugin';
 export type { ArtisanPackUIOptions } from './plugin';

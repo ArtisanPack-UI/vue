@@ -6,25 +6,27 @@
  * trend and a Progress toward a target. Renders the design-system KpiCard
  * markup contract (`.apui-card.apui-kpi-card`, #61).
  */
-import { SPARKLINE_LABEL, sparklineValues } from '@artisanpack-ui/behavior';
+import { sparklineValues } from '@artisanpack-ui/behavior';
 import { computed, useSlots } from 'vue';
 import { DsIcon, part } from '../../_shared/design-system';
 import Progress from '../Progress/Progress.vue';
 import Sparkline from '../Sparkline/Sparkline.vue';
 import { statDelta, statTrend, TREND_ICONS } from '../Stat/types';
 import { kpiTarget, type KpiCardProps } from './types';
+import { useTranslator } from '../../../i18n/translator';
 
 const props = withDefaults(defineProps<KpiCardProps>(), {
   stat: () => ({}),
   sparkline: undefined,
-  sparklineLabel: SPARKLINE_LABEL,
+  sparklineLabel: undefined,
   target: undefined,
-  targetLabel: '{percent}% of goal',
+  targetLabel: undefined,
   period: undefined,
   classes: undefined,
 });
 
 const slots = useSlots();
+const { t } = useTranslator();
 
 const filled = (value: unknown): boolean => value !== undefined && value !== null && value !== '';
 const color = computed(() => props.stat.color ?? 'neutral');
@@ -33,13 +35,13 @@ const trend = computed(() => statTrend(props.stat.trend, props.stat.change));
 const trendLabel = computed(() => {
   if (trend.value === undefined) return null;
   return {
-    up: props.stat.upLabel ?? 'Increase',
-    down: props.stat.downLabel ?? 'Decrease',
-    flat: props.stat.flatLabel ?? 'No change',
+    up: props.stat.upLabel ?? t('Increase'),
+    down: props.stat.downLabel ?? t('Decrease'),
+    flat: props.stat.flatLabel ?? t('No change'),
   }[trend.value];
 });
 const points = computed(() => sparklineValues(props.sparkline));
-const goal = computed(() => kpiTarget(props.target, props.targetLabel));
+const goal = computed(() => kpiTarget(props.target, props.targetLabel ?? t('{percent}% of goal')));
 const hasPeriod = () => !!slots.period || filled(props.period);
 </script>
 

@@ -9,6 +9,7 @@
 import { computed, useSlots } from 'vue';
 import { DsIcon, flag, hasContent, part } from '../../_shared/design-system';
 import { statDelta, statTrend, TREND_ICONS, type StatProps } from './types';
+import { useTranslator } from '../../../i18n/translator';
 
 const props = withDefaults(defineProps<StatProps>(), {
   label: undefined,
@@ -24,13 +25,14 @@ const props = withDefaults(defineProps<StatProps>(), {
   color: 'neutral',
   emphasis: false,
   bare: false,
-  upLabel: 'Increase',
-  downLabel: 'Decrease',
-  flatLabel: 'No change',
+  upLabel: undefined,
+  downLabel: undefined,
+  flatLabel: undefined,
   classes: undefined,
 });
 
 const slots = useSlots();
+const { t } = useTranslator();
 
 const filled = (value: unknown): boolean => value !== undefined && value !== null && value !== '';
 const shownValue = computed(() => props.value ?? props.modelValue);
@@ -39,7 +41,11 @@ const shownTrend = computed(() => statTrend(props.trend, props.change));
 const trendLabel = computed(() =>
   shownTrend.value === undefined
     ? null
-    : { up: props.upLabel, down: props.downLabel, flat: props.flatLabel }[shownTrend.value],
+    : {
+        up: props.upLabel ?? t('Increase'),
+        down: props.downLabel ?? t('Decrease'),
+        flat: props.flatLabel ?? t('No change'),
+      }[shownTrend.value],
 );
 const hasIcon = () => !!slots.icon || filled(props.icon);
 const hasValueSlot = () => hasContent(slots.default?.());

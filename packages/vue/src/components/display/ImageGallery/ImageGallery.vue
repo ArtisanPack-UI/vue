@@ -12,6 +12,7 @@ import { computed, getCurrentInstance, mergeProps, ref, useAttrs } from 'vue';
 import { lightboxCounter, useLightbox } from '@artisanpack-ui/behavior/vue';
 import Button from '../../form/Button/Button.vue';
 import { flag, part, safeMediaUrl } from '../../_shared/design-system';
+import { useTranslator } from '../../../i18n/translator';
 import type { ImageGalleryImage, ImageGalleryPart, ImageGalleryProps } from './types';
 
 defineOptions({ inheritAttrs: false });
@@ -25,12 +26,12 @@ const props = withDefaults(defineProps<ImageGalleryProps>(), {
   downloadable: false,
   modal: true,
   portal: true,
-  closeLabel: 'Close',
-  previousLabel: 'Previous photo',
-  nextLabel: 'Next photo',
-  downloadLabel: 'Download',
-  counterLabel: '{index} / {count}',
-  thumbsLabel: 'Photos',
+  closeLabel: undefined,
+  previousLabel: undefined,
+  nextLabel: undefined,
+  downloadLabel: undefined,
+  counterLabel: undefined,
+  thumbsLabel: undefined,
   classes: undefined,
 });
 
@@ -40,6 +41,17 @@ const emit = defineEmits<{
 }>();
 
 const attrs = useAttrs();
+const { t } = useTranslator();
+
+/** The built-in names, translated unless a prop gives its own. */
+const names = computed(() => ({
+  close: props.closeLabel ?? t('Close'),
+  previous: props.previousLabel ?? t('Previous photo'),
+  next: props.nextLabel ?? t('Next photo'),
+  download: props.downloadLabel ?? t('Download'),
+  counter: props.counterLabel ?? t('{index} / {count}'),
+  thumbs: props.thumbsLabel ?? t('Photos'),
+}));
 const instance = getCurrentInstance();
 
 /** Whether the parent passes a prop, so the gallery shows only what it says. */
@@ -72,7 +84,7 @@ const viewer = computed(() => machine.value);
 const current = computed<ImageGalleryImage | undefined>(() => props.images[viewer.value.index]);
 
 const title = computed(() => {
-  const counter = lightboxCounter(props.counterLabel, viewer.value.index, props.images.length);
+  const counter = lightboxCounter(names.value.counter, viewer.value.index, props.images.length);
   const caption = current.value?.caption;
   return caption ? `${counter} · ${caption}` : counter;
 });
@@ -154,7 +166,7 @@ function contentAttrs(): Record<string, unknown> {
               icon-only
               leading-icon="download"
               :href="current?.src"
-              :aria-label="downloadLabel"
+              :aria-label="names.download"
               v-bind="withClass(viewer.getDownloadProps(), 'download')"
             />
             <Button
@@ -163,7 +175,7 @@ function contentAttrs(): Record<string, unknown> {
               size="sm"
               icon-only
               leading-icon="x"
-              :aria-label="closeLabel"
+              :aria-label="names.close"
               v-bind="withClass(viewer.getCloseTriggerProps(), 'closeTrigger')"
             />
           </div>
@@ -178,7 +190,7 @@ function contentAttrs(): Record<string, unknown> {
               color="neutral"
               icon-only
               leading-icon="chevron-left"
-              :aria-label="previousLabel"
+              :aria-label="names.previous"
               v-bind="withClass(viewer.getPrevTriggerProps(), 'prevTrigger')"
             />
             <Button
@@ -186,7 +198,7 @@ function contentAttrs(): Record<string, unknown> {
               color="neutral"
               icon-only
               leading-icon="chevron-right"
-              :aria-label="nextLabel"
+              :aria-label="names.next"
               v-bind="withClass(viewer.getNextTriggerProps(), 'nextTrigger')"
             />
           </div>
@@ -194,7 +206,7 @@ function contentAttrs(): Record<string, unknown> {
             v-bind="
               part('image-gallery', 'thumbs', classOf('thumbs'), {
                 role: 'group',
-                'aria-label': thumbsLabel,
+                'aria-label': names.thumbs,
               })
             "
           >

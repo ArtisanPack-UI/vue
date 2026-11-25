@@ -10,12 +10,13 @@
  * tags) and unsafe link and image URLs are dropped. `mode="write"` or
  * `"split"` adds Write, Preview and Split tabs over a Textarea.
  */
-import { MARKDOWN_LABELS, renderMarkdown, type MarkdownMode } from '@artisanpack-ui/behavior';
+import { renderMarkdown, type MarkdownMode } from '@artisanpack-ui/behavior';
 import { computed, getCurrentInstance, nextTick, ref, watch } from 'vue';
 import { part } from '../../_shared/design-system';
 import Textarea from '../../form/Textarea/Textarea.vue';
 import Tab from '../../layout/Tabs/Tab.vue';
 import Tabs from '../../layout/Tabs/Tabs.vue';
+import { useTranslator } from '../../../i18n/translator';
 import type { MarkdownEmits, MarkdownProps } from './types';
 
 const props = withDefaults(defineProps<MarkdownProps>(), {
@@ -23,16 +24,26 @@ const props = withDefaults(defineProps<MarkdownProps>(), {
   content: undefined,
   mode: 'preview',
   sanitize: true,
-  tabsLabel: MARKDOWN_LABELS.tabs,
-  writeLabel: MARKDOWN_LABELS.write,
-  previewLabel: MARKDOWN_LABELS.preview,
-  splitLabel: MARKDOWN_LABELS.split,
-  editorLabel: MARKDOWN_LABELS.editor,
-  outputLabel: MARKDOWN_LABELS.output,
+  tabsLabel: undefined,
+  writeLabel: undefined,
+  previewLabel: undefined,
+  splitLabel: undefined,
+  editorLabel: undefined,
+  outputLabel: undefined,
   classes: undefined,
 });
 
 const emit = defineEmits<MarkdownEmits>();
+
+const { t } = useTranslator();
+const labels = computed(() => ({
+  tabs: props.tabsLabel ?? t('Markdown mode'),
+  write: props.writeLabel ?? t('Write'),
+  preview: props.previewLabel ?? t('Preview'),
+  split: props.splitLabel ?? t('Split'),
+  editor: props.editorLabel ?? t('Markdown source'),
+  output: props.outputLabel ?? t('Rendered preview'),
+}));
 
 const given = computed(() => props.source ?? props.content ?? '');
 const editing = computed(() => props.mode === 'write' || props.mode === 'split');
@@ -110,19 +121,19 @@ function select(value: string): void {
     v-html="html"
   />
   <div v-else :class="['apui-markdown', classes?.root]" :data-mode="mode">
-    <Tabs size="sm" :label="tabsLabel" :model-value="view" @update:model-value="select">
+    <Tabs size="sm" :label="labels.tabs" :model-value="view" @update:model-value="select">
       <!-- Only the selected tab's panel holds content, so the source has one Textarea. -->
       <Tab
         v-for="tab in ['write', 'preview', 'split'] as const"
         :key="tab"
         :value="tab"
-        :label="tab === 'write' ? writeLabel : tab === 'preview' ? previewLabel : splitLabel"
+        :label="tab === 'write' ? labels.write : tab === 'preview' ? labels.preview : labels.split"
       >
         <template v-if="view === tab">
           <div v-if="tab === 'split'" v-bind="part('markdown', 'split', classes?.split)">
             <div v-bind="part('markdown', 'editor', classes?.editor)">
               <Textarea
-                :aria-label="editorLabel"
+                :aria-label="labels.editor"
                 dir="auto"
                 :model-value="editorValue"
                 :rows="12"
@@ -135,7 +146,7 @@ function select(value: string): void {
                   'markdown',
                   'preview',
                   classes?.preview ? `apui-prose ${classes.preview}` : 'apui-prose',
-                  { role: 'region', 'aria-label': outputLabel },
+                  { role: 'region', 'aria-label': labels.output },
                 )
               "
               v-html="html"
@@ -143,7 +154,7 @@ function select(value: string): void {
           </div>
           <div v-else-if="tab === 'write'" v-bind="part('markdown', 'editor', classes?.editor)">
             <Textarea
-              :aria-label="editorLabel"
+              :aria-label="labels.editor"
               dir="auto"
               :model-value="editorValue"
               :rows="12"
@@ -157,7 +168,7 @@ function select(value: string): void {
                 'markdown',
                 'preview',
                 classes?.preview ? `apui-prose ${classes.preview}` : 'apui-prose',
-                { role: 'region', 'aria-label': outputLabel },
+                { role: 'region', 'aria-label': labels.output },
               )
             "
             v-html="html"

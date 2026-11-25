@@ -2,9 +2,11 @@
  * @module ai/labels
  *
  * The built-in text of the AI components. Each component takes a `labels`
- * prop with any of its keys, merged over these English defaults, so an app
- * can translate them.
+ * prop with any of its keys, merged over its defaults: the English text, or
+ * the active locale's when translations are provided (see `provideTranslations`).
  */
+
+import type { TranslateFunction } from '../../i18n/translator';
 
 /** Built-in text of SettingsPage. */
 export interface SettingsPageLabels {
@@ -94,57 +96,63 @@ export interface FeatureTogglesLabels {
   genericError: string;
 }
 
-/** @internal */
-export const SETTINGS_PAGE_LABELS: SettingsPageLabels = {
-  loading: 'Loading AI settings…',
-  loadError: "The AI settings couldn't be loaded.",
-  retry: 'Retry',
-  saved: 'Settings saved.',
-  credentials: 'Credentials',
-  provider: 'Provider',
-  apiKey: 'API key',
-  apiKeyKeepHint: 'Leave blank to keep the stored key.',
-  apiKeyPlaceholder: 'sk-…',
-  baseUrl: 'Base URL',
-  baseUrlRequiredHint: 'Required for Ollama.',
-  baseUrlOptionalHint: 'Optional.',
-  defaultModel: 'Default model',
-  defaultModelPlaceholder: 'gpt-4o-mini',
-  testConnection: 'Test connection',
-  testOk: 'OK',
-  testFailed: 'Failed',
-  overrides: 'Per-feature overrides',
-  model: 'Model',
-  modelPlaceholder: 'inherit default',
-  instructions: 'Instructions',
-  save: 'Save settings',
-  genericError: 'Something went wrong.',
-};
+/** {@link SettingsPageLabels} through a translator: the English defaults, or the active locale's. */
+export function settingsPageLabels(t: TranslateFunction): SettingsPageLabels {
+  return {
+    loading: t('Loading AI settings…'),
+    loadError: t("The AI settings couldn't be loaded."),
+    retry: t('Retry'),
+    saved: t('Settings saved.'),
+    credentials: t('Credentials'),
+    provider: t('Provider'),
+    apiKey: t('API key'),
+    apiKeyKeepHint: t('Leave blank to keep the stored key.'),
+    apiKeyPlaceholder: 'sk-…',
+    baseUrl: t('Base URL'),
+    baseUrlRequiredHint: t('Required for Ollama.'),
+    baseUrlOptionalHint: t('Optional.'),
+    defaultModel: t('Default model'),
+    defaultModelPlaceholder: 'gpt-4o-mini',
+    testConnection: t('Test connection'),
+    testOk: t('OK'),
+    testFailed: t('Failed'),
+    overrides: t('Per-feature overrides'),
+    model: t('Model'),
+    modelPlaceholder: t('inherit default'),
+    instructions: t('Instructions'),
+    save: t('Save settings'),
+    genericError: t('Something went wrong.'),
+  };
+}
 
-/** @internal */
-export const USAGE_DASHBOARD_LABELS: UsageDashboardLabels = {
-  loading: 'Loading usage…',
-  refreshError: "Couldn't refresh usage. Showing the last figures loaded.",
-  requests: 'Requests',
-  inputTokens: 'Input tokens',
-  outputTokens: 'Output tokens',
-  cost: 'Cost',
-  byFeature: 'By feature',
-  daily: 'Daily',
-  feature: 'Feature',
-  input: 'Input',
-  output: 'Output',
-  day: 'Day',
-  tokens: 'Tokens',
-  noFeatureUsage: 'No feature usage in this range.',
-  noDailyUsage: 'No daily usage in this range.',
-  live: 'Live · refreshing every :secondss',
-  genericError: 'Something went wrong.',
-};
+/** {@link UsageDashboardLabels} through a translator: the English defaults, or the active locale's. */
+export function usageDashboardLabels(t: TranslateFunction): UsageDashboardLabels {
+  return {
+    loading: t('Loading usage…'),
+    refreshError: t("Couldn't refresh usage. Showing the last figures loaded."),
+    requests: t('Requests'),
+    inputTokens: t('Input tokens'),
+    outputTokens: t('Output tokens'),
+    cost: t('Cost'),
+    byFeature: t('By feature'),
+    daily: t('Daily'),
+    feature: t('Feature'),
+    input: t('Input'),
+    output: t('Output'),
+    day: t('Day'),
+    tokens: t('Tokens'),
+    noFeatureUsage: t('No feature usage in this range.'),
+    noDailyUsage: t('No daily usage in this range.'),
+    live: t('Live · refreshing every :seconds s'),
+    genericError: t('Something went wrong.'),
+  };
+}
 
-/** @internal */
-export const FEATURE_TOGGLES_LABELS: FeatureTogglesLabels = {
-  loading: 'Loading features…',
-  empty: 'No AI features registered.',
-  genericError: 'Something went wrong.',
-};
+/** {@link FeatureTogglesLabels} through a translator: the English defaults, or the active locale's. */
+export function featureTogglesLabels(t: TranslateFunction): FeatureTogglesLabels {
+  return {
+    loading: t('Loading features…'),
+    empty: t('No AI features registered.'),
+    genericError: t('Something went wrong.'),
+  };
+}

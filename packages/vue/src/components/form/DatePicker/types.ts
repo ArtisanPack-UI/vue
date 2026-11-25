@@ -60,7 +60,7 @@ export interface DatePickerProps {
   step?: number;
   /** The IANA time zone, shown under the field in time mode. */
   timeZone?: string;
-  /** BCP 47 locale for month and weekday names (Intl). @defaultValue `'en-US'` */
+  /** BCP 47 locale for month and weekday names (Intl). @defaultValue the translations' locale, else `'en-US'` */
   locale?: string;
   /** The earliest date that can be chosen, ISO. */
   min?: string;
@@ -98,19 +98,19 @@ export interface DatePickerProps {
   portal?: boolean;
   /** A row under the calendar. The `footer` slot overrides it. */
   footer?: string;
-  /** The calendar button's accessible name; translate it. @defaultValue `'Choose date'` (`'Choose date and time'` with `time`) */
+  /** The calendar button's accessible name; translate it. @defaultValue `'Choose date'`, translated (`'Choose date and time'` with `time`) */
   triggerLabel?: string;
-  /** The previous-month button's name. @defaultValue `'Previous month'` */
+  /** The previous-month button's name. @defaultValue `'Previous month'`, translated */
   previousLabel?: string;
-  /** The next-month button's name. @defaultValue `'Next month'` */
+  /** The next-month button's name. @defaultValue `'Next month'`, translated */
   nextLabel?: string;
-  /** The popover's name. @defaultValue `'Calendar'` */
+  /** The popover's name. @defaultValue `'Calendar'`, translated */
   calendarLabel?: string;
-  /** The time list's name and heading. @defaultValue `'Time'` */
+  /** The time list's name and heading. @defaultValue `'Time'`, translated */
   timeLabel?: string;
-  /** The end input's name in range mode. @defaultValue `'End date'` */
+  /** The end input's name in range mode. @defaultValue `'End date'`, translated */
   endLabel?: string;
-  /** The time-zone line; `{zone}` stands for the zone. @defaultValue `'Time zone: {zone}'` */
+  /** The time-zone line; `{zone}` stands for the zone. @defaultValue `'Time zone: {zone}'`, translated */
   timeZoneLabel?: string;
   /** Extra classes per part. */
   classes?: Partial<Record<DatePickerPart, string>>;

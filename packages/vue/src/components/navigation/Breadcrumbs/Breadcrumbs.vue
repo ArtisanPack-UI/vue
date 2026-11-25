@@ -21,14 +21,15 @@ import {
   type VNodeArrayChildren,
 } from 'vue';
 import { DsIcon, part, safeHref } from '../../_shared/design-system';
+import { useTranslator } from '../../../i18n/translator';
 import BreadcrumbsItem from './BreadcrumbsItem.vue';
 import type { BreadcrumbItem, BreadcrumbsProps } from './types';
 
 const props = withDefaults(defineProps<BreadcrumbsProps>(), {
   items: () => [],
   maxItems: 4,
-  label: 'Breadcrumb',
-  overflowLabel: 'Show {count} more levels',
+  label: undefined,
+  overflowLabel: undefined,
   classes: undefined,
 });
 
@@ -46,6 +47,14 @@ interface Level extends BreadcrumbItem {
 }
 
 const slots = useSlots();
+const { t, tChoice } = useTranslator();
+
+/** The overflow button's accessible name for `count` hidden levels. */
+function overflowName(count: number): string {
+  return props.overflowLabel !== undefined
+    ? props.overflowLabel.replace('{count}', String(count))
+    : tChoice('Show {count} more level|Show {count} more levels', count);
+}
 const expanded = ref(false);
 const list = ref<HTMLOListElement | null>(null);
 
@@ -112,7 +121,7 @@ async function reveal() {
 </script>
 
 <template>
-  <nav :class="['apui-breadcrumbs', classes?.root]" :aria-label="label">
+  <nav :class="['apui-breadcrumbs', classes?.root]" :aria-label="label ?? t('Breadcrumb')">
     <ol ref="list" v-bind="part('breadcrumbs', 'list', classes?.list)">
       <template v-for="all in [levels()]" :key="all.length">
         <template v-for="(item, index) in all" :key="index">
@@ -133,7 +142,7 @@ async function reveal() {
             <button
               type="button"
               v-bind="part('breadcrumbs', 'overflow', classes?.overflow)"
-              :aria-label="overflowLabel.replace('{count}', String(hiddenCount(all.length)))"
+              :aria-label="overflowName(hiddenCount(all.length))"
               :aria-expanded="expanded ? 'true' : 'false'"
               @click="reveal"
             >
